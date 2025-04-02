@@ -8,7 +8,7 @@ YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
 # Default values
-USERNAME="kevinxu"
+USERNAME="JKevinXu"  # Updated to correct GitHub username
 REPO="github-blog"
 
 # Parse command line arguments
