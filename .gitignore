@@ -1,0 +1,29 @@
+# Jekyll generated files
+_site/
+.jekyll-cache/
+.jekyll-metadata
+.sass-cache/
+
+# Bundle and dependency files
+.bundle/
+vendor/
+
+# Log files
+*.log
+
+# Local configuration
+.DS_Store
+.idea/
+.vscode/
+
+# Ruby environment files
+.ruby-version
+.ruby-gemset
+
+# Environment variables
+.env
+
+# Build artifacts
+node_modules/
+dist/
+tmp/ 
