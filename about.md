@@ -22,6 +22,6 @@ I have a passion for technology and enjoy exploring new programming languages, f
 
 ## Contact
 
-Feel free to reach out to me through any of the social links in the footer or directly via email at [your-email@example.com](mailto:your-email@example.com).
+Feel free to reach out to me through any of the social links in the footer or directly via email at [xkevinj@gmail.com](mailto:xkevinj@gmail.com).
 
 Thanks for visiting my blog! 
