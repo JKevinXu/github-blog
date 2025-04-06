@@ -17,5 +17,5 @@ tags: [aws, amazon-q, generative-ai, enterprise-ai, llm]
 
 1. Given source data from API, ask Q App itself to do advanced SQL operation like grouping and aggregation with multiple dimensions
 2. Handle large datasets that require specialized processing. For example, the custom plugin behind API Gateway has payload limit of [10 MB](https://docs.aws.amazon.com/apigateway/latest/developerguide/limits.html).
-3. Handle very complex workflow with too many steps and long duration. One Q App has [20 cards](https://docs.aws.amazon.com/amazonq/latest/qbusiness-ug/quotas-regions.html#limits) quota limit. The auth token will expire after[1 hour](https://docs.aws.amazon.com/amazonq/latest/qbusiness-ug/using-web-experience.html#Web-logout)
+3. Handle very complex workflow with too many steps and long duration. One Q App has [20 cards](https://docs.aws.amazon.com/amazonq/latest/qbusiness-ug/quotas-regions.html#limits) quota limit. The auth token will expire after [1 hour](https://docs.aws.amazon.com/amazonq/latest/qbusiness-ug/using-web-experience.html#Web-logout)
 
