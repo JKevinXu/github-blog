@@ -23,6 +23,15 @@ Challenges faced during our testing process (on 04/07/2025)
 4. Hyperlink from the search result is broken. It is prefixed by Q Web Experience url.
 5. How to isolate this search knowledge from other use cases, by knowledge plugin, or knowledge source ACL. 
 
+### Q Plugin enhancement
+I tried to extend custom plugin's capability by integrating with reasoning model. It is done by 
+Q plugin -> OpenAPI schema -> API Gateway -> Lambda -> DeepSeek model hosted in Bedrock serverless mode
+
+During develop testing, there were 2 issues:
+(1) The DeepSeek R1 model API call latency varys between 30 seconds to 60 seconds, which can result in Q App run timeout.
+(2) The DeepSeek R1 model reasoning output prompt did not show up in the Q output. It was simplified by Q orchestration layer.
+
+## Can and Cannot
 ### What Q App can do
 
 1. Compare metrics against benchmark thresholds to identify normal vs. outlier performance
