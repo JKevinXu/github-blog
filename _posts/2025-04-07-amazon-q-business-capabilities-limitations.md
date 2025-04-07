@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "Amazon Q Business: Capabilities and Limitations"
-date: 2024-06-03 10:00:00 -0500
+date: 2025-04-07 10:00:00 -0500
 categories: [aws, ai, cloud-computing]
 tags: [aws, amazon-q, generative-ai, enterprise-ai, llm]
 ---
@@ -15,6 +15,13 @@ App 1: A course search Q App that ingests courses in PDF and mp4 format.
 3. Trigger the sync of Amazon Q Data Connector with S3 as the source. The sync can be adhoc or with time interval as granular as hourly.
 4. Create an Amazon Q App, with an Input Card of query body, and an Output Card of course search results, with formatting.
 5. Expose the Q App Url as iframe embedding into my website.
+
+Challenges faced during our testing process (on 04/07/2025)
+1. Auth issue: when auth token expires, customer ends up in the main page. This is a known issue in Amazon Q businss side as they do not preserve the # suffix between redirects. This issue can be mitigated during iframe integration.
+2. Tune the search result to prioritize the course rank that has more relavance.
+3. The search did not return stable result. Can the configuration like top p, top k and temparature be configured.
+4. Hyperlink from the search result is broken. It is prefixed by Q Web Experience url.
+5. How to isolate this search knowledge from other use cases, by knowledge plugin, or knowledge source ACL. 
 
 ### What Q App can do
 
