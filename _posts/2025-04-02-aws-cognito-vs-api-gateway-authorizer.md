@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "AWS Cognito vs API Gateway Authorizer: A Comprehensive Comparison"
-date: 2024-04-02 10:00:00 -0500
+date: 2025-04-02 10:00:00 -0500
 categories: [aws, authentication, security]
 tags: [aws, cognito, api-gateway, authentication, authorization]
 ---

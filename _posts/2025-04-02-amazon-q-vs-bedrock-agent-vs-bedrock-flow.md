@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "Amazon Q App vs Bedrock Agent vs Bedrock Flow: Choosing the Right AI Solution"
-date: 2024-04-02 14:00:00 -0500
+date: 2025-04-02 14:00:00 -0500
 categories: [aws, ai, cloud-computing]
 tags: [aws, amazon-q, bedrock, ai, llm]
 ---
