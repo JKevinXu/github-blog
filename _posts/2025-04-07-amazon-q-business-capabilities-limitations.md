@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "Amazon Q Business: Capabilities and Limitations"
-date: 2025-04-07 10:00:00 -0500
+date: 2025-04-07 10:00:00 +0800
 categories: [aws, ai, cloud-computing]
 tags: [aws, amazon-q, generative-ai, enterprise-ai, llm]
 ---
