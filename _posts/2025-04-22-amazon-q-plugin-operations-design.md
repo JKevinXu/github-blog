@@ -54,29 +54,33 @@ The resource-based approach organizes plugins around specific resources or entit
 
 ### Option 2: All-in-One API Plugin Design
 
-The all-in-one approach consolidates multiple operations into comprehensive plugins, typically organized by domain or function.
+The all-in-one approach consolidates multiple operations into a single comprehensive plugin that handles all functionality across your system.
 
 **How it works:**
-- Plugins are organized by functional domains (e.g., Inventory Management, Order Processing)
-- Each plugin contains multiple related operations across resources
-- Plugins offer comprehensive capabilities within their domain
+- A single plugin contains all operations needed across your entire application
+- Operations are grouped logically within the plugin (but under one plugin entity)
+- Maximizes the action limit (up to 20 actions) within a single plugin
 
 **Example structure:**
-- E-commerce Plugin: searchProducts, viewProductDetails, addToCart, checkout
-- User Management Plugin: createAccount, updateProfile, managePreferences, viewHistory
-- Analytics Plugin: generateReport, visualizeData, exportInsights
+- Single Universal Plugin containing:
+  - Product operations: searchProducts, getProductDetails, compareProducts
+  - Order operations: createOrder, updateOrder, cancelOrder, getOrderStatus
+  - User operations: manageProfile, updatePreferences, viewHistory
+  - Analytics operations: generateReport, visualizeData, exportInsights
 
 #### Pros
-- **Comprehensive workflows**: Complete user journeys can be handled within a single plugin
-- **Fewer plugin switches**: Reduces context switching during conversations
-- **Simplified discovery**: Intuitive organization around user goals rather than system resources
-- **Efficient plugin usage**: Better utilization of the 25-plugin limit
+- **Maximum simplicity**: Users and developers only need to interact with one plugin
+- **No context switching**: All capabilities available without changing plugins
+- **Simplified implementation**: One deployment, one authentication setup
+- **Unified updates**: Deploy all changes at once
+- **No plugin coordination**: All operations available in the same context
 
 #### Cons
-- **Action limit constraints**: May hit the 20-action limit for complex domains
-- **Lower separation of concerns**: Changes to one component might affect others
-- **More complex development**: Larger, more intricate plugins to maintain
-- **Coordination challenges**: Multiple teams may need to collaborate on a single plugin
+- **Strict action limit**: Hard 20-action ceiling can severely constrain capabilities
+- **Large surface area**: Changes to any part affect the entire plugin
+- **Maintenance challenges**: Different teams may need to coordinate on a single codebase
+- **Reduced separation of concerns**: All operations are bundled together
+- **Limited scalability**: System growth requires difficult prioritization of which actions to keep 
 
 ### Option 3: Workflow-Based Plugin Design
 
