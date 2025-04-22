@@ -28,8 +28,10 @@ I tried to extend custom plugin's capability by integrating with reasoning model
 Q plugin -> OpenAPI schema -> API Gateway -> Lambda -> DeepSeek model hosted in Bedrock serverless mode
 
 During develop testing, there were 2 issues:
-(1) The DeepSeek R1 model API call latency varys between 30 seconds to 60 seconds, which can result in Q App run timeout.
+(1) The DeepSeek R1 model API call latency varys between 30 seconds to 90 seconds, which can result in Q App run timeout.
 (2) The DeepSeek R1 model reasoning output prompt did not show up in the Q output. It was simplified by Q orchestration layer.
+
+We are adding another method for reasoning
 
 ## Can and Cannot
 ### What Q App can do
