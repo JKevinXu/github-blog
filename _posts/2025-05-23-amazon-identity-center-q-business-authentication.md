@@ -186,6 +186,62 @@ securitySchemes:
           write: Write access to resources
 ```
 
+#### API Gateway Custom Authorizer vs Built-in Cognito Authorizer
+
+**Important Note: URL Configuration Difference**
+
+The above example shows Cognito URLs, but the configuration differs depending on your authorizer type:
+
+**Built-in Cognito Authorizer**
+```yaml
+# Uses Cognito URLs - Cognito acts as the OAuth2 provider
+securitySchemes:
+  CognitoAuth:
+    type: oauth2
+    flows:
+      authorizationCode:
+        authorizationUrl: https://your-domain.auth.region.amazoncognito.com/oauth2/authorize
+        tokenUrl: https://your-domain.auth.region.amazoncognito.com/oauth2/token
+```
+
+**Custom Lambda Authorizer (Direct IdP Integration)**
+```yaml
+# Uses direct IdP URLs - bypasses Cognito OAuth2 flow
+securitySchemes:
+  DirectIdPAuth:
+    type: oauth2
+    flows:
+      authorizationCode:
+        authorizationUrl: https://login.microsoftonline.com/tenant-id/oauth2/v2.0/authorize
+        tokenUrl: https://login.microsoftonline.com/tenant-id/oauth2/v2.0/token
+        # OR for Google
+        # authorizationUrl: https://accounts.google.com/o/oauth2/v2/auth
+        # tokenUrl: https://oauth2.googleapis.com/token
+```
+
+**Key Differences:**
+
+| Aspect | Built-in Cognito Authorizer | Custom Lambda Authorizer |
+|--------|---------------------------|-------------------------|
+| **URLs** | Cognito OAuth2 endpoints | Direct IdP endpoints |
+| **Token Validation** | API Gateway handles automatically | Your Lambda code validates |
+| **Public Key Management** | Cognito manages IdP keys | You fetch and cache IdP keys |
+| **Configuration Complexity** | Simple - just reference User Pool | Complex - implement validation logic |
+| **Performance** | Optimized by AWS | Depends on your implementation |
+| **Maintenance** | Zero - fully managed | High - you handle key rotation |
+
+**Why Use Each Approach:**
+
+**Choose Built-in Cognito Authorizer when:**
+- Want zero-maintenance authentication
+- Need enterprise-grade performance and reliability
+- Cognito User Pool federation meets your requirements
+
+**Choose Custom Lambda Authorizer when:**
+- Require custom authorization logic beyond token validation
+- Have specific compliance requirements for token handling
+- Need to validate non-JWT tokens or custom token formats
+
 **2. Token-Based Authorization**
 - Q Business automatically handles OAuth 2.0 flow with Cognito
 - JWT tokens contain user identity and group memberships
