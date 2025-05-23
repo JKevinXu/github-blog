@@ -1462,3 +1462,239 @@ Choose Custom Lambda Authorizer when:
    - Consider regional pricing differences
 
 The cost analysis clearly shows that while built-in Cognito authorizers have higher per-user costs at scale, they offer significant savings in engineering and operational overhead, making them cost-effective for most Amazon Q Business implementations. 
+
+#### OAuth2 Validation Flow Diagrams
+
+Understanding how these URLs are used in the validation process is crucial for implementing secure authentication:
+
+##### Built-in Cognito Authorizer Flow
+
+```
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│                        Built-in Cognito Authorizer Flow                        │
+│                     (Uses Cognito OAuth2 URLs)                                 │
+└─────────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│ Amazon Q        │    │    Cognito      │    │  API Gateway    │    │   Backend       │
+│ Business        │    │  User Pool      │    │ (Built-in Auth) │    │   Application   │
+└────────┬────────┘    └────────┬────────┘    └────────┬────────┘    └────────┬────────┘
+         │                      │                      │                      │
+         │ 1. Redirect to Auth  │                      │                      │
+         ├─────────────────────►│                      │                      │
+         │ GET: /oauth2/authorize│                      │                      │
+         │                      │                      │                      │
+         │ 2. User Login        │                      │                      │
+         │◄─────────────────────┤                      │                      │
+         │                      │                      │                      │
+         │ 3. Authorization Code│                      │                      │
+         │◄─────────────────────┤                      │                      │
+         │                      │                      │                      │
+         │ 4. Exchange Code     │                      │                      │
+         ├─────────────────────►│                      │                      │
+         │ POST: /oauth2/token   │                      │                      │
+         │                      │                      │                      │
+         │ 5. JWT Tokens        │                      │                      │
+         │◄─────────────────────┤                      │                      │
+         │                      │                      │                      │
+         │ 6. API Request + JWT │                      │                      │
+         ├──────────────────────┼─────────────────────►│                      │
+         │                      │                      │                      │
+         │                      │ 7. Automatic         │                      │
+         │                      │    Validation        │                      │
+         │                      │◄─────────────────────┤                      │
+         │                      │ • JWKS fetch         │                      │
+         │                      │ • Signature verify   │                      │
+         │                      │ • Claims check       │                      │
+         │                      │                      │                      │
+         │                      │ 8. Valid Token       │                      │
+         │                      │─────────────────────►│                      │
+         │                      │                      │                      │
+         │                      │                      │ 9. Forward Request   │
+         │                      │                      ├─────────────────────►│
+         │                      │                      │                      │
+         │ 10. API Response     │                      │ 10. Response         │
+         │◄─────────────────────┼──────────────────────┼──────────────────────┤
+```
+
+**Key Validation Points:**
+- **Step 7**: API Gateway automatically validates JWT using Cognito's JWKS endpoint
+- **Cognito URLs Used**:
+  - Authorization: `https://your-domain.auth.region.amazoncognito.com/oauth2/authorize`
+  - Token Exchange: `https://your-domain.auth.region.amazoncognito.com/oauth2/token`
+  - JWKS: `https://cognito-idp.{region}.amazonaws.com/{userPoolId}/.well-known/jwks.json`
+
+##### Custom Lambda Authorizer Flow
+
+```
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│                       Custom Lambda Authorizer Flow                            │
+│                      (Uses Direct IdP URLs)                                    │
+└─────────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│ Amazon Q        │    │  External IdP   │    │  API Gateway    │    │   Lambda        │
+│ Business        │    │ (Azure/Google)  │    │  + Lambda Auth  │    │  Authorizer     │
+└────────┬────────┘    └────────┬────────┘    └────────┬────────┘    └────────┬────────┘
+         │                      │                      │                      │
+         │ 1. Redirect to Auth  │                      │                      │
+         ├─────────────────────►│                      │                      │
+         │ GET: /oauth2/authorize│                      │                      │
+         │                      │                      │                      │
+         │ 2. User Login        │                      │                      │
+         │◄─────────────────────┤                      │                      │
+         │                      │                      │                      │
+         │ 3. Authorization Code│                      │                      │
+         │◄─────────────────────┤                      │                      │
+         │                      │                      │                      │
+         │ 4. Exchange Code     │                      │                      │
+         ├─────────────────────►│                      │                      │
+         │ POST: /oauth2/token   │                      │                      │
+         │                      │                      │                      │
+         │ 5. JWT Tokens        │                      │                      │
+         │◄─────────────────────┤                      │                      │
+         │                      │                      │                      │
+         │ 6. API Request + JWT │                      │                      │
+         ├──────────────────────┼─────────────────────►│                      │
+         │                      │                      │                      │
+         │                      │                      │ 7. Invoke Lambda    │
+         │                      │                      ├─────────────────────►│
+         │                      │                      │ event.authToken      │
+         │                      │                      │                      │
+         │                      │ 8. Fetch JWKS        │                      │
+         │                      │◄─────────────────────┼──────────────────────┤
+         │                      │ GET: /.well-known/   │                      │
+         │                      │      jwks.json       │                      │
+         │                      │                      │                      │
+         │                      │ 9. Public Keys       │                      │
+         │                      │─────────────────────►┼─────────────────────►│
+         │                      │                      │                      │
+         │                      │                      │                      │ 10. Validate JWT
+         │                      │                      │                      │ • Verify signature
+         │                      │                      │                      │ • Check claims
+         │                      │                      │                      │
+         │                      │                      │ 11. IAM Policy       │
+         │                      │                      │◄─────────────────────┤
+         │                      │                      │ Allow/Deny           │
+         │                      │                      │                      │
+         │                      │                      │ 12. Forward Request  │
+         │                      │                      ├─────────────────────►│
+         │                      │                      │ (if allowed)         │  Backend
+         │                      │                      │                      │  Lambda
+         │ 13. API Response     │                      │ 13. Response         │
+         │◄─────────────────────┼──────────────────────┼──────────────────────┤
+```
+
+**Key Validation Points:**
+- **Step 8-9**: Lambda authorizer fetches JWKS from external IdP
+- **Step 10**: Custom validation logic in Lambda function
+- **Direct IdP URLs Used**:
+  - Authorization: `https://login.microsoftonline.com/tenant-id/oauth2/v2.0/authorize`
+  - Token Exchange: `https://login.microsoftonline.com/tenant-id/oauth2/v2.0/token`
+  - JWKS: `https://login.microsoftonline.com/tenant-id/discovery/v2.0/keys`
+
+This flow visualization shows how the OAuth2 URLs are used in practice - with built-in Cognito authorizers handling validation automatically behind the scenes, while custom Lambda authorizers must implement the complete validation workflow manually using the external IdP URLs.
+
+#### URL Validation Details
+
+##### Cognito OAuth2 Endpoints
+
+```python
+# Cognito OAuth2 endpoint structure
+cognito_endpoints = {
+    'authorization_url': {
+        'pattern': 'https://{domain}.auth.{region}.amazoncognito.com/oauth2/authorize',
+        'purpose': 'User authentication and authorization code generation',
+        'parameters': [
+            'client_id',
+            'response_type=code',
+            'scope=openid email profile',
+            'redirect_uri',
+            'state'
+        ]
+    },
+    'token_url': {
+        'pattern': 'https://{domain}.auth.{region}.amazoncognito.com/oauth2/token',
+        'purpose': 'Exchange authorization code for JWT tokens',
+        'method': 'POST',
+        'content_type': 'application/x-www-form-urlencoded'
+    },
+    'jwks_url': {
+        'pattern': 'https://cognito-idp.{region}.amazonaws.com/{userPoolId}/.well-known/jwks.json',
+        'purpose': 'Public keys for JWT signature validation',
+        'method': 'GET',
+        'auto_discovery': True
+    }
+}
+```
+
+##### External IdP Endpoints
+
+```python
+# External IdP endpoint examples
+external_idp_endpoints = {
+    'microsoft_azure': {
+        'authorization_url': 'https://login.microsoftonline.com/{tenant}/oauth2/v2.0/authorize',
+        'token_url': 'https://login.microsoftonline.com/{tenant}/oauth2/v2.0/token',
+        'jwks_url': 'https://login.microsoftonline.com/{tenant}/discovery/v2.0/keys',
+        'discovery_url': 'https://login.microsoftonline.com/{tenant}/v2.0/.well-known/openid_configuration'
+    },
+    'google': {
+        'authorization_url': 'https://accounts.google.com/o/oauth2/v2/auth',
+        'token_url': 'https://oauth2.googleapis.com/token',
+        'jwks_url': 'https://www.googleapis.com/oauth2/v3/certs',
+        'discovery_url': 'https://accounts.google.com/.well-known/openid_configuration'
+    },
+    'okta': {
+        'authorization_url': 'https://{domain}.okta.com/oauth2/v1/authorize',
+        'token_url': 'https://{domain}.okta.com/oauth2/v1/token',
+        'jwks_url': 'https://{domain}.okta.com/oauth2/v1/keys',
+        'discovery_url': 'https://{domain}.okta.com/.well-known/openid_configuration'
+    }
+}
+```
+
+#### Validation Implementation Examples
+
+##### Built-in Cognito Validation (Automatic)
+
+```yaml
+# API Gateway automatically handles this validation
+ApiGatewayMethod:
+  Type: AWS::ApiGateway::Method
+  Properties:
+    AuthorizationType: COGNITO_USER_POOLS
+    AuthorizerId: !Ref CognitoAuthorizer
+    # API Gateway automatically:
+    # 1. Fetches JWKS from Cognito
+    # 2. Validates JWT signature
+    # 3. Checks token claims (iss, aud, exp)
+    # 4. Allows/denies request
+```
+
+#### Security Considerations for URL Validation
+
+```python
+security_checklist = {
+    'url_validation': [
+        'Verify HTTPS endpoints only',
+        'Validate SSL certificates',
+        'Check endpoint availability',
+        'Monitor for endpoint changes'
+    ],
+    'token_validation': [
+        'Verify issuer claim matches expected IdP',
+        'Check audience claim matches your application',
+        'Validate token expiration time',
+        'Verify signature using current public keys'
+    ],
+    'endpoint_monitoring': [
+        'Monitor JWKS endpoint availability',
+        'Track key rotation events',
+        'Alert on validation failures',
+        'Implement circuit breaker patterns'
+    ]
+}
+```
+
+This flow visualization shows how the OAuth2 URLs are used in practice - with built-in Cognito authorizers handling validation automatically behind the scenes, while custom Lambda authorizers must implement the complete validation workflow manually using the external IdP URLs. 
