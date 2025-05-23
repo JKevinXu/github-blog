@@ -432,3 +432,343 @@ This simplified three-layer architecture provides a clear framework for implemen
 - **Ensure compliance** through comprehensive audit trails
 
 The key to success is starting simple and adding complexity only as needed, while maintaining strong security principles throughout the implementation journey. 
+
+**Automatic Key Discovery**
+- Cognito queries the OIDC discovery endpoint: `{issuer}/.well-known/openid_configuration`
+- Retrieves the JWKS URI from the discovery document
+- Fetches public keys from the JWKS endpoint (e.g., `https://www.googleapis.com/oauth2/v3/certs`)
+- Caches keys and refreshes them periodically
+
+##### Detailed OIDC Discovery Process
+
+**Step 1: OpenID Connect Discovery**
+
+When you configure an OIDC provider in Cognito, the discovery process begins automatically:
+
+```json
+// Example OIDC Provider Configuration
+{
+  "ProviderName": "GoogleOIDC",
+  "ProviderType": "OIDC", 
+  "ProviderDetails": {
+    "client_id": "123456789.apps.googleusercontent.com",
+    "client_secret": "your-secret",
+    "authorize_scopes": "openid email profile",
+    "oidc_issuer": "https://accounts.google.com"
+  }
+}
+```
+
+Cognito constructs the discovery URL by appending the well-known path:
+```
+Discovery URL = {oidc_issuer}/.well-known/openid_configuration
+Example: https://accounts.google.com/.well-known/openid_configuration
+```
+
+**Step 2: Discovery Document Retrieval**
+
+Cognito makes an HTTP GET request to the discovery endpoint and receives a comprehensive configuration document:
+
+```json
+{
+  "issuer": "https://accounts.google.com",
+  "authorization_endpoint": "https://accounts.google.com/o/oauth2/v2/auth",
+  "device_authorization_endpoint": "https://oauth2.googleapis.com/device/code",
+  "token_endpoint": "https://oauth2.googleapis.com/token",
+  "userinfo_endpoint": "https://openidconnect.googleapis.com/v1/userinfo",
+  "revocation_endpoint": "https://oauth2.googleapis.com/revoke",
+  "jwks_uri": "https://www.googleapis.com/oauth2/v3/certs",
+  "response_types_supported": [
+    "code",
+    "token",
+    "id_token",
+    "code token",
+    "code id_token",
+    "token id_token",
+    "code token id_token",
+    "none"
+  ],
+  "subject_types_supported": [
+    "public"
+  ],
+  "id_token_signing_alg_values_supported": [
+    "RS256"
+  ],
+  "scopes_supported": [
+    "openid",
+    "email",
+    "profile"
+  ],
+  "token_endpoint_auth_methods_supported": [
+    "client_secret_post",
+    "client_secret_basic"
+  ],
+  "claims_supported": [
+    "aud",
+    "email",
+    "email_verified",
+    "exp",
+    "family_name",
+    "given_name",
+    "iat",
+    "iss",
+    "locale",
+    "name",
+    "picture",
+    "sub"
+  ],
+  "code_challenge_methods_supported": [
+    "plain",
+    "S256"
+  ]
+}
+```
+
+**Step 3: JWKS Endpoint Extraction**
+
+From the discovery document, Cognito extracts the `jwks_uri` field:
+```json
+"jwks_uri": "https://www.googleapis.com/oauth2/v3/certs"
+```
+
+This URI points to the JSON Web Key Set containing the public keys used to verify JWT signatures.
+
+**Step 4: JWKS Fetching Process**
+
+Cognito makes a GET request to the JWKS endpoint and receives the public keys:
+
+```json
+{
+  "keys": [
+    {
+      "kty": "RSA",
+      "alg": "RS256",
+      "use": "sig",
+      "kid": "1234567890abcdef1234567890abcdef12345678",
+      "n": "0vx7agoebGcQSuuPiLJXZptN9nndrQmbXEps2aiAFbWhM78LhWx4cbbfAAtV....",
+      "e": "AQAB"
+    },
+    {
+      "kty": "RSA",
+      "alg": "RS256", 
+      "use": "sig",
+      "kid": "abcdef1234567890abcdef1234567890abcdef12",
+      "n": "xf7agoebGcQSuuPiLJXZptN9nndrQmbXEps2aiAFbWhM78LhWx4cbbfAAtV....",
+      "e": "AQAB"
+    }
+  ]
+}
+```
+
+**Step 5: Key Processing and Storage**
+
+Cognito processes each key in the JWKS:
+
+```python
+# Simplified representation of Cognito's key processing
+class CognitoOIDCKeyProcessor:
+    def process_jwks(self, jwks_response):
+        processed_keys = {}
+        
+        for key in jwks_response['keys']:
+            # Extract key identifier
+            kid = key['kid']
+            
+            # Validate key parameters
+            if key['kty'] != 'RSA':
+                continue  # Only RSA keys supported
+            if key.get('use') not in ['sig', None]:
+                continue  # Only signing keys
+            if key.get('alg') not in ['RS256', 'RS384', 'RS512']:
+                continue  # Only supported algorithms
+                
+            # Convert JWK to internal format
+            public_key = self.jwk_to_rsa_key(key)
+            
+            # Store with metadata
+            processed_keys[kid] = {
+                'public_key': public_key,
+                'algorithm': key.get('alg', 'RS256'),
+                'use': key.get('use', 'sig'),
+                'expires_at': self.calculate_expiry(),
+                'last_updated': time.time()
+            }
+            
+        return processed_keys
+    
+    def jwk_to_rsa_key(self, jwk):
+        # Convert JWK parameters to RSA public key
+        from cryptography.hazmat.primitives.asymmetric import rsa
+        from cryptography.hazmat.primitives.serialization import Encoding, PublicFormat
+        
+        # Decode base64url encoded parameters
+        n = self.base64url_decode(jwk['n'])
+        e = self.base64url_decode(jwk['e'])
+        
+        # Create RSA public key
+        public_numbers = rsa.RSAPublicNumbers(
+            e=int.from_bytes(e, 'big'),
+            n=int.from_bytes(n, 'big')
+        )
+        public_key = public_numbers.public_key()
+        
+        return public_key
+```
+
+##### Caching and Automatic Refresh Mechanism
+
+**Caching Strategy**
+
+Cognito implements a multi-level caching strategy for OIDC keys:
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    Cognito Key Cache                        │
+│                                                             │
+│  ┌─────────────────────────────────────────────────────────┐  │
+│  │                   L1 Cache (Memory)                    │  │
+│  │  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐    │  │
+│  │  │ Provider A  │  │ Provider B  │  │ Provider C  │    │  │
+│  │  │ JWKS Keys   │  │ JWKS Keys   │  │ JWKS Keys   │    │  │
+│  │  │ TTL: 1 hour │  │ TTL: 1 hour │  │ TTL: 1 hour │    │  │
+│  │  └─────────────┘  └─────────────┘  └─────────────┘    │  │
+│  └─────────────────────────────────────────────────────────┘  │
+│                                                             │
+│  ┌─────────────────────────────────────────────────────────┐  │
+│  │                  L2 Cache (Persistent)                 │  │
+│  │  • Backup key storage for failover                     │  │
+│  │  • Extended TTL for emergency use                      │  │
+│  │  • Historical key versions                             │  │
+│  └─────────────────────────────────────────────────────────┘  │
+└─────────────────────────────────────────────────────────────┘
+```
+
+**Refresh Triggers**
+
+Multiple events can trigger a key refresh:
+
+```python
+class CognitoKeyRefreshManager:
+    def __init__(self):
+        self.refresh_triggers = {
+            'scheduled': 3600,      # Every hour
+            'cache_miss': True,     # Key not found for kid
+            'validation_failure': True,  # JWT validation fails
+            'manual': True,         # Admin-triggered refresh
+            'provider_notification': True  # Webhook from provider
+        }
+    
+    def should_refresh_keys(self, provider_id, context):
+        last_refresh = self.get_last_refresh_time(provider_id)
+        current_time = time.time()
+        
+        # Scheduled refresh
+        if current_time - last_refresh > self.refresh_triggers['scheduled']:
+            return True, 'scheduled_refresh'
+            
+        # Cache miss - unknown kid in token
+        if context.get('unknown_kid'):
+            return True, 'cache_miss'
+            
+        # Recent validation failures
+        failure_rate = self.get_recent_failure_rate(provider_id)
+        if failure_rate > 0.1:  # 10% failure threshold
+            return True, 'high_failure_rate'
+            
+        # Emergency refresh
+        if context.get('force_refresh'):
+            return True, 'manual_refresh'
+            
+        return False, None
+```
+
+**Refresh Process**
+
+The refresh process is designed for high availability:
+
+```
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│   Refresh       │    │   Background    │    │   Validation    │
+│   Trigger       │    │   Worker        │    │   Engine        │
+└────────┬────────┘    └────────┬────────┘    └────────┬────────┘
+         │                      │                      │
+         │ 1. Refresh Request   │                      │
+         ├─────────────────────►│                      │
+         │                      │                      │
+         │                      │ 2. Fetch New Keys   │
+         │                      │    (Non-blocking)    │
+         │                      │                      │
+         │                      │ 3. Validate Keys    │
+         │                      ├─────────────────────►│
+         │                      │                      │
+         │                      │ 4. Keys Valid        │
+         │                      │◄─────────────────────┤
+         │                      │                      │
+         │                      │ 5. Atomic Update    │
+         │                      │    Cache             │
+         │                      │                      │
+         │ 6. Refresh Complete  │                      │
+         │◄─────────────────────┤                      │
+```
+
+**Error Handling During Refresh**
+
+```python
+class CognitoKeyRefreshHandler:
+    def refresh_keys_with_fallback(self, provider_config):
+        try:
+            # Primary refresh attempt
+            new_keys = self.fetch_fresh_keys(provider_config)
+            
+            # Validate new keys before replacing
+            if self.validate_key_set(new_keys):
+                self.atomic_cache_update(provider_config['id'], new_keys)
+                return new_keys
+            else:
+                raise KeyValidationError("Invalid key set received")
+                
+        except (NetworkError, TimeoutError) as e:
+            # Network issues - extend current cache TTL
+            self.extend_cache_ttl(provider_config['id'], extension=1800)  # 30 min
+            raise TemporaryRefreshFailure(f"Network error: {e}")
+            
+        except KeyValidationError as e:
+            # Invalid keys - keep current cache, alert admins
+            self.alert_administrators(provider_config['id'], str(e))
+            raise PermanentRefreshFailure(f"Key validation failed: {e}")
+            
+        except Exception as e:
+            # Unexpected error - fallback to backup cache
+            backup_keys = self.get_backup_keys(provider_config['id'])
+            if backup_keys:
+                return backup_keys
+            raise CriticalRefreshFailure(f"All refresh mechanisms failed: {e}")
+```
+
+**Performance Optimization**
+
+To ensure minimal latency impact:
+
+```python
+# Asynchronous refresh to avoid blocking token validation
+async def background_key_refresh(provider_id):
+    """Non-blocking key refresh that doesn't impact active validation"""
+    try:
+        # Fetch new keys in background
+        new_keys = await fetch_keys_async(provider_id)
+        
+        # Pre-validate keys
+        if validate_keys(new_keys):
+            # Atomic cache swap - no downtime
+            await atomic_cache_update(provider_id, new_keys)
+            
+        # Update metrics
+        update_refresh_metrics(provider_id, success=True)
+        
+    except Exception as e:
+        # Log error but don't disrupt service
+        log_refresh_error(provider_id, e)
+        update_refresh_metrics(provider_id, success=False)
+```
+
+This comprehensive OIDC discovery and key management process ensures that Cognito can reliably authenticate users from external OIDC providers while maintaining high availability and security standards through automated key rotation and robust error handling. 
