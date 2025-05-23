@@ -1121,3 +1121,344 @@ def lambda_handler(event, context):
 ```
 
 This API Gateway caching behavior explains why you don't always see Lambda authorizer logs - it's actually a performance feature that reduces latency and costs by avoiding unnecessary Lambda invocations for recently authorized tokens. 
+
+## Cost Analysis: Authentication Architecture Economics
+
+Understanding the cost implications of different authentication approaches is crucial for making informed architectural decisions, especially when scaling Amazon Q Business implementations.
+
+### Cost Breakdown by Authentication Method
+
+#### Built-in Cognito Authorizer Costs
+
+**Service Components:**
+```python
+# Monthly costs for 1M API requests (us-east-1 pricing)
+cognito_authorizer_costs = {
+    'api_gateway': {
+        'cost': 3.50,
+        'description': '$3.50 per million API calls',
+        'notes': 'Standard API Gateway pricing'
+    },
+    'cognito_user_pool': {
+        'cost': 0.00,
+        'description': 'Token validation included',
+        'notes': 'No additional cost for JWT validation'
+    },
+    'cognito_mau': {
+        'cost': 0.0055,  # per MAU above free tier
+        'description': '$0.0055 per MAU above 50,000 free',
+        'notes': 'Monthly Active Users pricing'
+    },
+    'total_base': 3.50,
+    'total_with_users': '3.50 + (MAU_above_50k * 0.0055)'
+}
+```
+
+**Cost Examples:**
+```
+Scenario 1: Small Application (10,000 MAU, 1M API calls/month)
+├── API Gateway: $3.50
+├── Cognito MAU: $0.00 (within free tier)
+└── Total: $3.50/month
+
+Scenario 2: Medium Application (100,000 MAU, 10M API calls/month)  
+├── API Gateway: $35.00
+├── Cognito MAU: $275.00 (50,000 users above free tier)
+└── Total: $310.00/month
+
+Scenario 3: Large Application (500,000 MAU, 50M API calls/month)
+├── API Gateway: $175.00  
+├── Cognito MAU: $2,475.00 (450,000 users above free tier)
+└── Total: $2,650.00/month
+```
+
+#### Custom Lambda Authorizer Costs
+
+**Service Components:**
+```python
+# Monthly costs for 1M API requests
+lambda_authorizer_costs = {
+    'api_gateway': {
+        'cost': 3.50,
+        'description': '$3.50 per million API calls',
+        'notes': 'Same as built-in authorizer'
+    },
+    'lambda_invocations': {
+        'cost': 0.20,
+        'description': '$0.20 per million invocations',
+        'notes': 'Reduced by caching effectiveness'
+    },
+    'lambda_compute': {
+        'cost_range': [1.50, 8.00],
+        'description': '$1.50-$8.00 based on execution time',
+        'notes': 'Depends on key fetching and validation logic'
+    },
+    'external_api_calls': {
+        'cost_range': [0.50, 25.00],
+        'description': 'IdP API call costs',
+        'notes': 'Varies by provider and caching strategy'
+    }
+}
+```
+
+**Cost Scenarios with Different Cache Hit Ratios:**
+
+```python
+# Cost calculation based on cache effectiveness
+def calculate_lambda_auth_costs(api_calls_millions, cache_hit_ratio):
+    lambda_invocations = api_calls_millions * (1 - cache_hit_ratio)
+    
+    costs = {
+        'api_gateway': api_calls_millions * 3.50,
+        'lambda_invocations': lambda_invocations * 0.20,
+        'lambda_compute': lambda_invocations * 3.00,  # Average
+        'external_calls': lambda_invocations * 5.00,  # Average IdP cost
+    }
+    
+    return costs
+
+# Examples:
+scenarios = {
+    'poor_caching_50%': calculate_lambda_auth_costs(1, 0.50),
+    'good_caching_90%': calculate_lambda_auth_costs(1, 0.90), 
+    'excellent_caching_95%': calculate_lambda_auth_costs(1, 0.95),
+    'no_caching_0%': calculate_lambda_auth_costs(1, 0.00)
+}
+```
+
+**Results:**
+```
+1M API Calls with Different Cache Hit Ratios:
+
+No Caching (0% hit ratio):
+├── API Gateway: $3.50
+├── Lambda Invocations: $0.20  
+├── Lambda Compute: $3.00
+├── External API Calls: $5.00
+└── Total: $11.70/month
+
+Poor Caching (50% hit ratio):  
+├── API Gateway: $3.50
+├── Lambda Invocations: $0.10
+├── Lambda Compute: $1.50
+├── External API Calls: $2.50
+└── Total: $7.60/month
+
+Good Caching (90% hit ratio):
+├── API Gateway: $3.50
+├── Lambda Invocations: $0.02
+├── Lambda Compute: $0.30  
+├── External API Calls: $0.50
+└── Total: $4.32/month
+
+Excellent Caching (95% hit ratio):
+├── API Gateway: $3.50
+├── Lambda Invocations: $0.01
+├── Lambda Compute: $0.15
+├── External API Calls: $0.25
+└── Total: $3.91/month
+```
+
+### Scale-Based Cost Comparison
+
+#### Small Scale (1M API calls/month)
+
+| Authentication Method | Monthly Cost | Cache Dependency | Maintenance Cost |
+|----------------------|--------------|------------------|------------------|
+| **Built-in Cognito** | $3.50 | No caching needed | $0 |
+| **Lambda (No Cache)** | $11.70 | Critical for cost control | High |
+| **Lambda (95% Cache)** | $3.91 | Critical for cost control | High |
+
+#### Medium Scale (10M API calls/month)
+
+| Authentication Method | Monthly Cost | Annual Cost | Notes |
+|----------------------|--------------|-------------|-------|
+| **Built-in Cognito** | $35.00 + MAU costs | $420 + MAU costs | Predictable scaling |
+| **Lambda (No Cache)** | $117.00 | $1,404 | Unsustainable |
+| **Lambda (95% Cache)** | $39.10 | $469 | Requires excellent implementation |
+
+#### Large Scale (100M API calls/month)
+
+| Authentication Method | Monthly Cost | Annual Cost | Engineering Cost |
+|----------------------|--------------|-------------|------------------|
+| **Built-in Cognito** | $350.00 + MAU costs | $4,200 + MAU costs | Minimal |
+| **Lambda (No Cache)** | $1,170.00 | $14,040 | High + engineering |
+| **Lambda (95% Cache)** | $391.00 | $4,692 | Ongoing optimization |
+
+### Hidden Costs Analysis
+
+#### Built-in Cognito Authorizer
+```python
+hidden_costs_cognito = {
+    'engineering_time': {
+        'setup': '2-5 days',
+        'maintenance': '0.5 days/month',
+        'annual_engineering_cost': '$2,000-$5,000'
+    },
+    'operational_overhead': {
+        'monitoring': 'Built-in CloudWatch',
+        'troubleshooting': 'AWS Support included',
+        'cost': '$0'
+    },
+    'scaling_concerns': {
+        'automatic': True,
+        'performance_degradation': 'None',
+        'additional_config': 'None required'
+    }
+}
+```
+
+#### Custom Lambda Authorizer
+```python
+hidden_costs_lambda = {
+    'engineering_time': {
+        'initial_development': '10-20 days',
+        'caching_implementation': '5-10 days', 
+        'ongoing_maintenance': '2-4 days/month',
+        'annual_engineering_cost': '$25,000-$50,000'
+    },
+    'operational_overhead': {
+        'monitoring_setup': '3-5 days',
+        'custom_metrics': 'Required',
+        'troubleshooting': 'Custom implementation',
+        'annual_ops_cost': '$5,000-$10,000'
+    },
+    'scaling_challenges': {
+        'cache_tuning': 'Ongoing',
+        'key_rotation_handling': 'Manual',
+        'performance_optimization': 'Continuous'
+    }
+}
+```
+
+### Cost Optimization Strategies
+
+#### For Built-in Cognito Authorizer
+
+**1. User Pool Optimization:**
+```python
+cognito_optimization = {
+    'mau_management': [
+        'Implement user cleanup for inactive accounts',
+        'Use federated identities for external users',
+        'Monitor MAU usage patterns'
+    ],
+    'feature_optimization': [
+        'Disable unused Cognito features',
+        'Use basic authentication for internal APIs',
+        'Leverage existing corporate identity providers'
+    ]
+}
+```
+
+**2. API Gateway Optimization:**
+```python
+api_gateway_optimization = {
+    'request_reduction': [
+        'Implement client-side caching',
+        'Use WebSocket for real-time features',
+        'Batch API requests where possible'
+    ],
+    'regional_optimization': [
+        'Deploy in regions with lower costs',
+        'Use CloudFront for static content',
+        'Optimize data transfer'
+    ]
+}
+```
+
+#### For Custom Lambda Authorizer
+
+**1. Caching Optimization:**
+```python
+lambda_caching_optimization = {
+    'cache_hit_ratio_improvement': [
+        'Implement multi-layer caching',
+        'Use Redis/ElastiCache for shared cache',
+        'Optimize TTL based on usage patterns',
+        'Pre-warm cache for popular keys'
+    ],
+    'cost_per_cache_miss': [
+        'Minimize IdP API calls',
+        'Batch key fetching operations',
+        'Use connection pooling',
+        'Implement exponential backoff'
+    ]
+}
+```
+
+**2. Lambda Function Optimization:**
+```python
+lambda_function_optimization = {
+    'execution_time': [
+        'Minimize cold start impact',
+        'Use provisioned concurrency for high-traffic',
+        'Optimize memory allocation',
+        'Minimize external dependencies'
+    ],
+    'invocation_reduction': [
+        'Maximize cache TTL safely',
+        'Implement intelligent cache invalidation',
+        'Use API Gateway caching effectively'
+    ]
+}
+```
+
+### Total Cost of Ownership (3-Year Analysis)
+
+```python
+# 3-year TCO for medium-scale application (10M API calls/month)
+tco_analysis = {
+    'cognito_authorizer': {
+        'infrastructure': '$1,260',    # API Gateway costs
+        'mau_costs': '$9,900',         # Assuming 100k MAU average
+        'engineering': '$15,000',      # Minimal maintenance
+        'total_3_year': '$26,160'
+    },
+    'lambda_authorizer_optimized': {
+        'infrastructure': '$1,404',    # API Gateway + Lambda
+        'external_costs': '$360',      # IdP API calls  
+        'engineering': '$150,000',     # Development + maintenance
+        'monitoring': '$15,000',       # Custom monitoring setup
+        'total_3_year': '$166,764'
+    },
+    'savings_with_cognito': '$140,604'
+}
+```
+
+### Cost Decision Matrix
+
+```
+Choose Built-in Cognito Authorizer when:
+✅ Total API calls < 100M/month
+✅ Standard authentication requirements  
+✅ Limited engineering resources
+✅ Need predictable costs
+✅ Want zero operational overhead
+
+Choose Custom Lambda Authorizer when:
+✅ Complex custom authorization logic required
+✅ Existing investment in custom auth systems
+✅ High-volume, cost-sensitive applications (>95% cache hit ratio)
+✅ Dedicated engineering team for optimization
+✅ Specific compliance requirements not met by Cognito
+```
+
+### Best Practices for Cost Management
+
+1. **Monitor Key Metrics:**
+   - Cache hit ratios for Lambda authorizers
+   - MAU growth for Cognito
+   - API call patterns and optimization opportunities
+
+2. **Implement Cost Controls:**
+   - Set up billing alerts for unexpected costs
+   - Use AWS Cost Explorer for trend analysis
+   - Regular cost optimization reviews
+
+3. **Plan for Scale:**
+   - Project MAU growth for Cognito pricing
+   - Test cache effectiveness at higher loads
+   - Consider regional pricing differences
+
+The cost analysis clearly shows that while built-in Cognito authorizers have higher per-user costs at scale, they offer significant savings in engineering and operational overhead, making them cost-effective for most Amazon Q Business implementations. 
