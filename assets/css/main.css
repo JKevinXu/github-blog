@@ -6,21 +6,21 @@
 }
 
 body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    font-size: 16px;
-    line-height: 1.6;
-    color: #333;
-    background-color: #f8f9fa;
+    font-family: Verdana, Geneva, sans-serif;
+    font-size: 13px;
+    line-height: 1.4;
+    color: #000;
+    background-color: #f6f6ef;
 }
 
 .container {
-    max-width: 800px;
+    max-width: 1200px;
     margin: 0 auto;
-    padding: 0 20px;
+    padding: 0 10px;
 }
 
 a {
-    color: #0366d6;
+    color: #000;
     text-decoration: none;
 }
 
@@ -28,49 +28,115 @@ a:hover {
     text-decoration: underline;
 }
 
-/* Header */
-.site-header {
-    background-color: #24292e;
-    padding: 20px 0;
-    margin-bottom: 30px;
+a:visited {
+    color: #828282;
 }
 
-.site-title {
-    font-size: 1.8rem;
+/* Header */
+.site-header {
+    background-color: #ff6600;
+    padding: 6px 0;
     margin-bottom: 10px;
 }
 
+.site-title {
+    font-size: 18px;
+    margin-bottom: 0;
+    font-weight: bold;
+}
+
 .site-title a {
-    color: #fff;
+    color: #000;
 }
 
 .site-nav {
-    display: flex;
-    gap: 20px;
+    display: inline-block;
+    margin-left: 20px;
 }
 
 .site-nav a {
-    color: #c8c9ca;
+    color: #000;
+    margin-right: 10px;
+    font-size: 12px;
 }
 
 .site-nav a:hover {
-    color: #fff;
-    text-decoration: none;
+    text-decoration: underline;
 }
 
 /* Content */
 .site-content {
-    min-height: calc(100vh - 180px);
-    margin-bottom: 40px;
+    min-height: calc(100vh - 120px);
+    margin-bottom: 20px;
 }
 
+/* Post List (Hacker News Style) */
+.post-list {
+    margin: 0;
+    padding: 0;
+}
+
+.post-item {
+    margin-bottom: 8px;
+    padding: 2px 0;
+}
+
+.post-title {
+    font-size: 14px;
+    margin: 0;
+    line-height: 14px;
+    font-weight: normal;
+}
+
+.post-title a {
+    color: #000;
+}
+
+.post-title a:visited {
+    color: #828282;
+}
+
+.post-meta {
+    font-size: 11px;
+    color: #828282;
+    margin-top: 2px;
+    line-height: 12px;
+}
+
+.post-date {
+    color: #828282;
+}
+
+.separator {
+    margin: 0 4px;
+}
+
+.read-more {
+    color: #828282;
+    font-size: 11px;
+}
+
+.read-more:hover {
+    text-decoration: underline;
+}
+
+.archive-link {
+    margin-top: 20px;
+    font-size: 12px;
+}
+
+.archive-link a {
+    color: #828282;
+}
+
+/* Standard content styles for other pages */
 h1, h2, h3, h4, h5, h6 {
-    margin: 1.5rem 0 1rem;
+    margin: 1rem 0 0.5rem;
     line-height: 1.25;
 }
 
 p, ul, ol {
-    margin-bottom: 1.5rem;
+    margin-bottom: 1rem;
 }
 
 ul, ol {
@@ -105,36 +171,24 @@ pre code {
     padding: 0;
 }
 
-/* Posts */
-.post-preview {
-    margin-bottom: 30px;
-}
-
-.post-date {
-    color: #6a737d;
-    font-size: 0.9rem;
-    display: block;
-    margin-bottom: 10px;
-}
-
+/* Individual post styles */
 .post-meta {
-    color: #6a737d;
-    font-size: 0.9rem;
-    margin-bottom: 20px;
-}
-
-.post-title {
-    margin-bottom: 5px;
+    color: #828282;
+    font-size: 12px;
+    margin-bottom: 15px;
 }
 
 .post-content {
     margin-bottom: 30px;
+    font-size: 14px;
+    line-height: 1.6;
 }
 
 .post-navigation {
     display: flex;
     justify-content: space-between;
     margin: 40px 0;
+    font-size: 12px;
 }
 
 .post-tags {
@@ -152,32 +206,39 @@ pre code {
 
 /* Footer */
 .site-footer {
-    background-color: #f1f1f1;
-    padding: 30px 0;
-    color: #6a737d;
-    font-size: 0.9rem;
+    background-color: #f6f6ef;
+    border-top: 1px solid #ff6600;
+    padding: 10px 0;
+    color: #828282;
+    font-size: 11px;
 }
 
 .social-links {
-    margin-top: 10px;
+    margin-top: 5px;
 }
 
 .social-links a {
-    margin-right: 15px;
+    margin-right: 10px;
+    color: #828282;
 }
 
 /* Responsive */
 @media (max-width: 600px) {
     .site-header {
-        padding: 15px 0;
+        padding: 4px 0;
     }
     
     .site-title {
-        font-size: 1.5rem;
+        font-size: 16px;
     }
     
     .site-nav {
-        flex-direction: column;
-        gap: 10px;
+        display: block;
+        margin-left: 0;
+        margin-top: 4px;
+    }
+    
+    .container {
+        padding: 0 8px;
     }
 } 
