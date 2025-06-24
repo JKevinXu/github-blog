@@ -37,4 +37,6 @@ defaults:
     values:
       layout: "post"
       comments: true
-    future: true
+
+# Show future posts
+future: true
