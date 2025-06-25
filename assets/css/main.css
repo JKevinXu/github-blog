@@ -49,8 +49,9 @@ a:visited {
 
 .site-title {
     font-size: 18px;
-    margin-bottom: 0;
+    margin: 0;
     font-weight: bold;
+    line-height: 1;
 }
 
 .site-title a {
@@ -64,8 +65,8 @@ a:visited {
 
 .site-nav a {
     color: #000;
-    margin-right: 10px;
     font-size: 12px;
+    line-height: 1;
 }
 
 .site-nav a:hover {
