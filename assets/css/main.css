@@ -39,12 +39,16 @@ a:visited {
     margin-bottom: 10px;
 }
 
+.site-header .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
 .site-title {
     font-size: 18px;
     margin-bottom: 0;
     font-weight: bold;
-    display: inline-block;
-    vertical-align: middle;
 }
 
 .site-title a {
@@ -52,9 +56,8 @@ a:visited {
 }
 
 .site-nav {
-    display: inline-block;
-    margin-left: 20px;
-    vertical-align: middle;
+    display: flex;
+    gap: 15px;
 }
 
 .site-nav a {
