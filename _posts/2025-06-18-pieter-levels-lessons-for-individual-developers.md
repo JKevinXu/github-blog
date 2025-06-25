@@ -12,7 +12,7 @@ Pieter Levels (@levelsio) is one of the most successful indie hackers and solo d
 
 ## Famous Projects by Pieter Levels
 
-### 1. Nomad List (2014)
+### 1. [Nomads](https://nomads.com/)
 **What it is**: A platform and community for digital nomads to find the best cities to work remotely from, complete with cost of living data, internet speeds, weather, and safety ratings.
 
 **Success metrics**: 
@@ -20,22 +20,19 @@ Pieter Levels (@levelsio) is one of the most successful indie hackers and solo d
 - 50,000+ members in the community
 - Became the de facto resource for digital nomads worldwide
 
-### 2. Remote Year
-**What it is**: A program that organizes year-long travel experiences for remote workers, taking them to 12 cities in 12 months while they continue working.
-
 **Impact**: Helped establish the remote work culture and was eventually acquired.
 
-### 3. Hoodmaps
+### 2. [Hoodmaps](https://hoodmaps.com/)
 **What it is**: A crowdsourced map that shows the character of different neighborhoods in cities around the world, color-coded by attributes like "hipster," "rich," "suits," etc.
 
 **Innovation**: Simple concept with viral potential that provides real value to travelers and locals.
 
-### 4. PhotoAI
+### 3. [PhotoAI](https://photoai.com/)
 **What it is**: An AI-powered service that generates professional photos of people using just a few uploaded selfies.
 
 **Business model**: Pay-per-use AI service that capitalizes on the AI boom while solving a real problem.
 
-### 5. InteriorAI
+### 4. [InteriorAI](https://interiorai.com/)
 **What it is**: AI-powered interior design tool that can redesign rooms from photos.
 
 **Strategy**: Another AI tool following the successful PhotoAI model.
