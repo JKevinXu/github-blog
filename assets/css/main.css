@@ -35,14 +35,16 @@ a:visited {
 /* Header */
 .site-header {
     background-color: #ff6600;
-    padding: 6px 0;
+    padding: 12px 0;
     margin-bottom: 10px;
+    min-height: 44px;
 }
 
 .site-header .container {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    height: 100%;
 }
 
 .site-title {
