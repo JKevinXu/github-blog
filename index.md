@@ -11,8 +11,6 @@ title: Welcome to My Blog
     </h3>
     <div class="post-meta">
       <span class="post-date">{{ post.date | date: "%b %d, %Y" }}</span>
-      <span class="separator">•</span>
-      <a href="{{ post.url | relative_url }}" class="read-more">read</a>
     </div>
   </div>
 {% endfor %}
