@@ -123,8 +123,8 @@
                 </div>
                 
                 <div style="margin-bottom: 15px;">
-                    <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #555;">Notes:</label>
-                    <textarea id="dr-notes" rows="4" placeholder="Add your thoughts, selected quotes, or notes..." style="
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #555;">Summary:</label>
+                    <textarea id="dr-summary" rows="2" placeholder="Brief summary or main takeaway..." style="
                         width: 100%;
                         padding: 12px;
                         border: 2px solid #e1e5e9;
@@ -133,7 +133,36 @@
                         box-sizing: border-box;
                         resize: vertical;
                         transition: border-color 0.2s;
-                    " onfocus="this.style.borderColor='#007bff'" onblur="this.style.borderColor='#e1e5e9'">${escapeHtml(pageInfo.selectedText || pageInfo.metaDescription)}</textarea>
+                    " onfocus="this.style.borderColor='#007bff'" onblur="this.style.borderColor='#e1e5e9'">${escapeHtml(pageInfo.metaDescription)}</textarea>
+                </div>
+                
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #555;">Highlights:</label>
+                    <textarea id="dr-highlights" rows="4" placeholder="Key highlights or quotes (one per line)..." style="
+                        width: 100%;
+                        padding: 12px;
+                        border: 2px solid #e1e5e9;
+                        border-radius: 8px;
+                        font-size: 14px;
+                        box-sizing: border-box;
+                        resize: vertical;
+                        transition: border-color 0.2s;
+                    " onfocus="this.style.borderColor='#007bff'" onblur="this.style.borderColor='#e1e5e9'">${escapeHtml(pageInfo.selectedText || '')}</textarea>
+                    <small style="color: #666; font-size: 12px;">Enter each highlight on a new line</small>
+                </div>
+                
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #555;">Notes:</label>
+                    <textarea id="dr-notes" rows="3" placeholder="Your personal thoughts and notes..." style="
+                        width: 100%;
+                        padding: 12px;
+                        border: 2px solid #e1e5e9;
+                        border-radius: 8px;
+                        font-size: 14px;
+                        box-sizing: border-box;
+                        resize: vertical;
+                        transition: border-color 0.2s;
+                    " onfocus="this.style.borderColor='#007bff'" onblur="this.style.borderColor='#e1e5e9'"></textarea>
                 </div>
                 
                 <div style="margin-bottom: 20px;">
@@ -277,6 +306,8 @@
     function saveReading() {
         const title = document.getElementById('dr-title').value.trim();
         const url = document.getElementById('dr-url').value.trim();
+        const summary = document.getElementById('dr-summary').value.trim();
+        const highlightsText = document.getElementById('dr-highlights').value.trim();
         const notes = document.getElementById('dr-notes').value.trim();
         const tags = document.getElementById('dr-tags').value
             .split(',')
@@ -288,13 +319,28 @@
             return;
         }
         
+        // Process highlights - split by lines and clean up
+        const highlights = highlightsText
+            .split('\n')
+            .map(line => line.trim())
+            .filter(line => line.length > 0);
+        
         const reading = {
-            id: Date.now(),
+            id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
             title,
             url,
+            summary,
+            highlights,
             notes,
             tags,
             timestamp: new Date().toISOString(),
+            date: new Date().toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'short', 
+                day: 'numeric',
+                hour: 'numeric',
+                minute: '2-digit'
+            }),
             dateAdded: new Date().toLocaleDateString(),
             domain: pageInfo.domain,
             favicon: pageInfo.favicon

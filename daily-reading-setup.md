@@ -50,16 +50,24 @@ javascript:(function(){var script=document.createElement('script');script.src='{
 ### Automatic Data Capture
 - Page title
 - URL
-- Selected text (if any)
-- Meta description
+- Selected text (automatically placed in highlights)
+- Meta description (automatically placed in summary)
 - Favicon
 - Smart tag suggestions based on domain
 
+### Enhanced Data Structure
+- **Summary**: Brief overview or main takeaway
+- **Highlights**: Key quotes or important passages (one per line)
+- **Notes**: Your personal thoughts and commentary
+- **Tags**: Categorization and organization
+- **Rich metadata**: Date, domain, favicon, etc.
+
 ### Organization Tools
-- **Search**: Find readings by title, URL, or notes
+- **Search**: Find readings by title, URL, notes, summary, or highlights
 - **Filter by tag**: Show only specific categories
 - **Filter by date**: View readings from specific dates
 - **Export**: Download all data as JSON
+- **Import**: Support for multiple JSON formats including article summarizer exports
 
 ### Smart Tag Suggestions
 The system automatically suggests tags based on the website domain:
@@ -98,8 +106,36 @@ The system automatically suggests tags based on the website domain:
 
 ### Backup & Export
 - **Export All**: Download JSON file with all readings
-- **Import**: Paste JSON data to restore readings
+- **Import JSON**: Support for multiple formats:
+  - Our own export format
+  - Article summarizer exports (with highlights array)
+  - Custom JSON formats (automatic field mapping)
 - **GitHub Backup**: Automatically backed up when using GitHub sync
+
+### Import Formats Supported
+
+#### Our Enhanced Format
+```json
+{
+  "title": "Article Title",
+  "url": "https://example.com",
+  "summary": "Brief overview",
+  "highlights": ["Quote 1", "Quote 2"],
+  "notes": "My thoughts",
+  "tags": ["tag1", "tag2"]
+}
+```
+
+#### Article Summarizer Format
+```json
+{
+  "title": "Article Title",
+  "url": "https://example.com",
+  "highlight": "Main takeaway",
+  "highlights": ["Quote 1", "Quote 2"],
+  "date": "Jul 6, 2025, 2:10 PM"
+}
+```
 
 ## 🔧 Alternative Server Storage Options
 

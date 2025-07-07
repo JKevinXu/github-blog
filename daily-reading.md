@@ -13,6 +13,7 @@ permalink: /daily-reading/
         <div class="reading-actions">
             <button id="add-reading-btn" class="btn btn-primary">Add Reading Item</button>
             <button id="export-readings-btn" class="btn btn-secondary">Export All</button>
+            <button id="import-json-btn" class="btn btn-info">📥 Import JSON</button>
             <button id="github-setup-btn" class="btn btn-info">⚙️ GitHub Sync Setup</button>
             <button id="clear-readings-btn" class="btn btn-danger">Clear All</button>
         </div>
@@ -37,7 +38,16 @@ permalink: /daily-reading/
             </div>
             <div class="form-group">
                 <label for="reading-notes">Notes (optional):</label>
-                <textarea id="reading-notes" rows="3"></textarea>
+                <textarea id="reading-notes" rows="3" placeholder="Your thoughts and summary..."></textarea>
+            </div>
+            <div class="form-group">
+                <label for="reading-highlights">Highlights/Quotes (optional):</label>
+                <textarea id="reading-highlights" rows="4" placeholder="Key highlights or quotes from the article (one per line)..."></textarea>
+                <small style="color: #666; font-size: 12px;">Enter each highlight on a new line</small>
+            </div>
+            <div class="form-group">
+                <label for="reading-summary">Key Summary (optional):</label>
+                <textarea id="reading-summary" rows="2" placeholder="Brief summary or main takeaway..."></textarea>
             </div>
             <div class="form-group">
                 <label for="reading-tags">Tags (comma-separated):</label>
@@ -219,6 +229,32 @@ permalink: /daily-reading/
     font-style: italic;
 }
 
+.reading-item-summary {
+    margin: 10px 0;
+    padding: 10px;
+    background: #e3f2fd;
+    border-radius: 4px;
+    border-left: 4px solid #2196f3;
+}
+
+.reading-item-highlights {
+    margin: 10px 0;
+    padding: 10px;
+    background: #fff3e0;
+    border-radius: 4px;
+    border-left: 4px solid #ff9800;
+}
+
+.reading-item-highlights ul {
+    margin: 8px 0 0 0;
+    padding-left: 20px;
+}
+
+.reading-item-highlights li {
+    margin: 6px 0;
+    line-height: 1.4;
+}
+
 .reading-item-tags {
     margin: 10px 0;
 }
@@ -340,6 +376,7 @@ class DailyReadingManager {
         document.getElementById('cancel-add-btn').addEventListener('click', () => this.hideAddForm());
         document.getElementById('reading-item-form').addEventListener('submit', (e) => this.handleAddReading(e));
         document.getElementById('export-readings-btn').addEventListener('click', () => this.exportReadings());
+        document.getElementById('import-json-btn').addEventListener('click', () => this.showImportModal());
         document.getElementById('clear-readings-btn').addEventListener('click', () => this.clearReadings());
         
         document.getElementById('search-readings').addEventListener('input', () => this.filterReadings());
@@ -359,6 +396,8 @@ class DailyReadingManager {
 
     clearForm() {
         document.getElementById('reading-item-form').reset();
+        document.getElementById('reading-highlights').value = '';
+        document.getElementById('reading-summary').value = '';
     }
 
     handleAddReading(e) {
@@ -367,18 +406,35 @@ class DailyReadingManager {
         const title = document.getElementById('reading-title').value;
         const url = document.getElementById('reading-url').value;
         const notes = document.getElementById('reading-notes').value;
+        const highlightsText = document.getElementById('reading-highlights').value;
+        const summary = document.getElementById('reading-summary').value;
         const tags = document.getElementById('reading-tags').value
             .split(',')
             .map(tag => tag.trim())
             .filter(tag => tag.length > 0);
 
+        // Process highlights - split by lines and clean up
+        const highlights = highlightsText
+            .split('\n')
+            .map(line => line.trim())
+            .filter(line => line.length > 0);
+
         const reading = {
-            id: Date.now(),
+            id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
             title,
             url,
             notes,
+            highlights,
+            summary,
             tags,
             timestamp: new Date().toISOString(),
+            date: new Date().toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'short', 
+                day: 'numeric',
+                hour: 'numeric',
+                minute: '2-digit'
+            }),
             dateAdded: new Date().toLocaleDateString()
         };
 
@@ -443,8 +499,26 @@ class DailyReadingManager {
     }
 
     createReadingItemHTML(reading) {
-        const tagsHTML = reading.tags.map(tag => `<span class="tag">${tag}</span>`).join('');
-        const notesHTML = reading.notes ? `<div class="reading-item-notes">"${reading.notes}"</div>` : '';
+        const tagsHTML = reading.tags && reading.tags.length > 0 ? 
+            reading.tags.map(tag => `<span class="tag">${tag}</span>`).join('') : '';
+            
+        const notesHTML = reading.notes ? 
+            `<div class="reading-item-notes">
+                <strong>Notes:</strong> ${reading.notes}
+            </div>` : '';
+            
+        const summaryHTML = reading.summary ? 
+            `<div class="reading-item-summary">
+                <strong>Summary:</strong> ${reading.summary}
+            </div>` : '';
+            
+        const highlightsHTML = reading.highlights && reading.highlights.length > 0 ? 
+            `<div class="reading-item-highlights">
+                <strong>Key Highlights:</strong>
+                <ul>
+                    ${reading.highlights.map(highlight => `<li>${highlight}</li>`).join('')}
+                </ul>
+            </div>` : '';
         
         return `
             <div class="reading-item">
@@ -457,10 +531,12 @@ class DailyReadingManager {
                     </div>
                 </div>
                 <div class="reading-item-meta">
-                    <span>Added: ${reading.dateAdded}</span>
+                    <span>Added: ${reading.date || reading.dateAdded}</span>
                     <span>${new Date(reading.timestamp).toLocaleString()}</span>
                 </div>
+                ${summaryHTML}
                 ${notesHTML}
+                ${highlightsHTML}
                 <div class="reading-item-tags">${tagsHTML}</div>
                 <div class="reading-item-actions">
                     <button id="delete-${reading.id}" class="btn btn-danger btn-small">Delete</button>
@@ -500,10 +576,12 @@ class DailyReadingManager {
         const filtered = readings.filter(reading => {
             const matchesSearch = !searchTerm || 
                 reading.title.toLowerCase().includes(searchTerm) ||
-                reading.notes.toLowerCase().includes(searchTerm) ||
+                (reading.notes && reading.notes.toLowerCase().includes(searchTerm)) ||
+                (reading.summary && reading.summary.toLowerCase().includes(searchTerm)) ||
+                (reading.highlights && reading.highlights.some(h => h.toLowerCase().includes(searchTerm))) ||
                 reading.url.toLowerCase().includes(searchTerm);
             
-            const matchesTag = !selectedTag || reading.tags.includes(selectedTag);
+            const matchesTag = !selectedTag || (reading.tags && reading.tags.includes(selectedTag));
             
             const matchesDate = !selectedDate || reading.dateAdded === new Date(selectedDate).toLocaleDateString();
             
@@ -522,6 +600,9 @@ class DailyReadingManager {
         link.href = URL.createObjectURL(dataBlob);
         link.download = `daily-readings-${new Date().toISOString().split('T')[0]}.json`;
         link.click();
+        
+        // Also show a sample of the exported format
+        console.log('Exported format sample:', readings.slice(0, 2));
     }
 
     clearReadings() {
@@ -530,6 +611,159 @@ class DailyReadingManager {
             this.loadReadings();
             this.updateTagFilter();
         }
+    }
+
+    showImportModal() {
+        const modal = document.createElement('div');
+        modal.id = 'import-modal';
+        modal.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 999999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        `;
+        
+        modal.innerHTML = `
+            <div style="
+                background: white;
+                border-radius: 12px;
+                padding: 30px;
+                max-width: 700px;
+                width: 90%;
+                max-height: 80vh;
+                overflow-y: auto;
+            ">
+                <h2>📥 Import Reading Data</h2>
+                <p>Import readings from JSON format (supports article summarizer exports and our export format).</p>
+                
+                <div style="margin: 20px 0;">
+                    <label style="display: block; margin-bottom: 10px; font-weight: bold;">
+                        Select JSON file or paste JSON data:
+                    </label>
+                    <input type="file" id="import-file" accept=".json" style="margin-bottom: 10px;">
+                    <textarea id="import-text" rows="10" placeholder="Or paste JSON data here..." style="
+                        width: 100%;
+                        padding: 12px;
+                        border: 2px solid #ddd;
+                        border-radius: 8px;
+                        font-family: monospace;
+                        font-size: 12px;
+                    "></textarea>
+                </div>
+                
+                <div style="margin: 20px 0;">
+                    <label style="display: flex; align-items: center; margin-bottom: 10px;">
+                        <input type="checkbox" id="merge-readings" checked style="margin-right: 8px;">
+                        Merge with existing readings (unchecked = replace all)
+                    </label>
+                </div>
+                
+                <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                    <button onclick="closeImportModal()" style="
+                        padding: 12px 24px;
+                        border: 2px solid #6c757d;
+                        background: white;
+                        color: #6c757d;
+                        border-radius: 8px;
+                        cursor: pointer;
+                    ">Cancel</button>
+                    <button onclick="processImport()" style="
+                        padding: 12px 24px;
+                        border: 2px solid #28a745;
+                        background: #28a745;
+                        color: white;
+                        border-radius: 8px;
+                        cursor: pointer;
+                    ">📥 Import</button>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(modal);
+        
+        // File input handler
+        document.getElementById('import-file').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    document.getElementById('import-text').value = e.target.result;
+                };
+                reader.readAsText(file);
+            }
+        });
+    }
+
+    importReadings(jsonData, merge = true) {
+        try {
+            const data = JSON.parse(jsonData);
+            let readings = [];
+            
+            if (Array.isArray(data)) {
+                // Process each item in the array
+                readings = data.map(item => this.convertToReadingFormat(item));
+            } else {
+                // Single item
+                readings = [this.convertToReadingFormat(data)];
+            }
+            
+            // Filter out invalid readings
+            readings = readings.filter(reading => reading.title && reading.url);
+            
+            if (merge) {
+                const existingReadings = this.getReadings();
+                // Merge, avoiding duplicates based on URL
+                const existingUrls = new Set(existingReadings.map(r => r.url));
+                const newReadings = readings.filter(r => !existingUrls.has(r.url));
+                readings = [...newReadings, ...existingReadings];
+            }
+            
+            this.saveReadings(readings);
+            this.loadReadings();
+            this.updateTagFilter();
+            
+            return readings.length;
+        } catch (error) {
+            console.error('Import error:', error);
+            throw new Error('Invalid JSON format');
+        }
+    }
+
+    convertToReadingFormat(item) {
+        // Handle different input formats
+        const reading = {
+            id: item.id || (Date.now().toString() + Math.random().toString(36).substr(2, 9)),
+            title: item.title || '',
+            url: item.url || '',
+            timestamp: item.timestamp || new Date().toISOString(),
+            dateAdded: item.dateAdded || item.date || new Date().toLocaleDateString(),
+            date: item.date || new Date().toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'short', 
+                day: 'numeric',
+                hour: 'numeric',
+                minute: '2-digit'
+            }),
+            tags: item.tags || [],
+            notes: item.notes || '',
+            summary: item.summary || item.highlight || '',
+            highlights: item.highlights || [],
+            domain: item.domain || (item.url ? new URL(item.url).hostname : ''),
+            favicon: item.favicon || ''
+        };
+        
+        // Handle article summarizer format
+        if (item.highlights && Array.isArray(item.highlights)) {
+            reading.highlights = item.highlights;
+        }
+        
+        return reading;
     }
 }
 
@@ -790,6 +1024,30 @@ let readingManager;
 function initializeReadingManager() {
     const hasGitHubToken = !!localStorage.getItem('github_token');
     readingManager = new EnhancedReadingManager(hasGitHubToken);
+}
+
+// Global functions for import modal
+function closeImportModal() {
+    const modal = document.getElementById('import-modal');
+    if (modal) modal.remove();
+}
+
+function processImport() {
+    const jsonText = document.getElementById('import-text').value.trim();
+    const mergeReadings = document.getElementById('merge-readings').checked;
+    
+    if (!jsonText) {
+        alert('Please enter JSON data or select a file');
+        return;
+    }
+    
+    try {
+        const count = readingManager.importReadings(jsonText, mergeReadings);
+        alert(`✅ Successfully imported ${count} readings!`);
+        closeImportModal();
+    } catch (error) {
+        alert(`❌ Import failed: ${error.message}`);
+    }
 }
 
 // Initialize when page loads
