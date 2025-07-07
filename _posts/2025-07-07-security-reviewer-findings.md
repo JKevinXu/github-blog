@@ -1,7 +1,7 @@
 ---
 layout: post
-title: "The things I have found after being a security reviewer"
-date: 2025-07-27
+title: "The things I have found after being a security reviewer (In Progress)"
+date: 2025-07-07
 categories: [Security]
 tags: [security, aws]
 ---
