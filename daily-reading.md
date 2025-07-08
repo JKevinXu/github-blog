@@ -634,16 +634,30 @@ class EnhancedReadingManager extends DailyReadingManager {
     }
     
     initGitHub() {
+        console.log('🔍 initGitHub: Starting GitHub initialization...');
         const token = localStorage.getItem('github_token');
+        console.log('🔍 initGitHub: Token retrieved:', token ? 'EXISTS' : 'NOT FOUND');
+        console.log('🔍 initGitHub: GitHubStorage class available:', typeof GitHubStorage);
+        
         if (token) {
-            this.github = new GitHubStorage({
-                owner: 'JKevinXu',
-                repo: 'github-blog',
-                token: token,
-                branch: 'main',
-                filePath: '_data/readings.json'
-            });
-            this.updateStorageStatus('☁️ GitHub Sync', 'Connected');
+            try {
+                console.log('🔍 initGitHub: Creating GitHubStorage instance...');
+                this.github = new GitHubStorage({
+                    owner: 'JKevinXu',
+                    repo: 'github-blog',
+                    token: token,
+                    branch: 'main',
+                    filePath: '_data/readings.json'
+                });
+                console.log('🔍 initGitHub: GitHubStorage instance created:', !!this.github);
+                this.updateStorageStatus('☁️ GitHub Sync', 'Connected');
+                console.log('✅ initGitHub: GitHub client initialized successfully');
+            } catch (error) {
+                console.error('❌ initGitHub: Failed to create GitHubStorage:', error);
+                this.github = null;
+            }
+        } else {
+            console.log('❌ initGitHub: No token found, GitHub client not created');
         }
     }
     
