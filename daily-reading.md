@@ -312,9 +312,11 @@ permalink: /daily-reading/
 
 <script>
 class DailyReadingManager {
-    constructor() {
+    constructor(autoInit = true) {
         this.storageKey = 'dailyReadings';
-        this.init();
+        if (autoInit) {
+            this.init();
+        }
     }
 
     init() {
@@ -626,9 +628,17 @@ class EnhancedReadingManager extends DailyReadingManager {
     constructor(useGitHub = false) {
         console.log('🔍 EnhancedReadingManager constructor: useGitHub =', useGitHub);
         
-        super();
+        // Disable auto-init in parent constructor
+        super(false);
+        
+        // Set our properties first
         this.useGitHub = useGitHub;
         this.github = null;
+        
+        console.log('🔍 Constructor: Properties set, useGitHub =', this.useGitHub);
+        
+        // Now manually call init with our properties properly set
+        this.init();
     }
     
     initGitHub() {
