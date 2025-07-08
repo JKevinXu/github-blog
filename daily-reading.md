@@ -17,7 +17,6 @@ permalink: /daily-reading/
             <button id="github-setup-btn" class="btn btn-info">⚙️ GitHub Sync Setup</button>
             <button id="test-sync-btn" class="btn btn-info">🔄 Test Sync</button>
             <button id="create-file-btn" class="btn btn-info">📁 Create GitHub File</button>
-            <button id="clear-readings-btn" class="btn btn-danger">Clear All</button>
         </div>
         
         <div id="storage-status" class="storage-status">
@@ -410,7 +409,6 @@ class DailyReadingManager {
         document.getElementById('reading-item-form').addEventListener('submit', (e) => this.handleAddReading(e));
         document.getElementById('export-readings-btn').addEventListener('click', () => this.exportReadings());
         document.getElementById('import-json-btn').addEventListener('click', () => this.showImportModal());
-        document.getElementById('clear-readings-btn').addEventListener('click', () => this.clearReadings());
         
         document.getElementById('search-readings').addEventListener('input', () => this.filterReadings());
         document.getElementById('filter-by-tag').addEventListener('change', () => this.filterReadings());
@@ -638,13 +636,7 @@ class DailyReadingManager {
         console.log('Exported format sample:', readings.slice(0, 2));
     }
 
-    clearReadings() {
-        if (confirm('Are you sure you want to clear all reading items? This cannot be undone.')) {
-            localStorage.removeItem(this.storageKey);
-            this.loadReadings();
-            this.updateTagFilter();
-        }
-    }
+
 
     showImportModal() {
         const modal = document.createElement('div');
