@@ -16,6 +16,7 @@ permalink: /daily-reading/
             <button id="import-json-btn" class="btn btn-info">📥 Import JSON</button>
             <button id="github-setup-btn" class="btn btn-info">⚙️ GitHub Sync Setup</button>
             <button id="test-sync-btn" class="btn btn-info">🔄 Test Sync</button>
+            <button id="create-file-btn" class="btn btn-info">📁 Create GitHub File</button>
             <button id="clear-readings-btn" class="btn btn-danger">Clear All</button>
         </div>
         
@@ -151,6 +152,22 @@ permalink: /daily-reading/
 }
 
 #test-sync-btn:active {
+    transform: scale(0.98);
+}
+
+#create-file-btn {
+    background-color: #20c997;
+    border-color: #20c997;
+}
+
+#create-file-btn:hover {
+    background-color: #1aa179;
+    border-color: #1aa179;
+    transform: scale(1.02);
+    transition: all 0.2s ease;
+}
+
+#create-file-btn:active {
     transform: scale(0.98);
 }
 
@@ -968,6 +985,13 @@ class EnhancedReadingManager extends DailyReadingManager {
                 await this.testSync();
             });
         }
+
+        const createFileBtn = document.getElementById('create-file-btn');
+        if (createFileBtn) {
+            createFileBtn.addEventListener('click', async () => {
+                await this.createGitHubFile();
+            });
+        }
     }
     
     async syncWithGitHub() {
@@ -1049,16 +1073,108 @@ class EnhancedReadingManager extends DailyReadingManager {
         try {
             this.updateStorageStatus('☁️ GitHub Sync', 'Testing sync...');
             
+            // Test GitHub configuration
+            const config = {
+                owner: this.github.owner,
+                repo: this.github.repo,
+                branch: this.github.branch,
+                filePath: this.github.filePath,
+                hasToken: !!this.github.token
+            };
+            
+            console.log('GitHub Config:', config);
+            
+            // Test file existence and creation
+            try {
+                console.log('Testing file access...');
+                await this.github.getReadings();
+                console.log('✅ File exists and accessible');
+            } catch (error) {
+                console.log('File access error:', error);
+                
+                if (error.status === 404) {
+                    console.log('🔧 File doesn\'t exist, attempting to create...');
+                    try {
+                        await this.github.saveReadings([], 'Initial readings file creation');
+                        console.log('✅ File created successfully');
+                    } catch (createError) {
+                        console.error('❌ Failed to create file:', createError);
+                        throw createError;
+                    }
+                } else {
+                    throw error;
+                }
+            }
+            
             // Test sync functionality
             const result = await this.syncWithGitHub();
             
-            // Show result
-            alert(`✅ Sync test successful!\n\nLocal readings: ${this.getReadings().length}\nSynced readings: ${result.length}\nLast sync: ${new Date().toLocaleTimeString()}`);
+            // Show detailed result
+            alert(`✅ Sync test successful!\n\nConfiguration:\n- Repository: ${config.owner}/${config.repo}\n- Branch: ${config.branch}\n- File Path: ${config.filePath}\n- Token: ${config.hasToken ? 'Configured' : 'Missing'}\n\nResults:\n- Local readings: ${this.getReadings().length}\n- Synced readings: ${result.length}\n- Last sync: ${new Date().toLocaleTimeString()}\n\nCheck browser console for detailed logs.`);
             
         } catch (error) {
             console.error('Sync test failed:', error);
-            alert(`❌ Sync test failed: ${error.message}`);
+            
+            // Provide detailed error information
+            let errorMsg = `❌ Sync test failed!\n\nError: ${error.message || error}\n\nPossible causes:\n`;
+            
+            if (error.status === 404) {
+                errorMsg += '- Repository doesn\'t exist\n- File path is incorrect\n- No permission to access repo';
+            } else if (error.status === 401) {
+                errorMsg += '- Invalid GitHub token\n- Token expired\n- No repository access';
+            } else if (error.status === 403) {
+                errorMsg += '- Token lacks required permissions\n- Rate limit exceeded\n- Repository is private';
+            } else {
+                errorMsg += '- Network connection issue\n- GitHub API temporary issue\n- Invalid configuration';
+            }
+            
+            errorMsg += `\n\nTechnical details:\nStatus: ${error.status}\nMessage: ${error.message}\n\nCheck browser console for full error details.`;
+            
+            alert(errorMsg);
             this.updateStorageStatus('☁️ GitHub Sync', 'Sync test failed');
+        }
+    }
+
+    async createGitHubFile() {
+        if (!this.github) {
+            alert('❌ GitHub sync is not configured. Please set up GitHub sync first.');
+            return;
+        }
+
+        try {
+            this.updateStorageStatus('☁️ GitHub Sync', 'Creating file...');
+            
+            // Get local readings to upload
+            const localReadings = this.getReadings();
+            const dataToUpload = localReadings.length > 0 ? localReadings : [];
+            
+            // Create the file
+            await this.github.saveReadings(dataToUpload, 'Create initial daily readings file');
+            
+            // Test that it worked
+            const createdReadings = await this.github.getReadings();
+            
+            alert(`✅ GitHub file created successfully!\n\nLocation: ${this.github.owner}/${this.github.repo}/${this.github.filePath}\nBranch: ${this.github.branch}\nReadings uploaded: ${createdReadings.length}\n\nYou can now use GitHub sync normally.`);
+            
+            this.updateStorageStatus('☁️ GitHub Sync', 'File created successfully');
+            
+        } catch (error) {
+            console.error('Failed to create GitHub file:', error);
+            
+            let errorMsg = `❌ Failed to create GitHub file!\n\nError: ${error.message || error}\n\n`;
+            
+            if (error.status === 404) {
+                errorMsg += 'Repository not found. Please check:\n- Repository name: github-blog\n- Repository exists\n- Token has access';
+            } else if (error.status === 401) {
+                errorMsg += 'Authentication failed. Please check:\n- Token is valid\n- Token hasn\'t expired';
+            } else if (error.status === 403) {
+                errorMsg += 'Permission denied. Please check:\n- Token has "repo" scope\n- You have write access to the repository';
+            } else {
+                errorMsg += 'Unexpected error. Please check console for details.';
+            }
+            
+            alert(errorMsg);
+            this.updateStorageStatus('☁️ GitHub Sync', 'File creation failed');
         }
     }
 }
