@@ -1,90 +1,8 @@
 ---
-layout: default
-title: Daily Reading
+layout: page
+title: "Daily Reading"
+permalink: /daily-reading/
 ---
-
-# 📖 Daily Reading
-
-<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
-    <div>
-        <h2 style="margin: 0;">My Reading Collection</h2>
-        <p style="margin: 5px 0; color: #666;">Save and organize articles, papers, and web content</p>
-    </div>
-    <div style="display: flex; gap: 10px; align-items: center;">
-        <div style="padding: 8px 12px; background: #f8f9fa; border-radius: 20px; font-size: 14px;">
-            <span id="storage-indicator">📱 Local Storage</span> | 
-            <span id="sync-status">Loading...</span>
-        </div>
-        <button id="github-setup-btn" style="
-            padding: 8px 16px;
-            background: #0366d6;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 14px;
-        ">⚙️ GitHub Sync</button>
-        <button id="manual-sync-btn" style="
-            padding: 8px 16px;
-            background: #28a745;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 14px;
-        ">🔄 Manual Sync</button>
-        <button id="diagnose-btn" style="
-            padding: 8px 16px;
-            background: #ffc107;
-            color: #212529;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 14px;
-        ">🔍 Diagnose</button>
-    </div>
-</div>
-
-<!-- Diagnostic Panel -->
-<div id="diagnostic-panel" style="
-    display: none;
-    background: #f8f9fa;
-    border: 1px solid #dee2e6;
-    border-radius: 8px;
-    padding: 20px;
-    margin-bottom: 20px;
-">
-    <h3 style="margin-top: 0;">🔍 GitHub Sync Diagnostics</h3>
-    <div id="diagnostic-results"></div>
-    <div style="margin-top: 15px;">
-        <button onclick="runDiagnostics()" style="
-            padding: 10px 20px;
-            background: #007bff;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            margin-right: 10px;
-        ">Run Diagnostics</button>
-        <button onclick="createDataDirectory()" style="
-            padding: 10px 20px;
-            background: #28a745;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            margin-right: 10px;
-        ">Create _data Directory</button>
-        <button onclick="forceSyncToGitHub()" style="
-            padding: 10px 20px;
-            background: #fd7e14;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-        ">Force Sync to GitHub</button>
-    </div>
-</div>
 
 <div class="daily-reading-container">
     <div class="reading-header">
@@ -966,7 +884,6 @@ class EnhancedReadingManager extends DailyReadingManager {
         super();
         this.useGitHub = useGitHub;
         this.github = null;
-        this.lastSyncTime = null;
         
         if (useGitHub) {
             this.initGitHub();
@@ -997,7 +914,6 @@ class EnhancedReadingManager extends DailyReadingManager {
     async init() {
         if (this.github) {
             try {
-                this.updateStorageStatus('☁️ GitHub Sync', 'Initializing...');
                 await this.github.init();
                 await this.syncWithGitHub();
                 this.updateStorageStatus('☁️ GitHub Sync', 'Synced successfully');
@@ -1006,7 +922,6 @@ class EnhancedReadingManager extends DailyReadingManager {
                 this.updateStorageStatus('📱 Local Storage', 'GitHub sync failed, using local storage');
                 this.useGitHub = false;
                 this.github = null;
-                this.showSyncError(error);
             }
         } else {
             this.updateStorageStatus('📱 Local Storage', 'Not synced');
@@ -1016,35 +931,12 @@ class EnhancedReadingManager extends DailyReadingManager {
         this.attachGitHubEventListeners();
     }
     
-    showSyncError(error) {
-        const errorDiv = document.createElement('div');
-        errorDiv.style.cssText = `
-            background: #f8d7da;
-            border: 1px solid #f5c6cb;
-            color: #721c24;
-            padding: 12px;
-            border-radius: 4px;
-            margin-bottom: 20px;
-        `;
-        errorDiv.innerHTML = `
-            <strong>GitHub Sync Error:</strong> ${error.message || error.toString()}
-            <br><small>Click "🔍 Diagnose" to troubleshoot the issue.</small>
-        `;
-        
-        const container = document.getElementById('reading-container');
-        if (container) {
-            container.parentNode.insertBefore(errorDiv, container);
-        }
-    }
-    
     attachGitHubEventListeners() {
         const githubSetupBtn = document.getElementById('github-setup-btn');
-        const manualSyncBtn = document.getElementById('manual-sync-btn');
-        const diagnoseBtn = document.getElementById('diagnose-btn');
-        
         if (githubSetupBtn) {
             githubSetupBtn.addEventListener('click', () => {
                 if (this.github) {
+                    // Already configured, offer to reconfigure
                     if (confirm('GitHub sync is already enabled. Do you want to reconfigure?')) {
                         showGitHubSetup();
                     }
@@ -1052,42 +944,6 @@ class EnhancedReadingManager extends DailyReadingManager {
                     showGitHubSetup();
                 }
             });
-        }
-        
-        if (manualSyncBtn) {
-            manualSyncBtn.addEventListener('click', async () => {
-                if (this.github) {
-                    await this.manualSync();
-                } else {
-                    alert('GitHub sync is not configured. Click "⚙️ GitHub Sync" to set it up.');
-                }
-            });
-        }
-        
-        if (diagnoseBtn) {
-            diagnoseBtn.addEventListener('click', () => {
-                this.showDiagnosticPanel();
-            });
-        }
-    }
-    
-    showDiagnosticPanel() {
-        const panel = document.getElementById('diagnostic-panel');
-        if (panel) {
-            panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
-        }
-    }
-    
-    async manualSync() {
-        try {
-            this.updateStorageStatus('☁️ GitHub Sync', 'Manual sync...');
-            await this.syncWithGitHub();
-            this.updateStorageStatus('☁️ GitHub Sync', `Manual sync completed: ${new Date().toLocaleTimeString()}`);
-            alert('✅ Manual sync completed successfully!');
-        } catch (error) {
-            console.error('Manual sync failed:', error);
-            this.updateStorageStatus('☁️ GitHub Sync', 'Manual sync failed');
-            alert(`❌ Manual sync failed: ${error.message}`);
         }
     }
     
@@ -1108,13 +964,12 @@ class EnhancedReadingManager extends DailyReadingManager {
                 await this.github.saveReadings(merged, 'Sync local readings');
             }
             
-            this.lastSyncTime = new Date().toLocaleTimeString();
-            this.updateStorageStatus('☁️ GitHub Sync', `Last synced: ${this.lastSyncTime}`);
+            this.updateStorageStatus('☁️ GitHub Sync', `Last synced: ${new Date().toLocaleTimeString()}`);
             return merged;
         } catch (error) {
             console.error('GitHub sync failed:', error);
             this.updateStorageStatus('☁️ GitHub Sync', 'Sync failed');
-            throw error;
+            return this.getReadings();
         }
     }
     
@@ -1143,7 +998,6 @@ class EnhancedReadingManager extends DailyReadingManager {
             } catch (error) {
                 console.error('Failed to save to GitHub:', error);
                 this.updateStorageStatus('☁️ GitHub Sync', 'Save failed - stored locally');
-                alert(`⚠️ Saved locally but failed to sync to GitHub: ${error.message}`);
             }
         }
     }
@@ -1159,234 +1013,8 @@ class EnhancedReadingManager extends DailyReadingManager {
             } catch (error) {
                 console.error('Failed to delete from GitHub:', error);
                 this.updateStorageStatus('☁️ GitHub Sync', 'Delete failed - removed locally');
-                alert(`⚠️ Deleted locally but failed to sync to GitHub: ${error.message}`);
             }
         }
-    }
-}
-
-// Diagnostic functions
-async function runDiagnostics() {
-    const results = document.getElementById('diagnostic-results');
-    results.innerHTML = '<div>🔍 Running diagnostics...</div>';
-    
-    const diagnostics = [];
-    
-    // Check localStorage
-    const hasToken = !!localStorage.getItem('github_token');
-    const localReadings = JSON.parse(localStorage.getItem('dailyReadings') || '[]');
-    
-    diagnostics.push({
-        name: 'GitHub Token',
-        status: hasToken ? 'OK' : 'MISSING',
-        detail: hasToken ? 'Token found in localStorage' : 'No GitHub token configured'
-    });
-    
-    diagnostics.push({
-        name: 'Local Readings',
-        status: localReadings.length > 0 ? 'OK' : 'EMPTY',
-        detail: `${localReadings.length} readings in localStorage`
-    });
-    
-    // Check GitHub API if token exists
-    if (hasToken) {
-        const token = localStorage.getItem('github_token');
-        
-        try {
-            // Test GitHub API access
-            const response = await fetch('https://api.github.com/user', {
-                headers: { 'Authorization': `token ${token}` }
-            });
-            
-            if (response.ok) {
-                const user = await response.json();
-                diagnostics.push({
-                    name: 'GitHub API Access',
-                    status: 'OK',
-                    detail: `Connected as ${user.login}`
-                });
-            } else {
-                diagnostics.push({
-                    name: 'GitHub API Access',
-                    status: 'ERROR',
-                    detail: `HTTP ${response.status}: ${response.statusText}`
-                });
-            }
-        } catch (error) {
-            diagnostics.push({
-                name: 'GitHub API Access',
-                status: 'ERROR',
-                detail: error.message
-            });
-        }
-        
-        try {
-            // Check repository access
-            const repoResponse = await fetch('https://api.github.com/repos/JKevinXu/github-blog', {
-                headers: { 'Authorization': `token ${token}` }
-            });
-            
-            if (repoResponse.ok) {
-                diagnostics.push({
-                    name: 'Repository Access',
-                    status: 'OK',
-                    detail: 'Can access github-blog repository'
-                });
-            } else {
-                diagnostics.push({
-                    name: 'Repository Access',
-                    status: 'ERROR',
-                    detail: `HTTP ${repoResponse.status}: ${repoResponse.statusText}`
-                });
-            }
-        } catch (error) {
-            diagnostics.push({
-                name: 'Repository Access',
-                status: 'ERROR',
-                detail: error.message
-            });
-        }
-        
-        try {
-            // Check _data directory and readings.json file
-            const fileResponse = await fetch('https://api.github.com/repos/JKevinXu/github-blog/contents/_data/readings.json', {
-                headers: { 'Authorization': `token ${token}` }
-            });
-            
-            if (fileResponse.ok) {
-                const fileData = await fileResponse.json();
-                const content = JSON.parse(atob(fileData.content));
-                diagnostics.push({
-                    name: 'Readings File',
-                    status: 'OK',
-                    detail: `File exists with ${content.length} readings`
-                });
-            } else if (fileResponse.status === 404) {
-                diagnostics.push({
-                    name: 'Readings File',
-                    status: 'MISSING',
-                    detail: 'File does not exist - will be created on first sync'
-                });
-            } else {
-                diagnostics.push({
-                    name: 'Readings File',
-                    status: 'ERROR',
-                    detail: `HTTP ${fileResponse.status}: ${fileResponse.statusText}`
-                });
-            }
-        } catch (error) {
-            diagnostics.push({
-                name: 'Readings File',
-                status: 'ERROR',
-                detail: error.message
-            });
-        }
-    }
-    
-    // Display results
-    let html = '<div style="font-family: monospace; font-size: 14px;">';
-    diagnostics.forEach(d => {
-        const statusColor = d.status === 'OK' ? '#28a745' : 
-                           d.status === 'MISSING' ? '#ffc107' : '#dc3545';
-        html += `
-            <div style="margin-bottom: 10px; padding: 8px; border-left: 4px solid ${statusColor}; background: #f8f9fa;">
-                <strong>${d.name}:</strong> 
-                <span style="color: ${statusColor};">${d.status}</span>
-                <br><small style="color: #666;">${d.detail}</small>
-            </div>
-        `;
-    });
-    html += '</div>';
-    
-    results.innerHTML = html;
-}
-
-async function createDataDirectory() {
-    const token = localStorage.getItem('github_token');
-    if (!token) {
-        alert('Please set up GitHub token first');
-        return;
-    }
-    
-    try {
-        // Create _data directory by creating a readings.json file
-        const response = await fetch('https://api.github.com/repos/JKevinXu/github-blog/contents/_data/readings.json', {
-            method: 'PUT',
-            headers: {
-                'Authorization': `token ${token}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                message: 'Initialize daily readings data file',
-                content: btoa(JSON.stringify([], null, 2))
-            })
-        });
-        
-        if (response.ok) {
-            alert('✅ Successfully created _data directory and readings.json file!');
-            runDiagnostics();
-        } else {
-            const error = await response.text();
-            alert(`❌ Failed to create file: ${error}`);
-        }
-    } catch (error) {
-        alert(`❌ Error: ${error.message}`);
-    }
-}
-
-async function forceSyncToGitHub() {
-    const token = localStorage.getItem('github_token');
-    if (!token) {
-        alert('Please set up GitHub token first');
-        return;
-    }
-    
-    const localReadings = JSON.parse(localStorage.getItem('dailyReadings') || '[]');
-    if (localReadings.length === 0) {
-        alert('No local readings to sync');
-        return;
-    }
-    
-    try {
-        // Get current SHA if file exists
-        let sha = null;
-        const checkResponse = await fetch('https://api.github.com/repos/JKevinXu/github-blog/contents/_data/readings.json', {
-            headers: { 'Authorization': `token ${token}` }
-        });
-        
-        if (checkResponse.ok) {
-            const fileData = await checkResponse.json();
-            sha = fileData.sha;
-        }
-        
-        // Upload readings
-        const body = {
-            message: `Force sync ${localReadings.length} readings from local storage`,
-            content: btoa(JSON.stringify(localReadings, null, 2))
-        };
-        
-        if (sha) {
-            body.sha = sha;
-        }
-        
-        const response = await fetch('https://api.github.com/repos/JKevinXu/github-blog/contents/_data/readings.json', {
-            method: 'PUT',
-            headers: {
-                'Authorization': `token ${token}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(body)
-        });
-        
-        if (response.ok) {
-            alert(`✅ Successfully synced ${localReadings.length} readings to GitHub!`);
-            runDiagnostics();
-        } else {
-            const error = await response.text();
-            alert(`❌ Failed to sync: ${error}`);
-        }
-    } catch (error) {
-        alert(`❌ Error: ${error.message}`);
     }
 }
 
