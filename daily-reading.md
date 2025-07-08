@@ -15,6 +15,7 @@ permalink: /daily-reading/
             <button id="export-readings-btn" class="btn btn-secondary">Export All</button>
             <button id="import-json-btn" class="btn btn-info">📥 Import JSON</button>
             <button id="github-setup-btn" class="btn btn-info">⚙️ GitHub Sync Setup</button>
+            <button id="test-sync-btn" class="btn btn-info">🔄 Test Sync</button>
             <button id="clear-readings-btn" class="btn btn-danger">Clear All</button>
         </div>
         
@@ -136,6 +137,21 @@ permalink: /daily-reading/
 
 .btn:hover {
     opacity: 0.8;
+}
+
+#test-sync-btn {
+    position: relative;
+    overflow: hidden;
+}
+
+#test-sync-btn:hover {
+    background-color: #138496;
+    transform: scale(1.02);
+    transition: all 0.2s ease;
+}
+
+#test-sync-btn:active {
+    transform: scale(0.98);
 }
 
 .reading-form {
@@ -945,6 +961,13 @@ class EnhancedReadingManager extends DailyReadingManager {
                 }
             });
         }
+
+        const testSyncBtn = document.getElementById('test-sync-btn');
+        if (testSyncBtn) {
+            testSyncBtn.addEventListener('click', async () => {
+                await this.testSync();
+            });
+        }
     }
     
     async syncWithGitHub() {
@@ -1014,6 +1037,28 @@ class EnhancedReadingManager extends DailyReadingManager {
                 console.error('Failed to delete from GitHub:', error);
                 this.updateStorageStatus('☁️ GitHub Sync', 'Delete failed - removed locally');
             }
+        }
+    }
+
+    async testSync() {
+        if (!this.github) {
+            alert('❌ GitHub sync is not configured. Please set up GitHub sync first.');
+            return;
+        }
+
+        try {
+            this.updateStorageStatus('☁️ GitHub Sync', 'Testing sync...');
+            
+            // Test sync functionality
+            const result = await this.syncWithGitHub();
+            
+            // Show result
+            alert(`✅ Sync test successful!\n\nLocal readings: ${this.getReadings().length}\nSynced readings: ${result.length}\nLast sync: ${new Date().toLocaleTimeString()}`);
+            
+        } catch (error) {
+            console.error('Sync test failed:', error);
+            alert(`❌ Sync test failed: ${error.message}`);
+            this.updateStorageStatus('☁️ GitHub Sync', 'Sync test failed');
         }
     }
 }
