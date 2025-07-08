@@ -1,1 +1,583 @@
-[]
+[
+  {
+    "id": "17519322468627fjg4a8si",
+    "title": "test2",
+    "url": "https://jkevinxu.github.io/github-blog/daily-reading/",
+    "notes": "",
+    "highlights": [],
+    "summary": "",
+    "tags": [],
+    "timestamp": "2025-07-07T23:50:46.862Z",
+    "date": "Jul 8, 2025, 7:50 AM",
+    "dateAdded": "7/8/2025"
+  },
+  {
+    "id": "1751931606312uwki6nk4u",
+    "title": "test",
+    "url": "https://jkevinxu.github.io/github-blog/daily-reading/",
+    "notes": "",
+    "highlights": [],
+    "summary": "",
+    "tags": [],
+    "timestamp": "2025-07-07T23:40:06.312Z",
+    "date": "Jul 8, 2025, 7:40 AM",
+    "dateAdded": "7/8/2025"
+  },
+  {
+    "id": "hpay40ilkerd00t9ph3itl",
+    "title": "[2506.17298] Mercury: Ultra-Fast Language Models Based on Diffusion",
+    "url": "https://arxiv.org/abs/2506.17298",
+    "timestamp": "2025-07-07T23:33:48.043Z",
+    "dateAdded": "Jul 8, 2025, 7:06 AM",
+    "date": "Jul 8, 2025, 7:06 AM",
+    "tags": [],
+    "notes": "",
+    "summary": "Mercury Coder Mini and Mercury Coder Small achieve state-of-the-art throughputs of 1109 tokens/sec and 737 tokens/sec, respectively, on NVIDIA H100 GPUs",
+    "highlights": [
+      "Mercury Coder Mini and Mercury Coder Small achieve state-of-the-art throughputs of 1109 tokens/sec and 737 tokens/sec, respectively, on NVIDIA H100 GPUs"
+    ],
+    "domain": "arxiv.org",
+    "favicon": ""
+  },
+  {
+    "id": "6pjbnd5ep9rkwwu8svd8us",
+    "title": "Crypto 101",
+    "url": "https://www.crypto101.io/",
+    "timestamp": "2025-07-07T23:33:48.043Z",
+    "dateAdded": "Jul 7, 2025, 8:28 AM",
+    "date": "Jul 7, 2025, 8:28 AM",
+    "tags": [],
+    "notes": "",
+    "summary": "CRYPTO101",
+    "highlights": [
+      "CRYPTO101"
+    ],
+    "domain": "www.crypto101.io",
+    "favicon": ""
+  },
+  {
+    "id": "rekr4nq1zqcjwwk0j4pywf",
+    "title": "Why the Simplest Desktop Agent Abstraction Wins - Bytebot - The Easiest Way to Build Desktop Agents",
+    "url": "https://www.bytebot.ai/blog/designing-bytebot-why-the-simplest-desktop-agent-abstraction-wins",
+    "timestamp": "2025-07-07T23:33:48.043Z",
+    "dateAdded": "Jul 6, 2025, 2:10 PM",
+    "date": "Jul 6, 2025, 2:10 PM",
+    "tags": [],
+    "notes": "",
+    "summary": "Why the Simplest Desktop Agent Abstraction Wins\nJun 20, 2025",
+    "highlights": [
+      "Why the Simplest Desktop Agent Abstraction Wins\nJun 20, 2025",
+      "There’s a massive category of work that lives in the no-man’s land between APIs and deep internal logic. It’s the gnarly, hard-to-automate workflows that involve:\n\nJumping between apps\n\nCopy-pasting between SaaS tools\n\nDownloading PDFs, renaming them, and uploading them to different portals\n\nTyping into legacy desktop software that has no public API\n\nHandling authentication, file dialogs, drag-and-drop interactions"
+    ],
+    "domain": "www.bytebot.ai",
+    "favicon": ""
+  },
+  {
+    "id": "bp97n8oxcofsk9ndxc4x6q",
+    "title": "Optimizing Tool Selection for LLM Workflows: Differentiable Programming with PyTorch and DSPy",
+    "url": "https://viksit.substack.com/p/optimizing-tool-selection-for-llm",
+    "timestamp": "2025-07-07T23:33:48.043Z",
+    "dateAdded": "Jul 6, 2025, 8:19 AM",
+    "date": "Jul 6, 2025, 8:19 AM",
+    "tags": [],
+    "notes": "",
+    "summary": "Optimizing Tool Selection for LLM Workflows: Differentiable Programming with PyTorch and DSPy",
+    "highlights": [
+      "Optimizing Tool Selection for LLM Workflows: Differentiable Programming with PyTorch and DSPy"
+    ],
+    "domain": "viksit.substack.com",
+    "favicon": ""
+  },
+  {
+    "id": "niyub3t5fhdem5j1c46nfb",
+    "title": "librdx/blog/escher.md at master · gritzko/librdx",
+    "url": "https://github.com/gritzko/librdx/blob/master/blog/escher.md",
+    "timestamp": "2025-07-07T23:33:48.043Z",
+    "dateAdded": "Jul 3, 2025, 8:26 AM",
+    "date": "Jul 3, 2025, 8:26 AM",
+    "tags": [],
+    "notes": "",
+    "summary": "Escher's art and computer science",
+    "highlights": [
+      "Escher's art and computer science"
+    ],
+    "domain": "github.com",
+    "favicon": ""
+  },
+  {
+    "id": "jvibq99wtkipan4l8zm55m",
+    "title": "Jobs by Referral",
+    "url": "https://jobsbyreferral.com/",
+    "timestamp": "2025-07-07T23:33:48.043Z",
+    "dateAdded": "Jul 3, 2025, 7:35 AM",
+    "date": "Jul 3, 2025, 7:35 AM",
+    "tags": [],
+    "notes": "",
+    "summary": "Find jobs in your professional network",
+    "highlights": [
+      "Find jobs in your professional network"
+    ],
+    "domain": "jobsbyreferral.com",
+    "favicon": ""
+  },
+  {
+    "id": "bt6m4vmyk57ht9m3g0m4tk",
+    "title": "Don't say \"click here\"; not everyone will be clicking - Quality Web Tips",
+    "url": "https://www.w3.org/QA/Tips/noClickHere",
+    "timestamp": "2025-07-07T23:33:48.043Z",
+    "dateAdded": "Jul 3, 2025, 7:29 AM",
+    "date": "Jul 3, 2025, 7:29 AM",
+    "tags": [],
+    "notes": "",
+    "summary": "Tips for Webmasters",
+    "highlights": [
+      "Tips for Webmasters"
+    ],
+    "domain": "www.w3.org",
+    "favicon": ""
+  },
+  {
+    "id": "qrcdnw1538fq0e52qqg68",
+    "title": "Code⇄GUI bidirectional editing via LSP - james vaughan",
+    "url": "https://jamesbvaughan.com/bidirectional-editing/",
+    "timestamp": "2025-07-07T23:33:48.043Z",
+    "dateAdded": "Jul 2, 2025, 6:18 PM",
+    "date": "Jul 2, 2025, 6:18 PM",
+    "tags": [],
+    "notes": "",
+    "summary": "Code⇄GUI bidirectional editing via LSP",
+    "highlights": [
+      "Code⇄GUI bidirectional editing via LSP"
+    ],
+    "domain": "jamesbvaughan.com",
+    "favicon": ""
+  },
+  {
+    "id": "ollp4w35nrp9zjj4zwnml8",
+    "title": "AlphaGenome: AI for better understanding the genome - Google DeepMind",
+    "url": "https://deepmind.google/discover/blog/alphagenome-ai-for-better-understanding-the-genome/",
+    "timestamp": "2025-07-07T23:33:48.043Z",
+    "dateAdded": "Jun 27, 2025, 9:17 AM",
+    "date": "Jun 27, 2025, 9:17 AM",
+    "tags": [],
+    "notes": "",
+    "summary": "AlphaGenome: AI for better understanding the genome",
+    "highlights": [
+      "AlphaGenome: AI for better understanding the genome"
+    ],
+    "domain": "deepmind.google",
+    "favicon": ""
+  },
+  {
+    "id": "ew42xrd18785hjjqvna9xy",
+    "title": "Working on databases from prison: How I got here, part 2.",
+    "url": "https://turso.tech/blog/working-on-databases-from-prison",
+    "timestamp": "2025-07-07T23:33:48.043Z",
+    "dateAdded": "Jun 17, 2025, 5:33 PM",
+    "date": "Jun 17, 2025, 5:33 PM",
+    "tags": [],
+    "notes": "",
+    "summary": "preferring instead to spend ~15+ hours a day on projects and open source contributions",
+    "highlights": [
+      "preferring instead to spend ~15+ hours a day on projects and open source contributions"
+    ],
+    "domain": "turso.tech",
+    "favicon": ""
+  },
+  {
+    "id": "chqqp12x9as1ndwzy9kn",
+    "title": "Your Brain on ChatGPT: Accumulation of Cognitive Debt when Using an AI Assistant for Essay Writing Task",
+    "url": "https://www.brainonllm.com/",
+    "timestamp": "2025-07-07T23:33:48.043Z",
+    "dateAdded": "Jun 17, 2025, 5:31 PM",
+    "date": "Jun 17, 2025, 5:31 PM",
+    "tags": [],
+    "notes": "",
+    "summary": "Your Brain on ChatGPT: Accumulation of Cognitive Debt when Using an AI Assistant for Essay Writing Task",
+    "highlights": [
+      "Your Brain on ChatGPT: Accumulation of Cognitive Debt when Using an AI Assistant for Essay Writing Task"
+    ],
+    "domain": "www.brainonllm.com",
+    "favicon": ""
+  },
+  {
+    "id": "n836v2pc80a74zbt0xsme3",
+    "title": "MCP: Build Rich-Context AI Apps with Anthropic - DeepLearning.AI",
+    "url": "https://learn.deeplearning.ai/courses/mcp-build-rich-context-ai-apps-with-anthropic/lesson/fkbhh/introduction",
+    "timestamp": "2025-07-07T23:33:48.043Z",
+    "dateAdded": "Jun 16, 2025, 10:42 AM",
+    "date": "Jun 16, 2025, 10:42 AM",
+    "tags": [],
+    "notes": "",
+    "summary": "MCP: Build Rich-Context AI Apps with Anthropic",
+    "highlights": [
+      "MCP: Build Rich-Context AI Apps with Anthropic"
+    ],
+    "domain": "learn.deeplearning.ai",
+    "favicon": ""
+  },
+  {
+    "id": "e5xoy13zk5p90mqlrq16um",
+    "title": "Source code sandboxing",
+    "url": "https://kristaps.bsd.lv/devsecflops/",
+    "timestamp": "2025-07-07T23:33:48.043Z",
+    "dateAdded": "Jun 16, 2025, 10:40 AM",
+    "date": "Jun 16, 2025, 10:40 AM",
+    "tags": [],
+    "notes": "",
+    "summary": "# source code sandboxing",
+    "highlights": [
+      "# source code sandboxing"
+    ],
+    "domain": "kristaps.bsd.lv",
+    "favicon": ""
+  },
+  {
+    "id": "38dw8xn1s4o3r238e635p",
+    "title": "Google Cloud Service Health",
+    "url": "https://status.cloud.google.com/incidents/ow5i3PPK96RduMcb1SsW",
+    "timestamp": "2025-07-07T23:33:48.043Z",
+    "dateAdded": "Jun 15, 2025, 9:49 PM",
+    "date": "Jun 15, 2025, 9:49 PM",
+    "tags": [],
+    "notes": "",
+    "summary": "Multiple GCP products are experiencing Service issues",
+    "highlights": [
+      "Multiple GCP products are experiencing Service issues"
+    ],
+    "domain": "status.cloud.google.com",
+    "favicon": ""
+  },
+  {
+    "id": "t0t30y9m5s9v5bdsbyde8",
+    "title": "Self-Host & Tech Independence: The Joy of Building Your Own | ssp.sh",
+    "url": "https://www.ssp.sh/blog/self-host-self-independence/",
+    "timestamp": "2025-07-07T23:33:48.043Z",
+    "dateAdded": "Jun 8, 2025, 10:33 AM",
+    "date": "Jun 8, 2025, 10:33 AM",
+    "tags": [],
+    "notes": "",
+    "summary": "",
+    "highlights": [],
+    "domain": "www.ssp.sh",
+    "favicon": ""
+  },
+  {
+    "id": "kgihav1x8eo57cbjp5zlu6",
+    "title": "扎克伯格花了超过1000个小时玩《文明6》 - 小红书",
+    "url": "https://www.xiaohongshu.com/explore/67089ca5000000001a021f51?xsec_token=AB7t4tgC3qC4tVN4WkyEjneAgfGHYyoQApqYYX8fPLGRY=&xsec_source=pc_search",
+    "timestamp": "2025-07-07T23:33:48.043Z",
+    "dateAdded": "May 25, 2025, 2:22 PM",
+    "date": "May 25, 2025, 2:22 PM",
+    "tags": [],
+    "notes": "",
+    "summary": "扎克伯格还透露，他已经花了大把时间玩《文明6》。“有一天我老婆看到我的Steam账号，当时她就惊呆了：‘什么？！你花了超过1000小时玩这个游戏？’”",
+    "highlights": [
+      "扎克伯格还透露，他已经花了大把时间玩《文明6》。“有一天我老婆看到我的Steam账号，当时她就惊呆了：‘什么？！你花了超过1000小时玩这个游戏？’”",
+      "1000小时不还是萌新吗"
+    ],
+    "domain": "www.xiaohongshu.com",
+    "favicon": ""
+  },
+  {
+    "id": "3vhfz4jm5wf0ehd6a5nrpnj",
+    "title": "You’re a little company, now act like one",
+    "url": "https://longform.asmartbear.com/little-company/",
+    "timestamp": "2025-07-07T23:33:48.043Z",
+    "dateAdded": "May 25, 2025, 7:41 AM",
+    "date": "May 25, 2025, 7:41 AM",
+    "tags": [],
+    "notes": "",
+    "summary": "In short, you need to tightly define your ICP, because those are the people who love you, for who you are, today, and therefore where you will be successful.",
+    "highlights": [
+      "In short, you need to tightly define your ICP, because those are the people who love you, for who you are, today, and therefore where you will be successful.",
+      "Put yourself in the shoes of that Early Adopter.",
+      "Say something specific and meaningful. Be human. Be yourself.\n\nStop hiding."
+    ],
+    "domain": "longform.asmartbear.com",
+    "favicon": ""
+  },
+  {
+    "id": "spqbjanpq7zl9jpnf47t",
+    "title": "derekeder/csv-to-html-table: :arrow_down_small: Display any CSV (comma separated values) file as a searchable, filterable, pretty HTML table",
+    "url": "https://github.com/derekeder/csv-to-html-table",
+    "timestamp": "2025-07-07T23:33:48.043Z",
+    "dateAdded": "May 22, 2025, 11:27 PM",
+    "date": "May 22, 2025, 11:27 PM",
+    "tags": [],
+    "notes": "",
+    "summary": "csv-to-html-table",
+    "highlights": [
+      "csv-to-html-table"
+    ],
+    "domain": "github.com",
+    "favicon": ""
+  },
+  {
+    "id": "8xpb5fpggfkg0csxtllm36",
+    "title": "Four years of sight reading practice – Negative Feedback",
+    "url": "https://sandrock.co.za/carl/2025/05/four-years-of-sight-reading-pracice/",
+    "timestamp": "2025-07-07T23:33:48.043Z",
+    "dateAdded": "May 22, 2025, 11:26 PM",
+    "date": "May 22, 2025, 11:26 PM",
+    "tags": [],
+    "notes": "",
+    "summary": "Four years of sight reading practice",
+    "highlights": [
+      "Four years of sight reading practice"
+    ],
+    "domain": "sandrock.co.za",
+    "favicon": ""
+  },
+  {
+    "id": "fzpx5mxsn180vz0qlaq7mf",
+    "title": "Playwright Mcp MCP Server",
+    "url": "https://mcp.so/server/playwright-mcp/microsoft?tab=tools",
+    "timestamp": "2025-07-07T23:33:48.043Z",
+    "dateAdded": "May 18, 2025, 5:10 PM",
+    "date": "May 18, 2025, 5:10 PM",
+    "tags": [],
+    "notes": "",
+    "summary": "Playwright Mcp",
+    "highlights": [
+      "Playwright Mcp"
+    ],
+    "domain": "mcp.so",
+    "favicon": ""
+  },
+  {
+    "id": "k147hrhg1493ghg0iur5",
+    "title": "OpenManus: The Open Source Alternative to Manus AI",
+    "url": "https://huggingface.co/blog/lynn-mikami/openmanus-open-source-alternaitve-manus-ai",
+    "timestamp": "2025-07-07T23:33:48.043Z",
+    "dateAdded": "May 14, 2025, 7:43 AM",
+    "date": "May 14, 2025, 7:43 AM",
+    "tags": [],
+    "notes": "",
+    "summary": "OpenManus: The Open Source Alternative to Manus AI",
+    "highlights": [
+      "OpenManus: The Open Source Alternative to Manus AI"
+    ],
+    "domain": "huggingface.co",
+    "favicon": ""
+  },
+  {
+    "id": "9m8c8gh6oqpo2nxkxes3fn",
+    "title": "Home",
+    "url": "https://www.google.com/",
+    "timestamp": "2025-07-07T23:33:48.043Z",
+    "dateAdded": "May 10, 2025, 7:58 PM",
+    "date": "May 10, 2025, 7:58 PM",
+    "tags": [],
+    "notes": "",
+    "summary": "Templates by test",
+    "highlights": [
+      "Templates by Paul"
+    ],
+    "domain": "www.google.com",
+    "favicon": ""
+  },
+  {
+    "id": "to4gww4pmimjwzi3b2xmif",
+    "title": "Introducing Supermaven, the first code completion tool with a 300,000-token context window",
+    "url": "https://supermaven.com/blog/introducing-supermaven",
+    "timestamp": "2025-07-07T23:33:48.043Z",
+    "dateAdded": "May 10, 2025, 10:05 AM",
+    "date": "May 10, 2025, 10:05 AM",
+    "tags": [],
+    "notes": "",
+    "summary": "Introducing Supermaven, the first code completion tool with a 300,000-token context window",
+    "highlights": [
+      "Introducing Supermaven, the first code completion tool with a 300,000-token context window"
+    ],
+    "domain": "supermaven.com",
+    "favicon": ""
+  },
+  {
+    "id": "fva45jn947inz15ctuqddi",
+    "title": "A Brief History of Cursor's Tab Completion - Coplay - Your Unity Copilot",
+    "url": "https://www.coplay.dev/blog/a-brief-history-of-cursor-s-tab-completion",
+    "timestamp": "2025-07-07T23:33:48.043Z",
+    "dateAdded": "May 10, 2025, 10:03 AM",
+    "date": "May 10, 2025, 10:03 AM",
+    "tags": [],
+    "notes": "",
+    "summary": "A Brief History of Cursor's Tab Completion",
+    "highlights": [
+      "A Brief History of Cursor's Tab Completion",
+      "As a solution, Babble was trained on edit sequences instead of lines of code. More akin to what you'd see in a git diff. Since Cursor owns the entire editor, they are privy to the changes initiated, accepted, and rejected by developers in a project, putting them in pole position for training the best tab-completion model.",
+      "Jacob was planning to make his own IDE after hitting the limits of a plugin."
+    ],
+    "domain": "www.coplay.dev",
+    "favicon": ""
+  },
+  {
+    "id": "6au74xveuub67lkbceefur",
+    "title": "婚禮遭聯盟惡意破壞，部落玩家攻陷敵方主城舉辦血色婚禮！這才是真正的魔獸世界！ - YouTube",
+    "url": "https://www.youtube.com/watch?v=qUeq1QDPfWY",
+    "timestamp": "2025-07-07T23:33:48.043Z",
+    "dateAdded": "May 10, 2025, 12:20 AM",
+    "date": "May 10, 2025, 12:20 AM",
+    "tags": [],
+    "notes": "",
+    "summary": "10:19 / 11:18\n\n\n婚禮遭聯盟惡意破壞，部落玩家攻陷敵方主城舉辦血色婚禮！這才是真正的魔獸世界！",
+    "highlights": [
+      "10:19 / 11:18\n\n\n婚禮遭聯盟惡意破壞，部落玩家攻陷敵方主城舉辦血色婚禮！這才是真正的魔獸世界！"
+    ],
+    "domain": "www.youtube.com",
+    "favicon": ""
+  },
+  {
+    "id": "3db3u8qjqk6818mz0a6izt",
+    "title": "[2504.16966] Structuring Competency-Based Courses Through Skill Trees",
+    "url": "https://arxiv.org/abs/2504.16966",
+    "timestamp": "2025-07-07T23:33:48.043Z",
+    "dateAdded": "May 9, 2025, 11:43 PM",
+    "date": "May 9, 2025, 11:43 PM",
+    "tags": [],
+    "notes": "",
+    "summary": "It defines Skill Trees that show dependencies between skills, and subsequently couples these to Concept Trees that contain intuitive ideas/notional machines.",
+    "highlights": [
+      "It defines Skill Trees that show dependencies between skills, and subsequently couples these to Concept Trees that contain intuitive ideas/notional machines."
+    ],
+    "domain": "arxiv.org",
+    "favicon": ""
+  },
+  {
+    "id": "shazkfmc7nfh7k5rt2o11",
+    "title": "Finnhub Stock APIs - Real-time stock prices, Company fundamentals, Estimates, and Alternative data.",
+    "url": "https://finnhub.io/dashboard",
+    "timestamp": "2025-07-07T23:33:48.043Z",
+    "dateAdded": "May 9, 2025, 7:39 PM",
+    "date": "May 9, 2025, 7:39 PM",
+    "tags": [],
+    "notes": "",
+    "summary": "d0euiuhr01qsrhco1f00d0euiuhr01qsrhco1f0g",
+    "highlights": [
+      "d0euiuhr01qsrhco1f00d0euiuhr01qsrhco1f0g"
+    ],
+    "domain": "finnhub.io",
+    "favicon": ""
+  },
+  {
+    "id": "ryn84qxvfu6n94p1jdb6l",
+    "title": "Updating...",
+    "url": "http://localhost:8050/",
+    "timestamp": "2025-07-07T23:33:48.043Z",
+    "dateAdded": "May 9, 2025, 6:06 PM",
+    "date": "May 9, 2025, 6:06 PM",
+    "tags": [],
+    "notes": "",
+    "summary": "Amazon RSU Tracker",
+    "highlights": [
+      "Amazon RSU Tracker"
+    ],
+    "domain": "localhost",
+    "favicon": ""
+  },
+  {
+    "id": "6lfc9aaywyoz78yhzkvzks",
+    "title": "Kevin Xu's team Admin Console – Figma",
+    "url": "https://www.figma.com/files/team/1502583718450471279/team-admin-console/dashboard?fuid=1502583716647082393",
+    "timestamp": "2025-07-07T23:33:48.043Z",
+    "dateAdded": "May 9, 2025, 4:26 PM",
+    "date": "May 9, 2025, 4:26 PM",
+    "tags": [],
+    "notes": "",
+    "summary": "Kevin Xu's team admin",
+    "highlights": [
+      "Kevin Xu's team admin"
+    ],
+    "domain": "www.figma.com",
+    "favicon": ""
+  },
+  {
+    "id": "yzz4idkjw0nycwmnykm9ep",
+    "title": "From: Steve Jobs. \"Great idea, thank you.\" | #haymanSplaining",
+    "url": "https://blog.hayman.net/2025/05/06/from-steve-jobs-great-idea.html",
+    "timestamp": "2025-07-07T23:33:48.043Z",
+    "dateAdded": "May 9, 2025, 11:07 AM",
+    "date": "May 9, 2025, 11:07 AM",
+    "tags": [],
+    "notes": "",
+    "summary": "From: Steve Jobs\nTo: Steve Hayman\nGreat idea, thank you.\n\nI’ve often thought I should print and frame this email, and let people wonder what the Great Idea was. “We should merge back with Apple!” “How about a music player that fit in your pocket?” “We should build something with a touch screen.” no, nothing quite that cool, but still, it’s one of my favourite messages.",
+    "highlights": [
+      "From: Steve Jobs\nTo: Steve Hayman\nGreat idea, thank you.\n\nI’ve often thought I should print and frame this email, and let people wonder what the Great Idea was. “We should merge back with Apple!” “How about a music player that fit in your pocket?” “We should build something with a touch screen.” no, nothing quite that cool, but still, it’s one of my favourite messages."
+    ],
+    "domain": "blog.hayman.net",
+    "favicon": ""
+  },
+  {
+    "id": "f8k0muagtknnqnctqjne",
+    "title": "Podfox: World's First Container-Aware Browser - Home of Val Packett",
+    "url": "https://val.packett.cool/blog/podfox/",
+    "timestamp": "2025-07-07T23:33:48.043Z",
+    "dateAdded": "May 9, 2025, 10:47 AM",
+    "date": "May 9, 2025, 10:47 AM",
+    "tags": [],
+    "notes": "",
+    "summary": "odman run --rm -it -p",
+    "highlights": [
+      "odman run --rm -it -p",
+      "In the old-school rootful setup, networking is pretty straightforward: the daemon can create bridge interfaces on the host, containers get assigned IP addresses on a bridged subnet, and they are accessible as if they were actual machines. And it’s possible to set up DNS on the host machine to resolve to container names but like… ugh, messing with DNS."
+    ],
+    "domain": "val.packett.cool",
+    "favicon": ""
+  },
+  {
+    "id": "3vlolk9ej1mypvfldyw3bk",
+    "title": "How To Start A School With Your Friends - Priya Rose 🌹",
+    "url": "https://prigoose.substack.com/p/how-to-start-a-university",
+    "timestamp": "2025-07-07T23:33:48.043Z",
+    "dateAdded": "May 9, 2025, 10:12 AM",
+    "date": "May 9, 2025, 10:12 AM",
+    "tags": [],
+    "notes": "",
+    "summary": "five of those students wanted to teach a class the next semester.",
+    "highlights": [],
+    "domain": "prigoose.substack.com",
+    "favicon": ""
+  },
+  {
+    "id": "1du2eab7uouwf5clmo4l5b",
+    "title": "Nobody Codes Here Anymore - Alex Ghiculescu's Newsletter",
+    "url": "https://ghiculescu.substack.com/p/nobody-codes-here-anymore",
+    "timestamp": "2025-07-07T23:33:48.043Z",
+    "dateAdded": "May 9, 2025, 9:49 AM",
+    "date": "May 9, 2025, 9:49 AM",
+    "tags": [],
+    "notes": "",
+    "summary": "I suspect this is less of an issue for Cursor users because it’s always there in your editor, while Claude Code lives in your terminal.",
+    "highlights": [],
+    "domain": "ghiculescu.substack.com",
+    "favicon": ""
+  },
+  {
+    "id": "mghn2exspjbso7zwmh2qp",
+    "title": "Darij Grinberg: Mathematical Problem Solving (Math 235), Fall 2020",
+    "url": "https://www.cip.ifi.lmu.de/~grinberg/t/20f/",
+    "timestamp": "2025-07-07T23:33:48.043Z",
+    "dateAdded": "May 9, 2025, 9:24 AM",
+    "date": "May 9, 2025, 9:24 AM",
+    "tags": [],
+    "notes": "",
+    "summary": "",
+    "highlights": [],
+    "domain": "www.cip.ifi.lmu.de",
+    "favicon": ""
+  },
+  {
+    "id": "ysxbwq3ayoi7u8gg9xpwq6",
+    "title": "voideditor/void",
+    "url": "https://github.com/voideditor/void",
+    "timestamp": "2025-07-07T23:33:48.043Z",
+    "dateAdded": "May 9, 2025, 9:24 AM",
+    "date": "May 9, 2025, 9:24 AM",
+    "tags": [],
+    "notes": "",
+    "summary": "",
+    "highlights": [],
+    "domain": "github.com",
+    "favicon": ""
+  }
+]
