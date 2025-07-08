@@ -16,7 +16,6 @@ permalink: /daily-reading/
             <button id="import-json-btn" class="btn btn-info">📥 Import JSON</button>
             <button id="github-setup-btn" class="btn btn-info">⚙️ GitHub Sync Setup</button>
             <button id="test-sync-btn" class="btn btn-info">🔄 Test Sync</button>
-            <button id="create-file-btn" class="btn btn-info">📁 Create GitHub File</button>
         </div>
         
         <div id="storage-status" class="storage-status">
@@ -154,21 +153,7 @@ permalink: /daily-reading/
     transform: scale(0.98);
 }
 
-#create-file-btn {
-    background-color: #20c997;
-    border-color: #20c997;
-}
 
-#create-file-btn:hover {
-    background-color: #1aa179;
-    border-color: #1aa179;
-    transform: scale(1.02);
-    transition: all 0.2s ease;
-}
-
-#create-file-btn:active {
-    transform: scale(0.98);
-}
 
 .reading-form {
     background: #f8f9fa;
@@ -978,12 +963,7 @@ class EnhancedReadingManager extends DailyReadingManager {
             });
         }
 
-        const createFileBtn = document.getElementById('create-file-btn');
-        if (createFileBtn) {
-            createFileBtn.addEventListener('click', async () => {
-                await this.createGitHubFile();
-            });
-        }
+
     }
     
     async syncWithGitHub() {
@@ -1127,48 +1107,7 @@ class EnhancedReadingManager extends DailyReadingManager {
         }
     }
 
-    async createGitHubFile() {
-        if (!this.github) {
-            alert('❌ GitHub sync is not configured. Please set up GitHub sync first.');
-            return;
-        }
 
-        try {
-            this.updateStorageStatus('☁️ GitHub Sync', 'Creating file...');
-            
-            // Get local readings to upload
-            const localReadings = this.getReadings();
-            const dataToUpload = localReadings.length > 0 ? localReadings : [];
-            
-            // Create the file
-            await this.github.saveReadings(dataToUpload, 'Create initial daily readings file');
-            
-            // Test that it worked
-            const createdReadings = await this.github.getReadings();
-            
-            alert(`✅ GitHub file created successfully!\n\nLocation: ${this.github.owner}/${this.github.repo}/${this.github.filePath}\nBranch: ${this.github.branch}\nReadings uploaded: ${createdReadings.length}\n\nYou can now use GitHub sync normally.`);
-            
-            this.updateStorageStatus('☁️ GitHub Sync', 'File created successfully');
-            
-        } catch (error) {
-            console.error('Failed to create GitHub file:', error);
-            
-            let errorMsg = `❌ Failed to create GitHub file!\n\nError: ${error.message || error}\n\n`;
-            
-            if (error.status === 404) {
-                errorMsg += 'Repository not found. Please check:\n- Repository name: github-blog\n- Repository exists\n- Token has access';
-            } else if (error.status === 401) {
-                errorMsg += 'Authentication failed. Please check:\n- Token is valid\n- Token hasn\'t expired';
-            } else if (error.status === 403) {
-                errorMsg += 'Permission denied. Please check:\n- Token has "repo" scope\n- You have write access to the repository';
-            } else {
-                errorMsg += 'Unexpected error. Please check console for details.';
-            }
-            
-            alert(errorMsg);
-            this.updateStorageStatus('☁️ GitHub Sync', 'File creation failed');
-        }
-    }
 }
 
 // Initialize reading manager
