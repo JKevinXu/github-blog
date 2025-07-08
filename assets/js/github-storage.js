@@ -1,4 +1,28 @@
 // GitHub API Storage for Daily Readings
+
+// Unicode-safe base64 utility functions
+const base64Utils = {
+    // Encode Unicode string to base64
+    encode: (str) => {
+        try {
+            return btoa(unescape(encodeURIComponent(str)));
+        } catch (error) {
+            console.error('Base64 encoding failed:', error);
+            throw new Error('Failed to encode data for GitHub storage');
+        }
+    },
+    
+    // Decode base64 to Unicode string
+    decode: (base64) => {
+        try {
+            return decodeURIComponent(escape(atob(base64)));
+        } catch (error) {
+            console.error('Base64 decoding failed:', error);
+            throw new Error('Failed to decode data from GitHub storage');
+        }
+    }
+};
+
 class GitHubStorage {
     constructor(config) {
         this.owner = config.owner; // Your GitHub username
@@ -39,8 +63,9 @@ class GitHubStorage {
         }
 
         const data = await response.json();
-        const content = atob(data.content); // Decode base64
-        return JSON.parse(content);
+        // Unicode-safe base64 decoding
+        const decodedContent = base64Utils.decode(data.content);
+        return JSON.parse(decodedContent);
     }
 
     // Save readings to GitHub
@@ -64,7 +89,9 @@ class GitHubStorage {
             // File doesn't exist, will create new
         }
 
-        const content = btoa(JSON.stringify(readings, null, 2)); // Encode to base64
+        // Unicode-safe base64 encoding
+        const jsonString = JSON.stringify(readings, null, 2);
+        const content = base64Utils.encode(jsonString);
 
         const body = {
             message,
