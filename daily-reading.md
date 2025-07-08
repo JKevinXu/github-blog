@@ -655,18 +655,24 @@ class EnhancedReadingManager extends DailyReadingManager {
     }
     
     async init() {
+        console.log('🔍 EnhancedReadingManager.init() - GitHub status:', !!this.github);
+        
         if (this.github) {
             try {
+                console.log('🔍 Initializing GitHub connection...');
                 await this.github.init();
+                console.log('🔍 Calling syncWithGitHub...');
                 await this.syncWithGitHub();
                 this.updateStorageStatus('☁️ GitHub Sync', 'Synced successfully');
+                console.log('✅ GitHub sync completed successfully');
             } catch (error) {
-                console.error('GitHub init failed:', error);
+                console.error('❌ GitHub init failed:', error);
                 this.updateStorageStatus('📱 Local Storage', 'GitHub sync failed, using local storage');
                 this.useGitHub = false;
                 this.github = null;
             }
         } else {
+            console.log('📱 No GitHub token found, using local storage');
             this.updateStorageStatus('📱 Local Storage', 'Not synced');
         }
         
@@ -695,26 +701,44 @@ class EnhancedReadingManager extends DailyReadingManager {
     }
     
     async syncWithGitHub() {
-        if (!this.github) return this.getReadings();
+        if (!this.github) {
+            console.log('🔍 syncWithGitHub: No GitHub client, returning local readings');
+            return this.getReadings();
+        }
         
         try {
+            console.log('🔍 syncWithGitHub: Starting sync process...');
             this.updateStorageStatus('☁️ GitHub Sync', 'Syncing...');
+            
+            console.log('🔍 Fetching readings from GitHub...');
             const githubReadings = await this.github.getReadings();
+            console.log('🔍 GitHub readings fetched:', githubReadings.length, 'items');
+            
             const localReadings = this.getReadings();
+            console.log('🔍 Local readings found:', localReadings.length, 'items');
             
             // Merge readings
+            console.log('🔍 Merging readings...');
             const merged = this.mergeReadings(githubReadings, localReadings);
+            console.log('🔍 Merged readings:', merged.length, 'items');
             
             // Update both storages
+            console.log('🔍 Saving merged readings locally...');
             this.saveReadings(merged);
+            
             if (merged.length !== githubReadings.length) {
+                console.log('🔍 Syncing local changes back to GitHub...');
                 await this.github.saveReadings(merged, 'Sync local readings');
             }
             
+            console.log('🔍 Displaying readings in UI...');
+            this.displayReadings(merged);
+            
             this.updateStorageStatus('☁️ GitHub Sync', `Last synced: ${new Date().toLocaleTimeString()}`);
+            console.log('✅ syncWithGitHub completed successfully');
             return merged;
         } catch (error) {
-            console.error('GitHub sync failed:', error);
+            console.error('❌ GitHub sync failed:', error);
             this.updateStorageStatus('☁️ GitHub Sync', 'Sync failed');
             return this.getReadings();
         }
@@ -774,6 +798,7 @@ let readingManager;
 
 function initializeReadingManager() {
     const hasGitHubToken = !!localStorage.getItem('github_token');
+    console.log('🔍 initializeReadingManager: GitHub token exists:', hasGitHubToken);
     readingManager = new EnhancedReadingManager(hasGitHubToken);
 }
 

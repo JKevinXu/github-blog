@@ -50,6 +50,7 @@ class GitHubStorage {
     // Get current readings from GitHub
     async getReadings() {
         const url = `${this.apiBase}/repos/${this.owner}/${this.repo}/contents/${this.filePath}`;
+        console.log('🔍 GitHubStorage.getReadings: Fetching from URL:', url);
         
         const response = await fetch(url, {
             headers: {
@@ -58,14 +59,23 @@ class GitHubStorage {
             }
         });
 
+        console.log('🔍 GitHubStorage.getReadings: Response status:', response.status);
+        
         if (!response.ok) {
-            throw { status: response.status, message: await response.text() };
+            const errorText = await response.text();
+            console.error('❌ GitHubStorage.getReadings: API Error:', response.status, errorText);
+            throw { status: response.status, message: errorText };
         }
 
         const data = await response.json();
+        console.log('🔍 GitHubStorage.getReadings: File size:', data.size, 'bytes');
+        
         // Unicode-safe base64 decoding
         const decodedContent = base64Utils.decode(data.content);
-        return JSON.parse(decodedContent);
+        const readings = JSON.parse(decodedContent);
+        console.log('🔍 GitHubStorage.getReadings: Parsed', readings.length, 'readings');
+        
+        return readings;
     }
 
     // Save readings to GitHub
