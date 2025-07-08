@@ -12,15 +12,12 @@ permalink: /daily-reading/
         
         <div class="reading-actions">
             <button id="add-reading-btn" class="btn btn-primary">Add Reading Item</button>
-            <button id="export-readings-btn" class="btn btn-secondary">Export All</button>
-            <button id="import-json-btn" class="btn btn-info">📥 Import JSON</button>
-            <button id="github-setup-btn" class="btn btn-info">⚙️ GitHub Sync Setup</button>
-            <button id="test-sync-btn" class="btn btn-info">🔄 Test Sync</button>
         </div>
         
         <div id="storage-status" class="storage-status">
             <span id="storage-indicator">📱 Local Storage</span>
             <span id="sync-status"></span>
+            <button id="github-setup-btn" class="btn-small btn-link">⚙️ Setup</button>
         </div>
     </div>
 
@@ -138,20 +135,7 @@ permalink: /daily-reading/
     opacity: 0.8;
 }
 
-#test-sync-btn {
-    position: relative;
-    overflow: hidden;
-}
 
-#test-sync-btn:hover {
-    background-color: #138496;
-    transform: scale(1.02);
-    transition: all 0.2s ease;
-}
-
-#test-sync-btn:active {
-    transform: scale(0.98);
-}
 
 
 
@@ -349,6 +333,27 @@ permalink: /daily-reading/
     font-style: italic;
 }
 
+.btn-small {
+    padding: 4px 8px;
+    font-size: 0.75em;
+    border-radius: 3px;
+}
+
+.btn-link {
+    background: none;
+    border: 1px solid transparent;
+    color: #666;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.btn-link:hover {
+    color: #007bff;
+    text-decoration: underline;
+    background: none;
+    opacity: 1;
+}
+
 @media (max-width: 768px) {
     .reading-filters {
         flex-direction: column;
@@ -392,8 +397,6 @@ class DailyReadingManager {
         document.getElementById('add-reading-btn').addEventListener('click', () => this.showAddForm());
         document.getElementById('cancel-add-btn').addEventListener('click', () => this.hideAddForm());
         document.getElementById('reading-item-form').addEventListener('submit', (e) => this.handleAddReading(e));
-        document.getElementById('export-readings-btn').addEventListener('click', () => this.exportReadings());
-        document.getElementById('import-json-btn').addEventListener('click', () => this.showImportModal());
         
         document.getElementById('search-readings').addEventListener('input', () => this.filterReadings());
         document.getElementById('filter-by-tag').addEventListener('change', () => this.filterReadings());
@@ -607,174 +610,11 @@ class DailyReadingManager {
         this.displayReadings(filtered);
     }
 
-    exportReadings() {
-        const readings = this.getReadings();
-        const dataStr = JSON.stringify(readings, null, 2);
-        const dataBlob = new Blob([dataStr], {type: 'application/json'});
-        
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(dataBlob);
-        link.download = `daily-readings-${new Date().toISOString().split('T')[0]}.json`;
-        link.click();
-        
-        // Also show a sample of the exported format
-        console.log('Exported format sample:', readings.slice(0, 2));
-    }
 
 
 
-    showImportModal() {
-        const modal = document.createElement('div');
-        modal.id = 'import-modal';
-        modal.style.cssText = `
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.7);
-            z-index: 999999;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        `;
-        
-        modal.innerHTML = `
-            <div style="
-                background: white;
-                border-radius: 12px;
-                padding: 30px;
-                max-width: 700px;
-                width: 90%;
-                max-height: 80vh;
-                overflow-y: auto;
-            ">
-                <h2>📥 Import Reading Data</h2>
-                <p>Import readings from JSON format (supports article summarizer exports and our export format).</p>
-                
-                <div style="margin: 20px 0;">
-                    <label style="display: block; margin-bottom: 10px; font-weight: bold;">
-                        Select JSON file or paste JSON data:
-                    </label>
-                    <input type="file" id="import-file" accept=".json" style="margin-bottom: 10px;">
-                    <textarea id="import-text" rows="10" placeholder="Or paste JSON data here..." style="
-                        width: 100%;
-                        padding: 12px;
-                        border: 2px solid #ddd;
-                        border-radius: 8px;
-                        font-family: monospace;
-                        font-size: 12px;
-                    "></textarea>
-                </div>
-                
-                <div style="margin: 20px 0;">
-                    <label style="display: flex; align-items: center; margin-bottom: 10px;">
-                        <input type="checkbox" id="merge-readings" checked style="margin-right: 8px;">
-                        Merge with existing readings (unchecked = replace all)
-                    </label>
-                </div>
-                
-                <div style="display: flex; gap: 10px; justify-content: flex-end;">
-                    <button onclick="closeImportModal()" style="
-                        padding: 12px 24px;
-                        border: 2px solid #6c757d;
-                        background: white;
-                        color: #6c757d;
-                        border-radius: 8px;
-                        cursor: pointer;
-                    ">Cancel</button>
-                    <button onclick="processImport()" style="
-                        padding: 12px 24px;
-                        border: 2px solid #28a745;
-                        background: #28a745;
-                        color: white;
-                        border-radius: 8px;
-                        cursor: pointer;
-                    ">📥 Import</button>
-                </div>
-            </div>
-        `;
-        
-        document.body.appendChild(modal);
-        
-        // File input handler
-        document.getElementById('import-file').addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    document.getElementById('import-text').value = e.target.result;
-                };
-                reader.readAsText(file);
-            }
-        });
-    }
 
-    importReadings(jsonData, merge = true) {
-        try {
-            const data = JSON.parse(jsonData);
-            let readings = [];
-            
-            if (Array.isArray(data)) {
-                // Process each item in the array
-                readings = data.map(item => this.convertToReadingFormat(item));
-            } else {
-                // Single item
-                readings = [this.convertToReadingFormat(data)];
-            }
-            
-            // Filter out invalid readings
-            readings = readings.filter(reading => reading.title && reading.url);
-            
-            if (merge) {
-                const existingReadings = this.getReadings();
-                // Merge, avoiding duplicates based on URL
-                const existingUrls = new Set(existingReadings.map(r => r.url));
-                const newReadings = readings.filter(r => !existingUrls.has(r.url));
-                readings = [...newReadings, ...existingReadings];
-            }
-            
-            this.saveReadings(readings);
-            this.loadReadings();
-            this.updateTagFilter();
-            
-            return readings.length;
-        } catch (error) {
-            console.error('Import error:', error);
-            throw new Error('Invalid JSON format');
-        }
-    }
 
-    convertToReadingFormat(item) {
-        // Handle different input formats
-        const reading = {
-            id: item.id || (Date.now().toString() + Math.random().toString(36).substr(2, 9)),
-            title: item.title || '',
-            url: item.url || '',
-            timestamp: item.timestamp || new Date().toISOString(),
-            dateAdded: item.dateAdded || item.date || new Date().toLocaleDateString(),
-            date: item.date || new Date().toLocaleDateString('en-US', { 
-                year: 'numeric', 
-                month: 'short', 
-                day: 'numeric',
-                hour: 'numeric',
-                minute: '2-digit'
-            }),
-            tags: item.tags || [],
-            notes: item.notes || '',
-            summary: item.summary || item.highlight || '',
-            highlights: item.highlights || [],
-            domain: item.domain || (item.url ? new URL(item.url).hostname : ''),
-            favicon: item.favicon || ''
-        };
-        
-        // Handle article summarizer format
-        if (item.highlights && Array.isArray(item.highlights)) {
-            reading.highlights = item.highlights;
-        }
-        
-        return reading;
-    }
 }
 
 // GitHub Setup Modal
@@ -956,12 +796,7 @@ class EnhancedReadingManager extends DailyReadingManager {
             });
         }
 
-        const testSyncBtn = document.getElementById('test-sync-btn');
-        if (testSyncBtn) {
-            testSyncBtn.addEventListener('click', async () => {
-                await this.testSync();
-            });
-        }
+
 
 
     }
@@ -1036,76 +871,7 @@ class EnhancedReadingManager extends DailyReadingManager {
         }
     }
 
-    async testSync() {
-        if (!this.github) {
-            alert('❌ GitHub sync is not configured. Please set up GitHub sync first.');
-            return;
-        }
-
-        try {
-            this.updateStorageStatus('☁️ GitHub Sync', 'Testing sync...');
-            
-            // Test GitHub configuration
-            const config = {
-                owner: this.github.owner,
-                repo: this.github.repo,
-                branch: this.github.branch,
-                filePath: this.github.filePath,
-                hasToken: !!this.github.token
-            };
-            
-            console.log('GitHub Config:', config);
-            
-            // Test file existence and creation
-            try {
-                console.log('Testing file access...');
-                await this.github.getReadings();
-                console.log('✅ File exists and accessible');
-            } catch (error) {
-                console.log('File access error:', error);
-                
-                if (error.status === 404) {
-                    console.log('🔧 File doesn\'t exist, attempting to create...');
-                    try {
-                        await this.github.saveReadings([], 'Initial readings file creation');
-                        console.log('✅ File created successfully');
-                    } catch (createError) {
-                        console.error('❌ Failed to create file:', createError);
-                        throw createError;
-                    }
-                } else {
-                    throw error;
-                }
-            }
-            
-            // Test sync functionality
-            const result = await this.syncWithGitHub();
-            
-            // Show detailed result
-            alert(`✅ Sync test successful!\n\nConfiguration:\n- Repository: ${config.owner}/${config.repo}\n- Branch: ${config.branch}\n- File Path: ${config.filePath}\n- Token: ${config.hasToken ? 'Configured' : 'Missing'}\n\nResults:\n- Local readings: ${this.getReadings().length}\n- Synced readings: ${result.length}\n- Last sync: ${new Date().toLocaleTimeString()}\n\nCheck browser console for detailed logs.`);
-            
-        } catch (error) {
-            console.error('Sync test failed:', error);
-            
-            // Provide detailed error information
-            let errorMsg = `❌ Sync test failed!\n\nError: ${error.message || error}\n\nPossible causes:\n`;
-            
-            if (error.status === 404) {
-                errorMsg += '- Repository doesn\'t exist\n- File path is incorrect\n- No permission to access repo';
-            } else if (error.status === 401) {
-                errorMsg += '- Invalid GitHub token\n- Token expired\n- No repository access';
-            } else if (error.status === 403) {
-                errorMsg += '- Token lacks required permissions\n- Rate limit exceeded\n- Repository is private';
-            } else {
-                errorMsg += '- Network connection issue\n- GitHub API temporary issue\n- Invalid configuration';
-            }
-            
-            errorMsg += `\n\nTechnical details:\nStatus: ${error.status}\nMessage: ${error.message}\n\nCheck browser console for full error details.`;
-            
-            alert(errorMsg);
-            this.updateStorageStatus('☁️ GitHub Sync', 'Sync test failed');
-        }
-    }
+    
 
 
 }
@@ -1118,29 +884,7 @@ function initializeReadingManager() {
     readingManager = new EnhancedReadingManager(hasGitHubToken);
 }
 
-// Global functions for import modal
-function closeImportModal() {
-    const modal = document.getElementById('import-modal');
-    if (modal) modal.remove();
-}
 
-function processImport() {
-    const jsonText = document.getElementById('import-text').value.trim();
-    const mergeReadings = document.getElementById('merge-readings').checked;
-    
-    if (!jsonText) {
-        alert('Please enter JSON data or select a file');
-        return;
-    }
-    
-    try {
-        const count = readingManager.importReadings(jsonText, mergeReadings);
-        alert(`✅ Successfully imported ${count} readings!`);
-        closeImportModal();
-    } catch (error) {
-        alert(`❌ Import failed: ${error.message}`);
-    }
-}
 
 // Initialize when page loads
 document.addEventListener('DOMContentLoaded', () => {
