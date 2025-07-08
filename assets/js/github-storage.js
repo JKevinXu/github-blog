@@ -188,93 +188,10 @@ class GitHubStorage {
     }
 }
 
-// GitHub-powered Daily Reading Manager
-class GitHubReadingManager extends DailyReadingManager {
-    constructor(githubConfig) {
-        super();
-        this.github = new GitHubStorage(githubConfig);
-        this.useGitHub = !!githubConfig.token;
-    }
-
-    async init() {
-        if (this.useGitHub) {
-            try {
-                await this.github.init();
-                await this.syncReadings();
-            } catch (error) {
-                console.warn('GitHub init failed, falling back to localStorage:', error);
-                this.useGitHub = false;
-            }
-        }
-        super.init();
-    }
-
-    async syncReadings() {
-        if (this.useGitHub) {
-            const readings = await this.github.syncWithLocal();
-            this.displayReadings(readings);
-            this.updateTagFilter();
-            return readings;
-        }
-        return this.getReadings();
-    }
-
-    async addReading(reading) {
-        if (this.useGitHub) {
-            try {
-                await this.github.addReading(reading);
-                await this.syncReadings();
-            } catch (error) {
-                console.error('Failed to save to GitHub:', error);
-                // Fallback to local storage
-                super.addReading(reading);
-            }
-        } else {
-            super.addReading(reading);
-        }
-    }
-
-    async deleteReading(id) {
-        if (this.useGitHub) {
-            try {
-                await this.github.deleteReading(id);
-                await this.syncReadings();
-            } catch (error) {
-                console.error('Failed to delete from GitHub:', error);
-                // Fallback to local storage
-                super.deleteReading(id);
-            }
-        } else {
-            super.deleteReading(id);
-        }
-    }
-}
-
-// Configuration and initialization
-function initializeGitHubStorage() {
-    // Check if GitHub token is available
-    const githubToken = localStorage.getItem('github_token') || 
-                       prompt('Enter your GitHub Personal Access Token (optional):');
-    
-    if (githubToken) {
-        localStorage.setItem('github_token', githubToken);
-        
-        const config = {
-            owner: 'JKevinXu', // Your GitHub username
-            repo: 'github-blog', // Your repository name
-            token: githubToken,
-            branch: 'main',
-            filePath: '_data/readings.json'
-        };
-
-        return new GitHubReadingManager(config);
-    } else {
-        // Use localStorage-only version
-        return new DailyReadingManager();
-    }
-}
+// Note: GitHubReadingManager implementation moved to daily-reading.md
+// This file now only exports the GitHubStorage class for use by the main reading manager
 
 // Export for use in other files
 if (typeof module !== 'undefined' && module.exports) {
-    module.exports = { GitHubStorage, GitHubReadingManager };
+    module.exports = { GitHubStorage };
 } 
