@@ -1,17 +1,14 @@
 ---
 layout: page
-title: "Daily Reading"
+title: ""
 permalink: /daily-reading/
 ---
 
 <div class="daily-reading-container">
     <div class="reading-header">
-        <h1>Daily Reading Collection</h1>
-        <p>Save and organize articles, blogs, and resources you read daily.</p>
-        <p><a href="/daily-reading-setup/" style="color: #007bff; text-decoration: none;">📖 Setup Guide & Instructions</a></p>
         
         <div class="reading-actions">
-            <button id="add-reading-btn" class="btn btn-primary">Add Reading Item</button>
+            <button id="add-reading-btn" class="btn btn-primary">+</button>
         </div>
         
         <div id="storage-status" class="storage-status">
