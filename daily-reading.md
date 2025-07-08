@@ -624,13 +624,11 @@ function saveGitHubToken() {
 // Enhanced Reading Manager with GitHub Integration
 class EnhancedReadingManager extends DailyReadingManager {
     constructor(useGitHub = false) {
+        console.log('🔍 EnhancedReadingManager constructor: useGitHub =', useGitHub);
+        
         super();
         this.useGitHub = useGitHub;
         this.github = null;
-        
-        if (useGitHub) {
-            this.initGitHub();
-        }
     }
     
     initGitHub() {
@@ -669,7 +667,15 @@ class EnhancedReadingManager extends DailyReadingManager {
     }
     
     async init() {
-        console.log('🔍 EnhancedReadingManager.init() - GitHub status:', !!this.github);
+        console.log('🔍 EnhancedReadingManager.init() - useGitHub:', this.useGitHub);
+        
+        // Set up GitHub client first if needed
+        if (this.useGitHub && !this.github) {
+            console.log('🔍 Setting up GitHub client in init()...');
+            this.initGitHub();
+        }
+        
+        console.log('🔍 EnhancedReadingManager.init() - GitHub status after setup:', !!this.github);
         
         if (this.github) {
             try {
@@ -686,7 +692,7 @@ class EnhancedReadingManager extends DailyReadingManager {
                 this.github = null;
             }
         } else {
-            console.log('📱 No GitHub token found, using local storage');
+            console.log('📱 No GitHub client available, using local storage');
             this.updateStorageStatus('📱 Local Storage', 'Not synced');
         }
         
