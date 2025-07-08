@@ -7,9 +7,7 @@ permalink: /daily-reading/
 <div class="daily-reading-container">
     <div class="reading-header">
         
-        <div class="reading-actions">
-            <button id="add-reading-btn" class="btn btn-primary">+</button>
-        </div>
+
         
         <div id="storage-status" class="storage-status">
             <span id="storage-indicator">📱 Local Storage</span>
@@ -18,41 +16,7 @@ permalink: /daily-reading/
         </div>
     </div>
 
-    <!-- Add Reading Form -->
-    <div id="add-reading-form" class="reading-form" style="display: none;">
-        <h3>Add New Reading Item</h3>
-        <form id="reading-item-form">
-            <div class="form-group">
-                <label for="reading-title">Title:</label>
-                <input type="text" id="reading-title" required>
-            </div>
-            <div class="form-group">
-                <label for="reading-url">URL:</label>
-                <input type="url" id="reading-url" required>
-            </div>
-            <div class="form-group">
-                <label for="reading-notes">Notes (optional):</label>
-                <textarea id="reading-notes" rows="3" placeholder="Your thoughts and summary..."></textarea>
-            </div>
-            <div class="form-group">
-                <label for="reading-highlights">Highlights/Quotes (optional):</label>
-                <textarea id="reading-highlights" rows="4" placeholder="Key highlights or quotes from the article (one per line)..."></textarea>
-                <small style="color: #666; font-size: 12px;">Enter each highlight on a new line</small>
-            </div>
-            <div class="form-group">
-                <label for="reading-summary">Key Summary (optional):</label>
-                <textarea id="reading-summary" rows="2" placeholder="Brief summary or main takeaway..."></textarea>
-            </div>
-            <div class="form-group">
-                <label for="reading-tags">Tags (comma-separated):</label>
-                <input type="text" id="reading-tags" placeholder="tech, blog, tutorial">
-            </div>
-            <div class="form-actions">
-                <button type="submit" class="btn btn-primary">Save Reading</button>
-                <button type="button" id="cancel-add-btn" class="btn btn-secondary">Cancel</button>
-            </div>
-        </form>
-    </div>
+
 
     <!-- Filter Controls -->
     <div class="reading-filters">
@@ -94,9 +58,7 @@ permalink: /daily-reading/
     margin-bottom: 30px;
 }
 
-.reading-actions {
-    margin: 20px 0;
-}
+
 
 .btn {
     padding: 10px 20px;
@@ -136,35 +98,7 @@ permalink: /daily-reading/
 
 
 
-.reading-form {
-    background: #f8f9fa;
-    padding: 20px;
-    border-radius: 5px;
-    margin: 20px 0;
-}
 
-.form-group {
-    margin-bottom: 15px;
-}
-
-.form-group label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: bold;
-}
-
-.form-group input,
-.form-group textarea {
-    width: 100%;
-    padding: 8px 12px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    box-sizing: border-box;
-}
-
-.form-actions {
-    margin-top: 20px;
-}
 
 .reading-filters {
     display: flex;
@@ -391,72 +325,16 @@ class DailyReadingManager {
     }
 
     attachEventListeners() {
-        document.getElementById('add-reading-btn').addEventListener('click', () => this.showAddForm());
-        document.getElementById('cancel-add-btn').addEventListener('click', () => this.hideAddForm());
-        document.getElementById('reading-item-form').addEventListener('submit', (e) => this.handleAddReading(e));
+
         
         document.getElementById('search-readings').addEventListener('input', () => this.filterReadings());
         document.getElementById('filter-by-tag').addEventListener('change', () => this.filterReadings());
         document.getElementById('filter-by-date').addEventListener('change', () => this.filterReadings());
     }
 
-    showAddForm() {
-        document.getElementById('add-reading-form').style.display = 'block';
-        document.getElementById('reading-title').focus();
-    }
 
-    hideAddForm() {
-        document.getElementById('add-reading-form').style.display = 'none';
-        this.clearForm();
-    }
 
-    clearForm() {
-        document.getElementById('reading-item-form').reset();
-        document.getElementById('reading-highlights').value = '';
-        document.getElementById('reading-summary').value = '';
-    }
 
-    handleAddReading(e) {
-        e.preventDefault();
-        
-        const title = document.getElementById('reading-title').value;
-        const url = document.getElementById('reading-url').value;
-        const notes = document.getElementById('reading-notes').value;
-        const highlightsText = document.getElementById('reading-highlights').value;
-        const summary = document.getElementById('reading-summary').value;
-        const tags = document.getElementById('reading-tags').value
-            .split(',')
-            .map(tag => tag.trim())
-            .filter(tag => tag.length > 0);
-
-        // Process highlights - split by lines and clean up
-        const highlights = highlightsText
-            .split('\n')
-            .map(line => line.trim())
-            .filter(line => line.length > 0);
-
-        const reading = {
-            id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
-            title,
-            url,
-            notes,
-            highlights,
-            summary,
-            tags,
-            timestamp: new Date().toISOString(),
-            date: new Date().toLocaleDateString('en-US', { 
-                year: 'numeric', 
-                month: 'short', 
-                day: 'numeric',
-                hour: 'numeric',
-                minute: '2-digit'
-            }),
-            dateAdded: new Date().toLocaleDateString()
-        };
-
-        this.addReading(reading);
-        this.hideAddForm();
-    }
 
     addReading(reading) {
         const readings = this.getReadings();
@@ -483,11 +361,29 @@ class DailyReadingManager {
     loadPendingReading() {
         const pending = localStorage.getItem('pendingReading');
         if (pending) {
-            const reading = JSON.parse(pending);
-            document.getElementById('reading-title').value = reading.title || '';
-            document.getElementById('reading-url').value = reading.url || '';
-            document.getElementById('reading-notes').value = reading.notes || '';
-            this.showAddForm();
+            const pendingData = JSON.parse(pending);
+            
+            // Automatically create a reading from bookmarklet data
+            const reading = {
+                id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
+                title: pendingData.title || '',
+                url: pendingData.url || '',
+                notes: pendingData.notes || '',
+                highlights: [],
+                summary: '',
+                tags: [],
+                timestamp: pendingData.timestamp || new Date().toISOString(),
+                date: new Date().toLocaleDateString('en-US', { 
+                    year: 'numeric', 
+                    month: 'short', 
+                    day: 'numeric',
+                    hour: 'numeric',
+                    minute: '2-digit'
+                }),
+                dateAdded: new Date().toLocaleDateString()
+            };
+            
+            this.addReading(reading);
             localStorage.removeItem('pendingReading');
         }
     }
