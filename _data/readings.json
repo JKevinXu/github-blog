@@ -1,5 +1,33 @@
 [
   {
+    "title": "Use the $filter query parameter to filter a collection of objects - Microsoft Graph | Microsoft Learn",
+    "url": "https://learn.microsoft.com/en-us/graph/filter-query-parameter?tabs=http",
+    "date": "Jul 11, 2025, 8:35 AM",
+    "highlight": "Use the $filter query parameter",
+    "highlights": [
+      "Use the $filter query parameter",
+      "Get all emails from a specific address received by the signed-in user.\tGET ~/me/messages?$filter=from/emailAddress/address eq 'someuser@example.com'"
+    ]
+  },
+  {
+    "title": "Use the Outlook mail REST API - Microsoft Graph v1.0 | Microsoft Learn",
+    "url": "https://learn.microsoft.com/en-us/graph/api/resources/mail-api-overview?view=graph-rest-1.0",
+    "date": "Jul 11, 2025, 8:21 AM",
+    "highlight": "Use the Outlook mail REST API",
+    "highlights": [
+      "Use the Outlook mail REST API"
+    ]
+  },
+  {
+    "title": "Microsoft Outlook MCP Server | Microsoft Outlook Webhooks & APIs Integration",
+    "url": "https://www.appypieautomate.ai/integrate/mcp/microsoft-outlook",
+    "date": "Jul 11, 2025, 8:05 AM",
+    "highlight": "Microsoft Outlook MCP Server\nUnleash the full potential of your Microsoft Outlook MCP Server with Appy Pie Automate. Easily connect your Microsoft Outlook MCP Server to platforms like Cursor, Windsurf, and Anthropic Claude to automate workflows, manage content, and sync real-time server activity—no code needed.",
+    "highlights": [
+      "Microsoft Outlook MCP Server\nUnleash the full potential of your Microsoft Outlook MCP Server with Appy Pie Automate. Easily connect your Microsoft Outlook MCP Server to platforms like Cursor, Windsurf, and Anthropic Claude to automate workflows, manage content, and sync real-time server activity—no code needed."
+    ]
+  },
+  {
     "title": "mcp-b - Browser Model Context Protocol",
     "url": "https://mcp-b.ai/",
     "date": "Jul 10, 2025, 8:16 PM",
