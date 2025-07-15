@@ -165,9 +165,7 @@ This caching mechanism significantly improves performance for Custom Lambda Auth
 
 ## Conclusion
 
-For Amazon Federate IDP implementations, **Custom Lambda Authorizer is currently the preferred choice** due to its extensibility for additional authorization logic and better cost efficiency at scale. The ability to implement resource-level authorization (e.g., "user kevinxu has seller mapping to seller ABC for search seller authorization") provides significant value over simple token validation.
-
-However, the choice ultimately depends on your specific requirements:
+The choice ultimately depends on your specific requirements:
 - If you need simple authentication with minimal maintenance, Cognito Authorizer is sufficient
 - If you need extensibility and cost efficiency, Custom Lambda Authorizer is the better choice
 
