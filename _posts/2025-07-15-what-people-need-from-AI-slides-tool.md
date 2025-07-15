@@ -27,3 +27,7 @@ categories: [AI, Requirements, Tools]
 2. **Ensure consistency and quality** across regions while allowing customization
 3. **Enable data-driven insights** through AI integration
 4. **Automate end-to-end workflow** from template creation to post-meeting follow-ups
+
+## System Architecture
+
+![Architecture Report Implementation](/assets/images/Architecture-report-implementation.png)
