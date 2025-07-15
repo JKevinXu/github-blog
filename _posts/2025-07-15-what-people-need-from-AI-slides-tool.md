@@ -30,4 +30,4 @@ categories: [AI, Requirements, Tools]
 
 ## System Architecture
 
-![Architecture Report Implementation](/assets/images/Architecture-report-implementation.png)
+![Architecture Report Implementation](/assets/images/2025-07-15-what-people-need-from-AI-slides-tool/Architecture-report-implementation.png)
