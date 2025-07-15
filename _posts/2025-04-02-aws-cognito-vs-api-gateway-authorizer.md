@@ -36,7 +36,12 @@ This approach offers maximum flexibility for complex authorization scenarios at 
 
 Both authorizers require an ID token to be fetched, so the user-side authentication UX and flows remain the same for both approaches.
 
-```mermaid
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+<script>
+  mermaid.initialize({startOnLoad:true});
+</script>
+
+<div class="mermaid">
 sequenceDiagram
     participant Browser as "Browser<br/>(Q Business webapp)"
     participant AS as "Service Provider<br/>(Q Business backend)"
@@ -80,7 +85,7 @@ sequenceDiagram
         APIC->>APIGW: 15. Return API Connector response
         APIGW->>AS: 16. Return API response to Q Business backend
     end
-```
+</div>
 
 ### Step-by-Step Flow
 
