@@ -1,233 +1,180 @@
 ---
 layout: post
-title: "AWS Cognito vs API Gateway Authorizer: A Comprehensive Comparison"
-date: 2025-04-02 10:00:00 -0500
-categories: [aws, authentication, security]
-tags: [aws, cognito, api-gateway, authentication, authorization]
+title: "Amazon Q Business: Cognito Authorizer vs Custom Lambda Authorizer"
+date: 2025-04-02
+categories: [AWS, Authorization, Amazon Q Business]
+tags: [AWS Cognito, Lambda Authorizer, API Gateway, Authentication, Amazon Q]
 ---
 
-# AWS Cognito vs API Gateway Authorizer: A Comprehensive Comparison
+## Background
 
-When building secure APIs on AWS, choosing the right authentication and authorization solution is crucial. Two popular options are AWS Cognito and API Gateway Authorizer. Let's dive deep into both solutions to help you make an informed decision.
+When implementing authorizer solutions for Amazon Q Business custom plugins, development teams often face a choice between two main approaches. This article compares AWS Cognito Authorizer and Custom Lambda Authorizer implementations, analyzing their differences in terms of performance, cost, security, and extensibility.
 
-## Overview
+## What is Amazon Cognito?
 
-### AWS Cognito
-AWS Cognito is a comprehensive user management and authentication service that provides:
-- User sign-up and sign-in
-- Social identity provider integration
-- Multi-factor authentication (MFA)
-- User directory management
-- Token-based authentication
+Amazon Cognito is a fully managed identity service that provides user sign-up, sign-in, and access control capabilities for web and mobile applications. In the context of Amazon Q Business, Cognito serves as a crucial bridge between external identity providers and your custom plugins, enabling secure authentication and authorization for backend systems. 
 
-### API Gateway Authorizer
-API Gateway Authorizer is a Lambda-based authorization solution that:
-- Validates incoming requests
-- Generates IAM policies
-- Provides fine-grained access control
-- Supports custom authorization logic
+Key capabilities include:
+- Automatic handling of the complete OAuth2 flow
+- Federation with external identity providers
+- JWT token issuance and validation
+- Integration with API Gateway's built-in authorizer using pre-cached public keys
 
-## Key Features Comparison
+## What is Custom Lambda Authorizer?
 
-### 1. Authentication Capabilities
+A Custom Lambda Authorizer is a serverless function that provides custom authentication and authorization logic for API Gateway, giving you complete control over the authentication process and allowing integration with any identity provider. 
 
-**AWS Cognito**
-- ✅ Built-in user management
-- ✅ Social identity provider integration (Google, Facebook, etc.)
-- ✅ MFA support
-- ✅ Password policies and recovery
-- ✅ User profile management
-- ✅ Token management (JWT)
+The Lambda function:
+- Receives raw tokens from API Gateway
+- Validates tokens by fetching public keys from external IdPs (with caching)
+- Applies custom business logic
+- Returns IAM policy decisions
 
-**API Gateway Authorizer**
-- ❌ No built-in user management
-- ❌ No social login
-- ❌ No MFA
-- ❌ No password management
-- ❌ No user profiles
-- ✅ Custom token validation
+This approach offers maximum flexibility for complex authorization scenarios at the cost of increased implementation complexity and maintenance overhead.
 
-### 2. Authorization Flexibility
+## Authentication Flow
 
-**AWS Cognito**
-- ✅ Role-based access control (RBAC)
-- ✅ Group-based permissions
-- ✅ Token-based authorization
-- ❌ Limited custom authorization logic
+Both authorizers require an ID token to be fetched, so the user-side authentication UX and flows remain the same for both approaches.
 
-**API Gateway Authorizer**
-- ✅ Full custom authorization logic
-- ✅ Dynamic IAM policy generation
-- ✅ Request context-based decisions
-- ✅ Integration with external auth systems
+```mermaid
+sequenceDiagram
+    participant Browser as "Browser<br/>(Q Business webapp)"
+    participant AS as "Service Provider<br/>(Q Business backend)"
+    participant AUTHP as "Authentication provider<br/>(Midway)"
+    participant COGNITO as "Amazon Cognito<br/>(User Pool)"
+    participant APIGW as "API Gateway"
+    participant AUTH as "Authorizer Lambda"
+    participant IDP as "External<br/>Identity Provider<br/>(Amazon Federate)"
+    participant APIC as "API Connector<br/>Lambda"
 
-### 3. Integration Complexity
+    Note over Browser, APIC: QBusiness Federated with IAM Identity Provider
 
-**AWS Cognito**
-- ✅ Easy integration with API Gateway
-- ✅ Built-in SDKs for multiple platforms
-- ✅ Managed service with less code
-- ❌ More complex initial setup
+    rect rgb(240, 248, 255)
+        Note over Browser, IDP: (1) Sign-in and get OIDC Identity token
+        Browser->>AS: 1. Login request
+        AS->>Browser: 2. Redirect to authentication
+        Browser->>AUTHP: 3. Log in
+        AUTHP->>Browser: 4. Return authentication code
+        Browser->>AS: 5. Return to app with code
+        AS->>IDP: 6. Exchange code for token
+        IDP->>AS: 7. Return id_token
+    end
 
-**API Gateway Authorizer**
-- ✅ Direct Lambda integration
-- ✅ Simple token validation
-- ✅ Quick implementation
-- ❌ Requires custom code for user management
-
-### 4. Cost Considerations
-
-**AWS Cognito**
-- Monthly active users (MAU) based pricing
-- Free tier: 50,000 MAU
-- Additional costs for MFA and advanced features
-
-**API Gateway Authorizer**
-- Lambda execution time
-- API Gateway request count
-- No per-user costs
-- Generally more cost-effective for simple use cases
-
-## Use Cases
-
-### When to Choose AWS Cognito
-
-1. **User Management Required**
-   - Building applications with user accounts
-   - Need social login capabilities
-   - Require user profile management
-
-2. **Standard Authentication Flows**
-   - Traditional username/password authentication
-   - Social identity provider integration
-   - MFA requirements
-
-3. **Managed Service Preference**
-   - Want to minimize custom code
-   - Need built-in security features
-   - Prefer AWS-managed solutions
-
-### When to Choose API Gateway Authorizer
-
-1. **Custom Authorization Logic**
-   - Complex permission rules
-   - Dynamic access control
-   - Integration with existing auth systems
-
-2. **Simple Token Validation**
-   - JWT validation
-   - API key validation
-   - Custom token formats
-
-3. **Cost Optimization**
-   - Large number of users
-   - Simple authorization rules
-   - No need for user management
-
-## Implementation Example
-
-### AWS Cognito Integration
-
-```javascript
-// Cognito User Pool configuration
-const userPool = new CognitoUserPool({
-    UserPoolId: 'YOUR_USER_POOL_ID',
-    ClientId: 'YOUR_CLIENT_ID'
-});
-
-// Authentication flow
-const authenticationData = {
-    Username: 'username',
-    Password: 'password'
-};
-
-const authenticationDetails = new AuthenticationDetails(authenticationData);
-const userData = {
-    Username: 'username',
-    Pool: userPool
-};
-
-const cognitoUser = new CognitoUser(userData);
-
-cognitoUser.authenticateUser(authenticationDetails, {
-    onSuccess: function(result) {
-        const accessToken = result.getAccessToken().getJwtToken();
-        // Use token for API calls
-    },
-    onFailure: function(err) {
-        console.error(err);
-    }
-});
-```
-
-### API Gateway Authorizer
-
-```javascript
-// Lambda authorizer function
-exports.handler = async (event) => {
-    const token = event.authorizationToken;
-    
-    try {
-        // Validate token
-        const decoded = validateToken(token);
+    rect rgb(248, 255, 248)
+        Note over AS, APIC: (2) Validate Token - Two Approaches
+        AS->>APIGW: 8. Call API Gateway with id_token
         
-        // Generate IAM policy
-        return generatePolicy('user', 'Allow', event.methodArn, decoded);
-    } catch (error) {
-        return generatePolicy('user', 'Deny', event.methodArn);
-    }
-};
-
-function generatePolicy(principalId, effect, resource, decoded = null) {
-    return {
-        principalId: principalId,
-        policyDocument: {
-            Version: '2012-10-17',
-            Statement: [{
-                Action: 'execute-api:Invoke',
-                Effect: effect,
-                Resource: resource
-            }]
-        },
-        context: decoded || {}
-    };
-}
+        alt Custom Lambda Authorizer
+            APIGW->>AUTH: 9.a.1. Invoke authorizer lambda with id_token
+            AUTH->>IDP: 9.a.2. Validate token with Amazon Federate IDP
+            IDP->>AUTH: 9.a.3. Return token validation result with Midway identity
+            Note right of AUTH: 9.a.4. Parse Midway identity for API Connector
+            AUTH->>APIGW: 9.a.5. Return authorization decision<br/>(pass Amazon alias if succeeded)
+        else Cognito Authorizer
+            APIGW->>COGNITO: 9.b.1. Validate JWT signature and claims
+            Note over COGNITO, IDP: (pre-fetches public key for validation)
+            COGNITO->>APIGW: 9.b.2. Return authorization decision<br/>(pass Amazon alias if succeeded)
+        end
+        
+        APIGW->>APIC: 14. Call API Connector with identity
+        APIC->>APIGW: 15. Return API Connector response
+        APIGW->>AS: 16. Return API response to Q Business backend
+    end
 ```
 
-## Best Practices
+### Step-by-Step Flow
 
-1. **Security**
-   - Always use HTTPS
-   - Implement proper token validation
-   - Follow the principle of least privilege
-   - Regular security audits
+1. **User Authorization**: User clicks "Authorize" in Q App Web Experience when invoking a custom plugin
 
-2. **Performance**
-   - Cache authorization results
-   - Optimize Lambda function execution
-   - Monitor and adjust timeouts
+2. **Authentication**: User authenticates via OpenID Connect to obtain ID token from Amazon's internal IDP
+   - **Cognito Authorizer**:
+     - Authorization URL: `https://xxxx.auth.us-east1.amazoncognito.com/oauth2/authorize`
+     - Token URL: `https://xxxx.auth.us-east-1.amazoncognito.com/oauth2/token`
+   - **Custom Lambda Authorizer**:
+     - Authorization URL: `https://idp-integ.federate.amazon.com/api/oauth2/v1/authorize`
+     - Token URL: `https://idp-integ.federate.amazon.com/api/oauth2/v2/token`
 
-3. **Maintenance**
-   - Regular updates to dependencies
-   - Monitoring and logging
-   - Backup and recovery plans
+3. **API Gateway Call**: Backend calls API Gateway with ID token
+
+4. **Token Validation**:
+   - **Cognito Authorizer**: Cognito validates ID token with pre-fetched public key from Amazon Federate IDP and parses Midway identity
+   - **Custom Lambda Authorizer**: Lambda validates ID token with Amazon Federate IDP, parses Midway identity, and returns authorization
+
+5. **API Processing**: API Gateway calls API Connector with authorized request
+
+6. **Response**: API Connector returns response to Q Business backend, which returns plugin results to frontend
+
+## Detailed Comparison
+
+| Aspect | Cognito Authorizer | Custom Lambda Authorizer |
+|--------|-------------------|--------------------------|
+| **User Experience** | User needs to login for plugin in cards | User needs to login for plugin in cards |
+| **Latency** | Less than 500ms (typically) | ~1200ms when cache misses, negligible when cache hits |
+| **Security** | Good - Cognito handles public key fetching and rotation | Good - Leverages Amazon Federate official SDK (Federate-oidc-oauth2-sdk) |
+| **Extensibility** | Limited to token and claim authentication | Full authorization extensibility - can add resource-level authorization |
+| **Cost (10k MAU)** | $150/month for 10k MAU ($0.015 per MAU above 50 MAU) | $65.58/month for 10k MAU at 5 TPS |
+| **Scalability** | Cognito manages public key fetching and rotation automatically | Cached calls to federate IDP (15-minute cache), no scalability issues |
+| **IAM Identity Center** | Support unclear | Support unclear |
+
+## Cost Analysis Deep Dive
+
+### Custom Lambda Authorizer Cost Calculation
+
+**Assumptions:**
+- Traffic: 5 TPS = 12,960,000 API calls/month
+- MAU: 10,000 users
+- Lambda Configuration: 1GB memory, 1000ms average execution time
+
+**Cache Performance (with API Gateway Cache):**
+- 70% cache hit: 3,888,000 Lambda invocations/month
+- 85% cache hit: 1,944,000 Lambda invocations/month  
+- 95% cache hit: 648,000 Lambda invocations/month
+
+**Lambda Costs (70% cache hit scenario):**
+- Invocations: 3,888,000 × $0.20/million = $0.78
+- Compute: 3,888,000 × 1s × 1GB × $0.0000166667 = $64.80
+- **Total: $65.58/month**
+
+## Performance Considerations
+
+### API Gateway Authorizer Cache
+
+API Gateway uses the authorizer's identity sources (headers like Authorization, query strings, stage variables) as the cache key. When a request arrives with identical identity parameters within the TTL, the cached authorizer response is reused instead of invoking the Lambda authorizer again.
+
+This caching mechanism significantly improves performance for Custom Lambda Authorizers, making them competitive with Cognito's built-in performance.
+
+## When to Choose Each Option
+
+### Choose Cognito Authorizer When:
+- You need simple token-based authentication
+- You want minimal maintenance overhead
+- You prefer AWS-managed solutions
+- Cost is less of a concern for your use case
+
+### Choose Custom Lambda Authorizer When:
+- You need custom authorization logic beyond token validation
+- You require resource-level authorization
+- You want to implement complex business rules
+- Cost optimization is important (significantly cheaper for high-volume scenarios)
+- You need fine-grained control over the authorization process
 
 ## Conclusion
 
-Both AWS Cognito and API Gateway Authorizer are powerful solutions, but they serve different needs:
+For Amazon Federate IDP implementations, **Custom Lambda Authorizer is currently the preferred choice** due to its extensibility for additional authorization logic and better cost efficiency at scale. The ability to implement resource-level authorization (e.g., "user kevinxu has seller mapping to seller ABC for search seller authorization") provides significant value over simple token validation.
 
-- Choose **AWS Cognito** if you need:
-  - Complete user management
-  - Social login capabilities
-  - Built-in security features
-  - Managed service benefits
+However, the choice ultimately depends on your specific requirements:
+- If you need simple authentication with minimal maintenance, Cognito Authorizer is sufficient
+- If you need extensibility and cost efficiency, Custom Lambda Authorizer is the better choice
 
-- Choose **API Gateway Authorizer** if you need:
-  - Custom authorization logic
-  - Simple token validation
-  - Cost optimization
-  - Integration with existing systems
+For potential IAM Identity Center support, both options require further evaluation as the compatibility landscape continues to evolve.
 
-Often, the best solution might be a combination of both: using Cognito for user management and authentication, while leveraging API Gateway Authorizer for custom authorization rules and fine-grained access control.
+## References
 
-Remember to consider your specific requirements, scale, and budget when making the decision. Both solutions can be scaled and customized to meet your needs, but they excel in different scenarios. 
+- AMTool Amazon Q plugin LLD
+- AM Assistant - Amazon Q
+- [AWS Cognito Pricing](https://aws.amazon.com/cognito/pricing/)
+- [AWS Lambda Pricing](https://aws.amazon.com/lambda/pricing/)
+
+---
+
+*This comparison is based on real-world implementations by ISG and AMC tech teams for Amazon Q Business custom plugins.*
