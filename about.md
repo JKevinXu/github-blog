@@ -8,14 +8,6 @@ permalink: /about/
 
 Hello! I'm Jian (Kevin) Xu, a software engineer with 7+ years of experience in distributed systems, big data platforms, and cloud technologies at Amazon.
 
-**Contact:** [xkevinj@gmail.com](mailto:xkevinj@gmail.com) | (+86) 18658366066
-
-## Education
-- **MS Computer Science** - UC Davis (2013-2016) | GPA: 3.94/4.0
-- **BE Engineering** - Zhejiang University (2009-2013)
-
-## Experience
-
 **Amazon Global Selling** | *Software Engineer* | *2021.8 – Present*
 - Led a team of 4 people to deliver a seller contact service system
 - Enabled CI/CD for code pipeline deployment, including integration test coverage tool and rollback mechanism
