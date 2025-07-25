@@ -1,5 +1,55 @@
 [
   {
+    "title": "A valid HTML zip bomb - ache",
+    "url": "https://ache.one/notes/html_zip_bomb",
+    "date": "Jul 25, 2025, 8:34 AM",
+    "highlight": "I had several ideas. First, since it's an HTML page, we start with the HTML5 doctype. Then we try to fit the 10 MB of identical characters.",
+    "highlights": [
+      "I had several ideas. First, since it's an HTML page, we start with the HTML5 doctype. Then we try to fit the 10 MB of identical characters."
+    ]
+  },
+  {
+    "title": "SQL Injection as a Feature",
+    "url": "https://idiallo.com/blog/sql-injection-as-a-feature",
+    "date": "Jul 23, 2025, 11:21 PM",
+    "highlight": "SQL Injection as a Feature\nHow We Opened Our Database to the World",
+    "highlights": [
+      "SQL Injection as a Feature\nHow We Opened Our Database to the World"
+    ]
+  },
+  {
+    "title": "Qwen3-Coder: Agentic Coding in the World | Qwen",
+    "url": "https://qwenlm.github.io/blog/qwen3-coder/",
+    "date": "Jul 23, 2025, 8:31 AM",
+    "highlight": "Qwen3-Coder: Agentic Coding in the World",
+    "highlights": [
+      "Qwen3-Coder: Agentic Coding in the World"
+    ]
+  },
+  {
+    "title": "Can LLMs Do Accounting? | Penrose",
+    "url": "https://accounting.penrose.com/",
+    "date": "Jul 22, 2025, 8:19 AM",
+    "highlight": "Despite promising results on synthetic benchmarks (e.g. Vending-Bench, SpreadsheetBench, DSBench), frontier models consistently underperform once they are deployed in complex, real-world situations.",
+    "highlights": [
+      "Despite promising results on synthetic benchmarks (e.g. Vending-Bench, SpreadsheetBench, DSBench), frontier models consistently underperform once they are deployed in complex, real-world situations."
+    ]
+  },
+  {
+    "title": "If Writing is Thinking…",
+    "url": "https://hardcoresoftware.learningbyshipping.com/p/234-if-writing-is-thinking",
+    "date": "Jul 22, 2025, 8:13 AM",
+    "highlight": "234. If Writing is Thinking…",
+    "highlights": [
+      "234. If Writing is Thinking…"
+    ]
+  },
+  {
+    "title": "8 Reasons Not to Embed Dashboards with iFrames",
+    "url": "https://embeddable.com/blog/iframes-for-embedding",
+    "date": "Jul 21, 2025, 7:47 AM"
+  },
+  {
     "title": "To be a better programmer, write little proofs in your head",
     "url": "https://the-nerve-blog.ghost.io/to-be-a-better-programmer-write-little-proofs-in-your-head/",
     "date": "Jul 16, 2025, 7:55 AM"
