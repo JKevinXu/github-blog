@@ -2,8 +2,7 @@
 layout: post
 title: "HealthTracker: A Simple Daily Habit Tracking App"
 date: 2025-08-30
-categories: [products, ios, apps]
-tags: [healthtracker, habits, ios-app, health, productivity]
+tags: [healthtracker, habits, ios-app, health, productivity, products]
 ---
 
 # HealthTracker Support
