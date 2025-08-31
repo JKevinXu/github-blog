@@ -1,8 +1,20 @@
-# HealthTracker Support
+---
+layout: page
+title: Products
+permalink: /products/
+---
 
-Build better habits with our simple daily tracking app.
+# My Products
 
-## 📱 Quick Start
+Welcome to my collection of apps and tools I've built to solve everyday problems.
+
+---
+
+## 📱 HealthTracker
+
+**Build better habits with our simple daily tracking app.**
+
+### 📱 Quick Start
 
 **HealthTracker** helps you track 5 daily habits: Sports 🏃‍♂️, Healthy Food 🥗, Relationships ❤️, Reading 📚, and Sleep 😴.
 
@@ -11,29 +23,29 @@ Build better habits with our simple daily tracking app.
 3. Tap checkmarks to complete habits
 4. View progress in Summary tab
 
-## 🎯 How to Use
+### 🎯 How to Use
 
-### Daily Tracking
+#### Daily Tracking
 - **Tap checkmarks** to mark habits complete
 - **Use date picker** to view/edit past dates
 - **Data saves automatically**
 
-### View Progress
+#### View Progress
 - **Daily tab**: Today's habits
 - **Summary tab**: Weekly, monthly, yearly stats
 - **Activity map**: Visual progress calendar
 
 ---
 
-## 🔧 Need Help?
+### 🔧 Need Help?
 
-### App Issues
+#### App Issues
 - **App crashing?** Force close and reopen
 - **Data not saving?** Restart your device
 - **Can't navigate dates?** Tap the date picker at top
 - **Display problems?** Update app from App Store
 
-### Quick Fixes
+#### Quick Fixes
 1. Close and reopen app
 2. Restart your device
 3. Update to latest iOS version
@@ -41,7 +53,7 @@ Build better habits with our simple daily tracking app.
 
 ---
 
-## 🔒 Privacy & Data
+### 🔒 Privacy & Data
 
 **Your data stays on your device** - we don't collect or store anything.
 
@@ -51,26 +63,28 @@ Build better habits with our simple daily tracking app.
 - ❌ No cloud storage (coming soon)
 - ❌ No data export yet (planned)
 
+**[View Full Privacy Policy →](/healthtracker-privacy/)**
+
 ---
 
-## 📞 Contact
+### 📞 Contact & Support
 
 **Email**: xkevinj@gmail.com  
 **Response**: 24-48 hours
 
-### Before emailing:
+#### Before emailing:
 1. Try restarting the app
 2. Check for app updates
 3. Update iOS
 
-### Include in your email:
+#### Include in your email:
 - iOS version
 - Device model  
 - What happened
 
 ---
 
-## 📊 Activity Map
+### 📊 Activity Map
 
 **Colors show your progress:**
 - 🟢 **Green**: High completion  
@@ -81,14 +95,14 @@ Build better habits with our simple daily tracking app.
 - Use year selector for different years
 - Tap any square to see that day's details
 
-## 🚀 Tips for Success
+### 🚀 Tips for Success
 
 - **Start small** - aim for 1 habit per day
 - **Be consistent** - daily tracking works best  
 - **Check in daily** - same time each day
 - **Review weekly** - see your patterns
 
-## 🔄 What's Coming
+### 🔄 What's Coming
 
 **Next update:**
 - Custom habits
@@ -104,7 +118,7 @@ Build better habits with our simple daily tracking app.
 
 ---
 
-## ❓ FAQ
+### ❓ FAQ
 
 **Is it free?** Yes, completely free.
 
@@ -127,3 +141,18 @@ Build better habits with our simple daily tracking app.
 ---
 
 *HealthTracker - Build better habits daily* ❤️
+
+---
+
+## 🚀 More Products Coming Soon
+
+I'm constantly building new tools and apps to solve everyday problems. Check back here for updates on new releases!
+
+**Upcoming:**
+- Web productivity tools
+- Developer utilities
+- More mobile apps
+
+---
+
+*Have an idea for a product? [Email me](mailto:xkevinj@gmail.com) - I'd love to hear from you!*
