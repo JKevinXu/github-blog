@@ -86,7 +86,7 @@ Welcome to my collection of apps and tools I've built to solve everyday problems
 }
 
 .product-card p {
-  color: #666;
+  color: #1f2937;
   line-height: 1.5;
   margin-bottom: 1.5rem;
 }
