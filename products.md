@@ -122,7 +122,7 @@ Welcome to my collection of apps and tools I've built to solve everyday problems
 
 .btn-primary {
   background: #f3f4f6;
-  color: #374151;
+  color: #1f2937;
   font-weight: 600;
   border: 2px solid #d1d5db;
 }
@@ -130,19 +130,19 @@ Welcome to my collection of apps and tools I've built to solve everyday problems
 .btn-primary:hover {
   background: #e5e7eb;
   border-color: #9ca3af;
-  color: #374151;
+  color: #111827;
   transform: translateY(-1px);
 }
 
 .btn-secondary {
   background: #f3f4f6;
-  color: #374151;
+  color: #1f2937;
   border: 1px solid #d1d5db;
 }
 
 .btn-secondary:hover {
   background: #e5e7eb;
-  color: #374151;
+  color: #111827;
 }
 
 @media (max-width: 768px) {
