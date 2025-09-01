@@ -4,8 +4,6 @@ title: Products
 permalink: /products/
 ---
 
-# My Products
-
 Welcome to my collection of apps and tools I've built to solve everyday problems.
 
 <div class="products-grid">
