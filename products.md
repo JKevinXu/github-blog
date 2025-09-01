@@ -121,13 +121,17 @@ Welcome to my collection of apps and tools I've built to solve everyday problems
 }
 
 .btn-primary {
-  background: #007acc;
+  background: #2563eb;
   color: white;
+  font-weight: 600;
+  border: 2px solid #2563eb;
 }
 
 .btn-primary:hover {
-  background: #005a9e;
+  background: #1d4ed8;
+  border-color: #1d4ed8;
   color: white;
+  transform: translateY(-1px);
 }
 
 .btn-secondary {
