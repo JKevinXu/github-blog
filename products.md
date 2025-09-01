@@ -240,9 +240,9 @@ Welcome to my collection of apps and tools I've built to solve everyday problems
 ### 📊 Activity Map
 
 **Colors show your progress:**
-- 🟢 **Green**: High completion  
-- 🟡 **Light green**: Some habits done
-- ⚫ **Gray**: No habits completed
+- **Green**: High completion  
+- **Light green**: Some habits done
+- **Gray**: No habits completed
 
 **Navigation:**
 - Use year selector for different years
