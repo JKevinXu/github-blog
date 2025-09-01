@@ -9,14 +9,14 @@ Welcome to my collection of apps and tools I've built to solve everyday problems
 <div class="products-grid">
   <div class="product-card">
     <div class="product-icon">📱</div>
-    <h3>HealthTracker</h3>
-    <p>Daily habit tracking app for iOS. Track 5 essential habits with simple checkmarks and beautiful progress visualization.</p>
+    <h3>LifePixel</h3>
+    <p>Daily habit tracking app for iOS. Build your life pixel by pixel with 5 essential habits and beautiful progress visualization.</p>
     <div class="product-meta">
       <span class="platform">iOS</span>
       <span class="price">Free</span>
     </div>
     <div class="product-actions">
-      <a href="#healthtracker" class="btn-primary">Learn More</a>
+      <a href="#lifepixel" class="btn-primary">Learn More</a>
       <a href="#" class="btn-secondary">App Store</a>
     </div>
   </div>
@@ -161,15 +161,15 @@ Welcome to my collection of apps and tools I've built to solve everyday problems
 
 # Product Details
 
-## HealthTracker {#healthtracker}
+## LifePixel {#lifepixel}
 
-## 📱 HealthTracker
+## 📱 LifePixel
 
-**Build better habits with our simple daily tracking app.**
+**Build your life pixel by pixel with our simple daily tracking app.**
 
 ### 📱 Quick Start
 
-**HealthTracker** helps you track 5 daily habits: Sports 🏃‍♂️, Healthy Food 🥗, Relationships ❤️, Reading 📚, and Sleep 😴.
+**LifePixel** helps you track 5 daily habits: Sports 🏃‍♂️, Healthy Food 🥗, Relationships ❤️, Reading 📚, and Sleep 😴.
 
 1. Download from App Store
 2. Open app (no signup needed!)
@@ -216,7 +216,7 @@ Welcome to my collection of apps and tools I've built to solve everyday problems
 - ❌ No cloud storage (coming soon)
 - ❌ No data export yet (planned)
 
-**[View Full Privacy Policy →](/healthtracker-privacy/)**
+**[View Full Privacy Policy →](/lifepixel-privacy/)**
 
 ---
 
@@ -293,7 +293,7 @@ Welcome to my collection of apps and tools I've built to solve everyday problems
 
 ---
 
-*HealthTracker - Build better habits daily* ❤️
+*LifePixel - Build your life pixel by pixel* ❤️
 
 ---
 

@@ -1,17 +1,17 @@
 ---
 layout: post
-title: "HealthTracker: A Simple Daily Habit Tracking App"
+title: "LifePixel: A Simple Daily Habit Tracking App"
 date: 2025-08-30
-tags: [healthtracker, habits, ios-app, health, productivity, products]
+tags: [lifepixel, habits, ios-app, health, productivity, products]
 ---
 
-# HealthTracker Support
+# LifePixel Support
 
-Build better habits with our simple daily tracking app.
+Build your life pixel by pixel with our simple daily tracking app.
 
 ## 📱 Quick Start
 
-**HealthTracker** helps you track 5 daily habits: Sports 🏃‍♂️, Healthy Food 🥗, Relationships ❤️, Reading 📚, and Sleep 😴.
+**LifePixel** helps you track 5 daily habits: Sports 🏃‍♂️, Healthy Food 🥗, Relationships ❤️, Reading 📚, and Sleep 😴.
 
 1. Download from App Store
 2. Open app (no signup needed!)
@@ -133,4 +133,4 @@ Build better habits with our simple daily tracking app.
 
 ---
 
-*HealthTracker - Build better habits daily* ❤️
+*LifePixel - Build your life pixel by pixel* ❤️
