@@ -1,7 +1,7 @@
 ---
 layout: page
 title: Privacy Policy - LifePixel
-permalink: /lifepixel-privacy/
+permalink: /healthtracker-privacy/
 ---
 
 # Privacy Policy for LifePixel

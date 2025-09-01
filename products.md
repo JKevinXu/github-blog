@@ -216,7 +216,7 @@ Welcome to my collection of apps and tools I've built to solve everyday problems
 - ❌ No cloud storage (coming soon)
 - ❌ No data export yet (planned)
 
-**[View Full Privacy Policy →](/lifepixel-privacy/)**
+**[View Full Privacy Policy →](/healthtracker-privacy/)**
 
 ---
 
