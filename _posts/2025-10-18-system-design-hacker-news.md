@@ -764,6 +764,314 @@ ws.onmessage = (event) => {
 
 ---
 
+**Interviewer:** **One more question—how would you build a recommendation system to show personalized posts to users?**
+
+**Candidate:** Great question! A recommendation system would significantly improve engagement. Let me outline an approach:
+
+### Phase 1: Simple Collaborative Filtering
+
+**Data Collection:**
+```javascript
+// Track user interactions
+CREATE TABLE user_interactions (
+    user_id BIGINT,
+    post_id BIGINT,
+    interaction_type VARCHAR(20), -- 'view', 'upvote', 'comment'
+    timestamp TIMESTAMP,
+    INDEX idx_user_interactions (user_id, timestamp DESC)
+);
+```
+
+**Simple Algorithm:**
+```python
+def get_recommendations(user_id, limit=10):
+    # 1. Find users with similar voting patterns
+    similar_users = find_similar_users(user_id)
+    
+    # 2. Get posts they liked that user hasn't seen
+    recommended_posts = (
+        SELECT p.post_id, p.title, COUNT(*) as score
+        FROM posts p
+        JOIN votes v ON p.post_id = v.post_id
+        WHERE v.user_id IN similar_users
+        AND p.post_id NOT IN (
+            SELECT post_id FROM votes WHERE user_id = :user_id
+        )
+        GROUP BY p.post_id
+        ORDER BY score DESC
+        LIMIT :limit
+    )
+    
+    return recommended_posts
+
+def find_similar_users(user_id):
+    # Users who upvoted same posts
+    return (
+        SELECT v2.user_id, COUNT(*) as overlap
+        FROM votes v1
+        JOIN votes v2 ON v1.post_id = v2.post_id
+        WHERE v1.user_id = :user_id
+        AND v2.user_id != :user_id
+        GROUP BY v2.user_id
+        ORDER BY overlap DESC
+        LIMIT 100
+    )
+```
+
+### Phase 2: Content-Based Filtering
+
+**Extract Features:**
+```python
+from sklearn.feature_extraction.text import TfidfVectorizer
+
+# Build post feature vectors
+def extract_post_features(post):
+    features = {
+        'title_tokens': tfidf_vectorizer.transform([post.title]),
+        'domain': post.url_domain,
+        'submission_hour': post.created_at.hour,
+        'tags': extract_tags(post.title)  # e.g., 'golang', 'ai', 'startup'
+    }
+    return features
+
+# Find similar posts
+def get_similar_posts(post_id, limit=10):
+    post = get_post(post_id)
+    post_vector = extract_post_features(post)
+    
+    # Cosine similarity with other posts
+    similar = cosine_similarity(
+        post_vector, 
+        all_post_vectors
+    )
+    
+    return top_k_similar(similar, limit)
+```
+
+**Recommend based on user history:**
+```python
+def get_content_recommendations(user_id, limit=10):
+    # Get user's past upvotes
+    user_upvoted_posts = get_user_votes(user_id)
+    
+    # Find posts similar to what they liked
+    recommendations = []
+    for post in user_upvoted_posts:
+        similar = get_similar_posts(post.post_id, limit=5)
+        recommendations.extend(similar)
+    
+    # Remove duplicates, score, and rank
+    return deduplicate_and_rank(recommendations, limit)
+```
+
+### Phase 3: Hybrid Model with ML
+
+**Training Data Preparation:**
+```python
+# Positive examples: posts user upvoted
+# Negative examples: posts user saw but didn't upvote
+
+def prepare_training_data(user_id):
+    features = []
+    labels = []
+    
+    for post in all_posts:
+        feature_vector = [
+            # User features
+            user.karma,
+            user.account_age_days,
+            user.avg_posts_per_day,
+            
+            # Post features
+            post.score,
+            post.comment_count,
+            post.age_hours,
+            post.domain_popularity,
+            
+            # Interaction features
+            user_domain_affinity(user_id, post.domain),
+            user_topic_affinity(user_id, post.tags),
+            time_of_day_match(user_id, post.created_at),
+            
+            # Collaborative features
+            friends_upvote_count(user_id, post.post_id),
+            similar_users_upvote_rate(user_id, post.post_id)
+        ]
+        
+        features.append(feature_vector)
+        labels.append(1 if user_upvoted(post) else 0)
+    
+    return features, labels
+```
+
+**Model Training:**
+```python
+from sklearn.ensemble import GradientBoostingClassifier
+
+# Train model
+model = GradientBoostingClassifier(
+    n_estimators=100,
+    max_depth=5,
+    learning_rate=0.1
+)
+
+X_train, y_train = prepare_training_data(all_users)
+model.fit(X_train, y_train)
+
+# Predict recommendations
+def get_ml_recommendations(user_id, candidate_posts, limit=10):
+    features = [extract_features(user_id, post) 
+                for post in candidate_posts]
+    
+    predictions = model.predict_proba(features)[:, 1]
+    
+    # Rank by predicted probability
+    ranked = sorted(
+        zip(candidate_posts, predictions),
+        key=lambda x: x[1],
+        reverse=True
+    )
+    
+    return [post for post, _ in ranked[:limit]]
+```
+
+### Phase 4: Production Architecture
+
+**Offline Processing:**
+```javascript
+// Nightly batch job
+async function updateRecommendations() {
+    for (const user of active_users) {
+        // Generate recommendations
+        const recs = await generateRecommendations(user.id);
+        
+        // Store in Redis for fast access
+        await redis.setex(
+            `recommendations:${user.id}`,
+            86400, // 24 hour TTL
+            JSON.stringify(recs)
+        );
+    }
+}
+```
+
+**Real-time Serving:**
+```javascript
+async function getPersonalizedFeed(userId) {
+    // Try cache first
+    const cached = await redis.get(`recommendations:${userId}`);
+    if (cached) {
+        return JSON.parse(cached);
+    }
+    
+    // Fallback to default ranking
+    return getTopPosts();
+}
+```
+
+**A/B Testing:**
+```javascript
+function getRecommendationStrategy(userId) {
+    const bucket = hash(userId) % 100;
+    
+    if (bucket < 10) {
+        return 'collaborative_filtering'; // 10%
+    } else if (bucket < 20) {
+        return 'content_based'; // 10%
+    } else if (bucket < 30) {
+        return 'ml_hybrid'; // 10%
+    } else {
+        return 'default_ranking'; // 70% control
+    }
+}
+
+// Track metrics
+async function trackRecommendationMetrics(userId, strategy, posts) {
+    await metrics.track('recommendation_shown', {
+        userId,
+        strategy,
+        postIds: posts.map(p => p.id)
+    });
+}
+```
+
+### Key Considerations
+
+**1. Cold Start Problem:**
+- **New users**: Show trending posts, ask for topic preferences
+- **New posts**: Use content similarity to existing popular posts
+- **Hybrid approach**: Mix personalized + trending for new users
+
+**2. Filter Bubbles:**
+- **Diversity injection**: 20% of recommendations from different topics
+- **Serendipity**: Occasionally show random highly-rated posts
+- **Temporal decay**: Don't over-weight old preferences
+
+**3. Performance:**
+- **Pre-compute**: Generate recommendations offline (nightly)
+- **Cache**: Redis for fast serving (24h TTL)
+- **Lazy loading**: Update on-demand for highly active users
+
+**4. Privacy:**
+- **Anonymize**: Hash user IDs in ML training data
+- **Opt-out**: Allow users to disable personalization
+- **Transparent**: Show why posts were recommended
+
+**5. Evaluation Metrics:**
+```python
+# Track these metrics for A/B testing
+metrics = {
+    'click_through_rate': clicks / impressions,
+    'engagement_rate': (upvotes + comments) / impressions,
+    'diversity_score': unique_domains / total_posts,
+    'user_satisfaction': explicit_feedback_score
+}
+```
+
+### Architecture Summary
+
+```
+┌─────────────┐
+│   User      │
+└──────┬──────┘
+       │ Request /api/feed
+       ▼
+┌─────────────┐
+│  API Server │
+└──────┬──────┘
+       │
+       ▼
+┌─────────────────┐
+│  Redis Cache    │ ← Pre-computed recommendations
+└─────────────────┘
+       ↑
+       │ Nightly update
+┌──────────────────┐
+│ Recommendation   │
+│ Service (Python) │
+│                  │
+│ - Collaborative  │
+│ - Content-based  │
+│ - ML Model       │
+└──────┬───────────┘
+       │ Read interactions
+       ▼
+┌─────────────────┐
+│ PostgreSQL      │
+│ (user votes,    │
+│  interactions)  │
+└─────────────────┘
+```
+
+**Trade-offs:**
+- ✅ **Pro**: Better engagement, personalized experience
+- ❌ **Con**: Additional complexity, computation cost, privacy concerns
+- **Decision**: Start simple (collaborative filtering), iterate based on metrics
+
+**Interviewer:** Excellent! You've covered the progression from simple to sophisticated recommendations, and thought about practical concerns like cold start and privacy.
+
+---
+
 ## Interview Wrap-up
 
 **Interviewer:** Great work! You've covered all the key aspects. Let me summarize what I liked:
