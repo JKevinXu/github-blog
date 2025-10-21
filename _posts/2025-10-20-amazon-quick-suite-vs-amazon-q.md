@@ -954,33 +954,294 @@ Year 2-3 (each):
 
 ---
 
-## CDK Support
+## Infrastructure as Code: CDK & CLI Support
 
-### Quick Suite
+### Quick Suite - CDK Support
 
-Since Quick Suite evolved from QuickSight, it **inherits QuickSight's CDK support**:
+Quick Suite has **AWS CDK (L1) support** inherited from QuickSight and expanded for new capabilities:
 
 ```typescript
 import * as quicksight from 'aws-cdk-lib/aws-quicksight';
+import * as cdk from 'aws-cdk-lib';
 
-// Quick Sight (BI component) is deployable via CDK
-new quicksight.CfnDataSource(this, 'DataSource', {
-  awsAccountId: this.account,
-  dataSourceId: 'my-data-source',
-  type: 'S3',
+export class QuickSuiteStack extends cdk.Stack {
+  constructor(scope: cdk.App, id: string) {
+    super(scope, id);
+
+    // Create Quick Sight data source
+    new quicksight.CfnDataSource(this, 'DataSource', {
+      awsAccountId: this.account,
+      dataSourceId: 'my-data-source',
+      type: 'S3',
+      dataSourceParameters: {
+        s3Parameters: {
+          manifestFileLocation: {
+            bucket: 'my-bucket',
+            key: 'manifest.json'
+          }
+        }
+      }
+    });
+
+    // Create Quick Sight dashboard
+    new quicksight.CfnDashboard(this, 'Dashboard', {
+      awsAccountId: this.account,
+      dashboardId: 'my-dashboard',
+      name: 'My Dashboard',
+      // Quick Suite-specific actions
+      quickSuiteActionsOption: {
+        actions: [{
+          actionId: 'action-1',
+          actionName: 'Create Ticket',
+          // ... action configuration
+        }]
+      }
+    });
+  }
+}
+```
+
+**CDK Support Status:**
+- ✅ **Quick Sight dashboards** - Full L1 construct support
+- ✅ **Data sources** - S3, Athena, Redshift, RDS, etc.
+- ✅ **Datasets** - Define data schemas and transformations
+- ✅ **Dashboard actions** - One-click actions from dashboards
+- ⚠️ **Quick Research** - Limited/emerging CDK support
+- ⚠️ **Quick Flows** - Limited/emerging CDK support
+- ⚠️ **Quick Automate** - Limited/emerging CDK support
+- ✅ **Quick Index** - Can configure via CloudFormation/CDK
+
+**Available Constructs:**
+- `CfnDashboard` - Create dashboards with Quick Suite actions
+- `CfnDataSource` - Configure data connections
+- `CfnDataSet` - Define datasets
+- `CfnTemplate` - Create reusable templates
+- `CfnAnalysis` - Create analyses
+- `CfnTheme` - Customize themes
+
+---
+
+### Quick Suite - CLI Support
+
+Quick Suite provides **AWS CLI commands** for managing resources:
+
+**Dashboard Operations:**
+```bash
+# List dashboards
+aws quicksuite list-dashboards --aws-account-id 123456789012
+
+# Describe dashboard
+aws quicksuite describe-dashboard \
+  --aws-account-id 123456789012 \
+  --dashboard-id my-dashboard
+
+# Create dashboard
+aws quicksuite create-dashboard \
+  --aws-account-id 123456789012 \
+  --dashboard-id new-dashboard \
+  --name "My Dashboard" \
+  --source-entity file://dashboard-config.json
+```
+
+**Topic Operations (for Q&A):**
+```bash
+# Create topic
+aws quicksuite create-topic \
+  --aws-account-id 123456789012 \
+  --topic-id sales-topic \
+  --name "Sales Analysis"
+
+# List topics
+aws quicksuite list-topics --aws-account-id 123456789012
+
+# Update topic
+aws quicksuite update-topic \
+  --aws-account-id 123456789012 \
+  --topic-id sales-topic \
+  --topic file://topic-config.json
+
+# Delete topic
+aws quicksuite delete-topic \
+  --aws-account-id 123456789012 \
+  --topic-id sales-topic
+```
+
+**Data Source Operations:**
+```bash
+# Create data source
+aws quicksuite create-data-source \
+  --aws-account-id 123456789012 \
+  --data-source-id my-source \
+  --name "S3 Data Source" \
+  --type S3 \
+  --data-source-parameters file://datasource.json
+
+# Update data source permissions
+aws quicksuite update-data-source-permissions \
+  --aws-account-id 123456789012 \
+  --data-source-id my-source \
+  --grant-permissions file://permissions.json
+```
+
+**Automation/Workflow Operations (emerging):**
+```bash
+# Note: Quick Flows/Automate CLI commands are being rolled out
+# Check AWS CLI documentation for latest commands
+
+# List workflows (example)
+aws quicksuite list-workflows --aws-account-id 123456789012
+
+# Deploy automation (example)
+aws quicksuite deploy-automation \
+  --automation-id my-automation \
+  --configuration file://automation-config.json
+```
+
+**Required IAM Permissions:**
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [{
+    "Effect": "Allow",
+    "Action": [
+      "quicksuite:CreateDashboard",
+      "quicksuite:DescribeDashboard",
+      "quicksuite:UpdateDashboard",
+      "quicksuite:DeleteDashboard",
+      "quicksuite:CreateTopic",
+      "quicksuite:DescribeTopic",
+      "quicksuite:UpdateTopic",
+      "quicksuite:DeleteTopic",
+      "quicksuite:CreateDataSource",
+      "quicksuite:DescribeDataSource"
+    ],
+    "Resource": "*"
+  }]
+}
+```
+
+---
+
+### Amazon Q - CDK & CLI Support
+
+**CDK Support:**
+```typescript
+import * as qbusiness from 'aws-cdk-lib/aws-qbusiness';
+
+// Create Q Business application
+new qbusiness.CfnApplication(this, 'QApp', {
+  displayName: 'My Q Business App',
+  identityType: 'AWS_IAM_IDP_SAML',
+  // ... configuration
+});
+
+// Create Q Business index
+new qbusiness.CfnIndex(this, 'QIndex', {
+  applicationId: 'app-id',
+  displayName: 'My Index',
   // ... configuration
 });
 ```
 
-**Current Status:**
-- ✅ Quick Sight (BI) has L1 CDK constructs
-- ⚠️ Quick Flows/Automate CDK support unclear (newly announced)
-- ⚠️ Quick Research CDK support unclear (newly announced)
+**CLI Support:**
+```bash
+# Q Business operations
+aws qbusiness create-application --display-name "My App"
+aws qbusiness list-applications
+aws qbusiness create-index --application-id app-123
+aws qbusiness create-data-source --application-id app-123 \
+  --index-id idx-456 --configuration file://config.json
 
-### Amazon Q
+# Q Developer (limited CLI - mostly IDE-based)
+# No direct CLI for Q Developer - integrated into IDEs
+```
 
-- ✅ Q Business has CDK constructs (`aws-cdk-lib/aws-qbusiness`)
-- ✅ Can deploy Q Business applications, data sources, indexes via CDK
+---
+
+### Comparison: IaC & Automation Support
+
+| Feature | **Quick Suite** | **Amazon Q** |
+|---------|----------------|--------------|
+| **CDK Support** | ✅ L1 constructs for dashboards, data sources | ✅ L1 constructs for Q Business |
+| **CLI Support** | ✅ Comprehensive dashboard & topic commands | ✅ Q Business only (Q Developer via IDE) |
+| **CloudFormation** | ✅ Full support via QuickSight resources | ✅ Q Business resources |
+| **Terraform** | ✅ Via AWS provider | ✅ Via AWS provider |
+| **SDK Support** | ✅ Python, JavaScript, Java, .NET | ✅ Python, JavaScript, Java, .NET |
+| **GitOps Ready** | ✅ Yes - can version control dashboards | ✅ Yes - can version control configs |
+| **CI/CD Integration** | ✅ Deploy dashboards via pipeline | ✅ Deploy Q apps via pipeline |
+
+---
+
+### IaC Best Practices
+
+**Quick Suite:**
+```typescript
+// Recommended: Separate stacks for different concerns
+export class QuickSuiteDataStack extends cdk.Stack {
+  public readonly dataSources: quicksight.CfnDataSource[];
+  
+  constructor(scope: cdk.App, id: string) {
+    super(scope, id);
+    // Define data sources
+  }
+}
+
+export class QuickSuiteDashboardStack extends cdk.Stack {
+  constructor(scope: cdk.App, id: string, 
+              dataStack: QuickSuiteDataStack) {
+    super(scope, id);
+    // Reference data sources from data stack
+    // Create dashboards
+  }
+}
+```
+
+**Amazon Q Business:**
+```typescript
+export class QBusinessStack extends cdk.Stack {
+  constructor(scope: cdk.App, id: string) {
+    super(scope, id);
+    
+    // Create application
+    const app = new qbusiness.CfnApplication(this, 'App', {
+      displayName: 'Corporate Knowledge Base'
+    });
+    
+    // Create index
+    const index = new qbusiness.CfnIndex(this, 'Index', {
+      applicationId: app.attrApplicationId,
+      displayName: 'Main Index'
+    });
+    
+    // Add data sources
+    new qbusiness.CfnDataSource(this, 'S3Source', {
+      applicationId: app.attrApplicationId,
+      indexId: index.attrIndexId,
+      displayName: 'S3 Documents',
+      configuration: {
+        type: 'S3',
+        // ... S3 config
+      }
+    });
+  }
+}
+```
+
+**Deployment:**
+```bash
+# Deploy Quick Suite infrastructure
+cdk deploy QuickSuiteDataStack
+cdk deploy QuickSuiteDashboardStack
+
+# Deploy Q Business infrastructure
+cdk deploy QBusinessStack
+
+# Use CLI for runtime operations
+aws quicksuite update-dashboard-published-version \
+  --aws-account-id 123456789012 \
+  --dashboard-id my-dashboard \
+  --version-number 2
+```
 
 ---
 
