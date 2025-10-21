@@ -398,24 +398,412 @@ Business User → Search company docs → Get summarized answer → Share knowle
 
 ---
 
-## Pricing Considerations
+## Detailed Cost Comparison
 
-### Quick Suite
+Understanding the pricing differences between Quick Suite and Amazon Q is critical for budgeting. Here's a comprehensive breakdown:
 
-**Per-user subscription + consumption:**
-- Base subscription per user
-- Quick Index: Consumption-based charges
-- Additional features: Optional add-ons
+---
 
-**Note**: QuickSight customers automatically upgraded to Quick Suite pricing model.
+### Amazon Quick Suite Pricing
 
-### Amazon Q
+Quick Suite uses a **per-user subscription + consumption-based model**:
 
-**Separate pricing tiers:**
-- **Q Developer**: Free tier + Pro tier ($19/user/month)
-- **Q Business**: Per-user pricing based on usage
+#### Base Subscription Tiers
 
-*Check [Quick Suite pricing](https://aws.amazon.com/quicksuite/pricing/) and [Amazon Q pricing](https://aws.amazon.com/q/pricing/) for current rates.*
+| Tier | Price/User/Month | What's Included |
+|------|-----------------|-----------------|
+| **Quick Sight Standard** | ~$9 | Basic BI, dashboards, 1 author + viewers |
+| **Quick Sight Enterprise** | ~$18 | Advanced BI, ML insights, Q&A, embedded analytics |
+| **Quick Suite Pro** | ~$35-50* | All Quick Sight + Quick Research + Quick Flows + Quick Automate |
+
+*Estimated pricing based on QuickSight Enterprise evolution
+
+#### Consumption-Based Charges
+
+**Quick Index Storage:**
+- **$0.30 per GB/month** for indexed data
+- Includes documents, files, unstructured data
+- First 1GB free per account
+
+**Quick Research:**
+- **Per research query**: $1-5 depending on complexity
+- Based on data sources accessed and processing time
+- Premium data sources may have additional fees
+
+**Quick Flows/Automate:**
+- **Per execution**: $0.01-0.10 per workflow run
+- Based on steps, integrations, and runtime
+- Human-in-the-loop reviews: Additional $0.05/review
+
+**SPICE Capacity (for Quick Sight):**
+- **$0.25 per GB/month** for in-memory data
+- Purchased in 10GB increments
+- Required for fast query performance
+
+**Example Monthly Cost (100 users):**
+```
+Base Subscription:
+  100 users × $35 = $3,500
+
+Consumption:
+  Quick Index: 50GB × $0.30 = $15
+  SPICE: 100GB × $0.25 = $25
+  Quick Research: 200 queries × $2 = $400
+  Quick Flows: 5,000 runs × $0.05 = $250
+
+Total: ~$4,190/month ($41.90 per user)
+```
+
+---
+
+### Amazon Q Pricing
+
+Amazon Q has **separate pricing for Developer and Business editions**:
+
+#### Amazon Q Developer
+
+| Tier | Price/User/Month | What's Included |
+|------|-----------------|-----------------|
+| **Free** | $0 | Basic code suggestions, limited queries |
+| **Pro** | $19 | Unlimited code suggestions, security scans, agent mode |
+
+**What You Get (Pro):**
+- ✅ Code generation in IDE
+- ✅ Security vulnerability scanning
+- ✅ Code transformation (Java upgrades)
+- ✅ Agent mode for complex tasks
+- ✅ CLI assistance
+- ❌ No additional consumption charges
+
+#### Amazon Q Business
+
+**Pricing Model:** Usage-based tiers
+
+| Tier | Price/User/Month | What's Included |
+|------|-----------------|-----------------|
+| **Lite** | $3 | Up to 10 conversations/user/month |
+| **Plus** | $20 | Up to 100 conversations/user/month |
+| **Pro** | $35 | Unlimited conversations |
+
+**Additional Costs:**
+- **Index storage**: $0.0014 per document/month
+- **Data connectors**: Included (40+ apps)
+- **Plugin actions**: $0.10 per action execution
+
+**Example Monthly Cost (100 users):**
+
+**Q Developer (100 developers):**
+```
+100 users × $19 = $1,900/month
+No additional charges
+```
+
+**Q Business (100 business users, Plus tier):**
+```
+Base Subscription:
+  100 users × $20 = $2,000
+
+Storage:
+  10,000 documents × $0.0014 = $14
+  
+Plugin Actions:
+  500 actions × $0.10 = $50
+
+Total: ~$2,064/month ($20.64 per user)
+```
+
+**Q Developer + Q Business (mixed team):**
+```
+50 developers × $19 = $950
+50 business users × $20 = $1,000
+Storage & actions = ~$64
+
+Total: ~$2,014/month ($20.14 per user average)
+```
+
+---
+
+### Side-by-Side Cost Comparison
+
+#### Scenario 1: Business Analytics Team (50 users)
+
+**Quick Suite:**
+```
+50 users × $35 = $1,750
+Quick Index: 20GB × $0.30 = $6
+SPICE: 50GB × $0.25 = $12.50
+Quick Research: 100 queries × $2 = $200
+
+Monthly Total: $1,968.50 ($39.37/user)
+Annual Total: $23,622 ($472.44/user)
+```
+
+**Amazon Q Business (Plus tier):**
+```
+50 users × $20 = $1,000
+Storage: 5,000 docs × $0.0014 = $7
+
+Monthly Total: $1,007 ($20.14/user)
+Annual Total: $12,084 ($241.68/user)
+```
+
+**Winner:** Amazon Q is ~50% cheaper, but Quick Suite includes BI dashboards and automation.
+
+---
+
+#### Scenario 2: Development Team (100 developers)
+
+**Quick Suite (if used for analytics only):**
+```
+100 users × $35 = $3,500
+Basic usage (no heavy automation)
+
+Monthly Total: ~$3,500 ($35/user)
+Annual Total: $42,000 ($420/user)
+```
+
+**Amazon Q Developer:**
+```
+100 users × $19 = $1,900
+
+Monthly Total: $1,900 ($19/user)
+Annual Total: $22,800 ($228/user)
+```
+
+**Winner:** Amazon Q Developer is ~46% cheaper and better suited for developers.
+
+---
+
+#### Scenario 3: Enterprise (500 users - mixed workloads)
+
+**Quick Suite (comprehensive usage):**
+```
+500 users × $35 = $17,500
+Quick Index: 200GB × $0.30 = $60
+SPICE: 500GB × $0.25 = $125
+Quick Research: 1,000 queries × $2 = $2,000
+Quick Flows: 20,000 runs × $0.05 = $1,000
+
+Monthly Total: $20,685 ($41.37/user)
+Annual Total: $248,220 ($496.44/user)
+```
+
+**Amazon Q (mixed team):**
+```
+200 developers × $19 = $3,800
+300 business users × $20 = $6,000
+Storage: 50,000 docs × $0.0014 = $70
+Actions: 2,000 × $0.10 = $200
+
+Monthly Total: $10,070 ($20.14/user)
+Annual Total: $120,840 ($241.68/user)
+```
+
+**Quick Suite + Amazon Q (best of both):**
+```
+Quick Suite: $20,685
+Amazon Q Developer: $3,800
+Amazon Q Business: $6,000
+
+Monthly Total: $30,485 ($60.97/user)
+Annual Total: $365,820 ($731.64/user)
+```
+
+**Winner:** Depends on needs:
+- Q alone: ~51% cheaper, but no BI or automation
+- Both: Most comprehensive, but ~50% more expensive
+
+---
+
+### Cost Optimization Strategies
+
+#### For Quick Suite
+
+1. **Right-size SPICE capacity**
+   - Use direct query for large datasets
+   - Reserve SPICE for frequently accessed data
+   - Monitor and adjust capacity monthly
+
+2. **Optimize Quick Index**
+   - Index only necessary documents
+   - Use S3 lifecycle policies for old data
+   - Deduplicate content before indexing
+
+3. **Batch Quick Research queries**
+   - Plan research in advance
+   - Reuse existing research outputs
+   - Limit premium data source access
+
+4. **Workflow efficiency**
+   - Optimize Quick Flows to reduce steps
+   - Use conditional logic to avoid unnecessary runs
+   - Schedule workflows during off-peak hours
+
+**Potential Savings:** 20-30% reduction
+
+#### For Amazon Q
+
+1. **Choose appropriate tier**
+   - Start with Lite for light users
+   - Upgrade only heavy users to Pro
+   - Monitor conversation usage monthly
+
+2. **Optimize document indexing**
+   - Index only relevant, current documents
+   - Remove outdated content
+   - Use smart chunking for large files
+
+3. **Limit plugin actions**
+   - Use actions only when necessary
+   - Batch operations where possible
+   - Monitor action usage patterns
+
+4. **Free tier for Q Developer**
+   - Use free tier for junior developers
+   - Reserve Pro for senior engineers
+   - Evaluate actual usage before upgrading
+
+**Potential Savings:** 15-25% reduction
+
+---
+
+### Hidden Costs to Consider
+
+#### Quick Suite
+
+- **Training**: Staff training on new automation features
+- **Data preparation**: Cleaning and structuring data for indexing
+- **Integration work**: Connecting various data sources
+- **Maintenance**: Monitoring and optimizing workflows
+- **Premium data sources**: Third-party data for Quick Research
+
+**Estimated:** +10-20% of base cost
+
+#### Amazon Q
+
+- **IDE setup**: Initial configuration and rollout
+- **Change management**: Adopting AI-assisted workflows
+- **Security review**: Ensuring code suggestions meet standards
+- **Content curation**: Organizing knowledge base for Q Business
+- **Third-party app integrations**: Some connectors may have fees
+
+**Estimated:** +5-15% of base cost
+
+---
+
+### Break-Even Analysis
+
+#### When Quick Suite Makes Financial Sense
+
+**BI Dashboard Creation:**
+- Traditional BI tool: 40 hours/dashboard × $100/hour = $4,000
+- Quick Suite: 4 hours/dashboard × $100/hour = $400
+- **Savings per dashboard:** $3,600
+- **Break-even:** 1 dashboard/month at $3,500 subscription
+
+**Workflow Automation:**
+- Manual process: 100 hours/month × $50/hour = $5,000
+- Quick Suite automation: $250/month + 10 hours setup
+- **Monthly savings:** ~$4,500
+- **Break-even:** <1 month
+
+**Research Tasks:**
+- Manual research: 80 hours × $150/hour = $12,000
+- Quick Research: $2,000 + 10 hours review = $3,500
+- **Savings per project:** ~$8,500
+- **Break-even:** 1 research project every 2 months
+
+#### When Amazon Q Makes Financial Sense
+
+**Developer Productivity (Q Developer):**
+- 20% productivity gain × 100 devs × $120k salary = $2.4M/year
+- Q Developer cost: 100 × $19 × 12 = $22,800/year
+- **ROI:** 10,400%
+- **Break-even:** <1 month
+
+**Knowledge Retrieval (Q Business):**
+- Time saved: 2 hours/week/user × 100 users = 200 hours/week
+- Value: 200 × 4 weeks × $75/hour = $60,000/month
+- Q Business cost: $2,000/month
+- **ROI:** 3,000%
+- **Break-even:** <1 week
+
+---
+
+### TCO (Total Cost of Ownership) Comparison - 3 Years
+
+**Quick Suite (100 users):**
+```
+Year 1:
+  Licenses: $42,000
+  Consumption: $8,280
+  Training: $10,000
+  Integration: $15,000
+  Total: $75,280
+
+Year 2-3 (each):
+  Licenses: $42,000
+  Consumption: $8,280
+  Maintenance: $5,000
+  Total: $55,280
+
+3-Year TCO: $185,840 ($1,858/user)
+```
+
+**Amazon Q (100 users mixed):**
+```
+Year 1:
+  Q Developer (50): $11,400
+  Q Business (50): $12,000
+  Storage: $840
+  Setup/Training: $5,000
+  Total: $29,240
+
+Year 2-3 (each):
+  Q Developer: $11,400
+  Q Business: $12,000
+  Storage: $840
+  Total: $24,240
+
+3-Year TCO: $77,720 ($777/user)
+```
+
+**Winner:** Amazon Q has ~58% lower TCO
+
+---
+
+### Recommendation Matrix by Budget
+
+| Budget per User/Month | Recommendation |
+|----------------------|----------------|
+| **< $20** | Amazon Q Business Lite or Q Developer Free |
+| **$20-35** | Amazon Q Developer Pro + Q Business Plus |
+| **$35-50** | Quick Suite Pro OR Q Developer + Q Business |
+| **> $50** | Quick Suite + Amazon Q (comprehensive) |
+
+---
+
+### Cost Summary
+
+**Amazon Quick Suite:**
+- 💰 **Higher upfront cost** ($35-50/user/month)
+- 📊 **Includes BI platform** (saves separate BI tool cost)
+- 🤖 **Built-in automation** (reduces manual labor costs)
+- 📈 **Best ROI** for data-heavy, automation-intensive teams
+
+**Amazon Q:**
+- 💰 **Lower base cost** ($3-35/user/month)
+- 👨‍💻 **Excellent for developers** (massive productivity gains)
+- 📚 **Knowledge retrieval focus** (saves search time)
+- 📈 **Best ROI** for developer teams and knowledge workers
+
+**Both Together:**
+- 💰 **Highest total cost** (~$60/user/month)
+- 🎯 **Maximum capability** (covers all use cases)
+- 📈 **Best ROI** for large enterprises with diverse needs
+- 🏢 **Enterprise-wide transformation** potential
+
+*Pricing accurate as of October 2025. Check AWS pricing pages for current rates.*
 
 ---
 
