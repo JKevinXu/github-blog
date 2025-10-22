@@ -143,6 +143,51 @@ Record: Log in Salesforce
 - Data synchronization between systems
 - Alert and notification automation
 
+**More Quick Flows Examples:**
+
+**Example 1: Weekly Sales Report Automation**
+```
+Trigger: Every Monday at 9 AM
+    ↓
+Query: Pull last week's sales data from Redshift
+    ↓
+Generate: AI creates executive summary with insights
+    ↓
+Create: PDF report with charts
+    ↓
+Send: Email to leadership team
+    ↓
+Archive: Store in S3 bucket
+```
+
+**Example 2: Support Ticket Automation**
+```
+Trigger: New support ticket created in Zendesk
+    ↓
+Analyze: AI categorizes ticket urgency and topic
+    ↓
+Route: Assign to appropriate team based on category
+    ↓
+Update: Post status to Slack channel
+    ↓
+Monitor: Track response time SLA
+```
+
+**Example 3: Invoice Processing**
+```
+Trigger: Invoice uploaded to S3
+    ↓
+Extract: AI extracts key data (vendor, amount, date)
+    ↓
+Validate: Check against purchase orders
+    ↓
+Approve: Route to manager if >$10k, auto-approve if <$10k
+    ↓
+Record: Create entry in accounting system
+    ↓
+Notify: Send confirmation email to vendor
+```
+
 ---
 
 ### 5. **Quick Automate** - Enterprise Process Automation
@@ -165,6 +210,198 @@ For technical teams building complex, multi-department workflows.
 - Multi-agent orchestration
 - Real-time monitoring and audit trails
 - Version control and rollback
+
+**Quick Automate Examples:**
+
+**Example 1: Employee Onboarding Automation**
+```
+Trigger: HR adds new employee to Workday
+    ↓
+Create: Generate employee ID and email account (via API)
+    ↓
+Provision: Create accounts in Slack, GitHub, Jira, Confluence
+    ↓
+Assign: Set up permissions based on role and department
+    ↓
+UI Agent: Navigate internal portal to request hardware
+    ↓
+Generate: Create personalized onboarding checklist
+    ↓
+Schedule: Book orientation sessions automatically
+    ↓
+Human Approval: Manager reviews and approves access levels
+    ↓
+Execute: Finalize all provisioning
+    ↓
+Notify: Send welcome email with credentials and next steps
+    ↓
+Monitor: Track onboarding progress with daily status updates
+```
+
+**Example 2: Financial Close Process**
+```
+Trigger: Month-end close initiated
+    ↓
+Agent 1 (Data Collection):
+    - Pull financial data from ERP system
+    - Extract bank statements via UI automation
+    - Gather expense reports from Concur
+    - Collect revenue data from Salesforce
+    ↓
+Agent 2 (Reconciliation):
+    - Reconcile accounts automatically
+    - Flag discrepancies >$1,000
+    - Generate variance reports
+    ↓
+Human Review: Controller reviews flagged items
+    ↓
+Agent 3 (Reporting):
+    - Generate financial statements
+    - Create board presentation
+    - Populate compliance reports
+    ↓
+Agent 4 (Distribution):
+    - Route reports to stakeholders
+    - Update SharePoint with final docs
+    - Archive in compliance storage
+    ↓
+Audit Trail: Complete log of all actions and approvals
+```
+
+**Example 3: Customer Order Fulfillment (Multi-Agent)**
+```
+Order Received from E-commerce Platform
+    ↓
+Agent 1 (Order Validation):
+    - Verify payment processed
+    - Check inventory availability
+    - Validate shipping address
+    - Calculate tax and duties
+    ↓
+Decision Point: Inventory Available?
+    
+    YES →
+        Agent 2 (Warehouse):
+            - Create pick list
+            - Reserve inventory
+            - Generate packing slip
+            - Assign to shipping queue
+        ↓
+        Agent 3 (Shipping):
+            - Select carrier based on rules
+            - Generate shipping label via UI automation
+            - Schedule pickup
+            - Send tracking info to customer
+        ↓
+        Agent 4 (Finance):
+            - Record revenue
+            - Update inventory value
+            - Generate invoice
+    
+    NO →
+        Agent 5 (Procurement):
+            - Check supplier availability
+            - Auto-create purchase order if <$5k
+            - Request manager approval if >$5k
+            - Update customer with ETA
+        ↓
+        Human Approval: Manager reviews PO
+        ↓
+        Return to Agent 2 when inventory arrives
+    ↓
+Monitor: Real-time dashboard showing:
+    - Orders in each stage
+    - SLA compliance
+    - Exception alerts
+    - Performance metrics
+```
+
+**Example 4: Compliance Audit Automation**
+```
+Trigger: Quarterly compliance audit scheduled
+    ↓
+Agent 1 (Data Gathering):
+    - UI automation to login to 15+ systems
+    - Extract access logs
+    - Pull user permission reports
+    - Collect change management records
+    - Screenshot evidence from web portals
+    ↓
+Agent 2 (Analysis):
+    - Compare current vs. approved access
+    - Identify segregation of duty violations
+    - Flag inactive accounts with active permissions
+    - Detect unusual access patterns
+    ↓
+Agent 3 (Remediation):
+    - Auto-revoke clearly expired access
+    - Generate remediation tickets for manual review
+    - Assign to appropriate managers
+    ↓
+Human Review: Compliance team reviews findings
+    ↓
+Agent 4 (Documentation):
+    - Generate audit report with evidence
+    - Create remediation tracking dashboard
+    - Update compliance database
+    - Schedule follow-up reviews
+    ↓
+Version Control: Track all automation changes for audit trail
+```
+
+**Example 5: Marketing Campaign Orchestration**
+```
+Trigger: New product launch campaign approved
+    ↓
+Agent 1 (Content Creation):
+    - AI generates email copy variations
+    - Create landing page content
+    - Generate social media posts
+    - Produce ad creative briefs
+    ↓
+Human Approval: Marketing manager reviews content
+    ↓
+Agent 2 (Channel Setup):
+    - Create email campaign in Mailchimp
+    - Set up Google Ads campaigns
+    - Schedule social posts in Hootsuite
+    - Configure landing page in CMS
+    ↓
+Agent 3 (Audience Segmentation):
+    - Query CRM for target segments
+    - Create suppression lists
+    - Calculate optimal send times per segment
+    - Set up A/B test groups
+    ↓
+Agent 4 (Launch):
+    - Deploy campaigns across channels
+    - Monitor initial performance
+    - Auto-adjust budgets based on early results
+    ↓
+Agent 5 (Optimization):
+    - Track metrics in real-time
+    - Pause underperforming ads
+    - Scale winning variants
+    - Generate performance reports
+    ↓
+Monitor: Live dashboard with:
+    - Campaign performance by channel
+    - Cost per acquisition
+    - ROI tracking
+    - Anomaly alerts
+```
+
+**Key Differences in Implementation:**
+
+| Aspect | **Quick Flows** | **Quick Automate** |
+|--------|----------------|-------------------|
+| **Setup** | Natural language: "Send weekly report every Monday" | Visual builder + detailed configuration |
+| **Complexity** | Linear workflows (5-10 steps) | Multi-branch logic (50+ steps) |
+| **Agents** | Single agent execution | Multiple specialized agents |
+| **Error Handling** | Basic retry logic | Advanced error handling + rollback |
+| **Approvals** | Simple approve/reject | Multi-level approval chains |
+| **Monitoring** | Basic completion status | Real-time dashboards + alerts |
+| **Versioning** | Not version controlled | Full version control + rollback |
 
 ---
 
