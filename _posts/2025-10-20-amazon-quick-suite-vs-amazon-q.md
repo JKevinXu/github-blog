@@ -143,6 +143,12 @@ Record: Log in Salesforce
 - Data synchronization between systems
 - Alert and notification automation
 
+**Quick Flows Limits:**
+- ⚠️ **Maximum 35 steps per flow**
+- ⏱️ **No explicit execution time limit** (controlled by agent hours quota)
+- 💰 **Consumes agent hours** from your subscription allowance
+- 🔄 For longer/more complex workflows, use **Quick Automate** instead
+
 **More Quick Flows Examples:**
 
 **Example 1: Weekly Sales Report Automation**
@@ -417,6 +423,85 @@ Monitor: Live dashboard with:
 - Built-in insights agent for general queries
 - Custom agents for specific departments (sales, compliance, HR)
 - Configured with business context and expertise
+
+---
+
+### Architecture: Account-Level vs Application Instances
+
+**Important Distinction:**
+
+**Quick Suite Architecture:**
+- ❌ **No "application instance" concept**
+- **Account-level service** - One Quick Suite per AWS account
+- Organization through **Spaces** (workspaces) and **custom agents**
+- Shared Quick Index across the entire account
+- All users in the account share the same Quick Suite environment
+
+```
+AWS Account
+    └── Quick Suite (single instance)
+        ├── Quick Index (shared knowledge base)
+        ├── Spaces
+        │   ├── Personal Space (User A)
+        │   ├── Personal Space (User B)
+        │   ├── Team Space (Marketing)
+        │   └── Team Space (Finance)
+        ├── Custom Agents
+        │   ├── Sales Agent
+        │   ├── Compliance Agent
+        │   └── HR Agent
+        ├── Dashboards (Quick Sight)
+        └── Workflows (Quick Flows/Automate)
+```
+
+**Amazon Q Business Architecture:**
+- ✅ **Has "Application" instances**
+- Multiple Q Business applications per AWS account
+- Each application has its own index, data sources, and users
+- Isolated environments for different use cases
+
+```
+AWS Account
+    ├── Q Business Application: HR-Assistant
+    │   ├── Index
+    │   ├── Data Sources (Workday, HR docs)
+    │   └── Users (HR team only)
+    │
+    ├── Q Business Application: Finance-Assistant
+    │   ├── Index
+    │   ├── Data Sources (ERP, financial docs)
+    │   └── Users (Finance team only)
+    │
+    └── Q Business Application: Engineering-Docs
+        ├── Index
+        ├── Data Sources (GitHub, Confluence)
+        └── Users (Engineering team)
+```
+
+**Key Implications:**
+
+| Aspect | **Quick Suite** | **Amazon Q Business** |
+|--------|----------------|----------------------|
+| **Isolation** | Spaces provide soft boundaries | Applications provide hard boundaries |
+| **Data Separation** | Shared Quick Index with permission controls | Separate indexes per application |
+| **Billing** | Single $250/month infrastructure fee | Per-application infrastructure costs |
+| **Management** | Manage one environment | Manage multiple applications |
+| **Use Case** | Unified workspace for entire org | Separate apps for different departments |
+| **Scaling** | Add users and spaces to same instance | Create new applications as needed |
+
+**When This Matters:**
+
+**Choose Quick Suite (account-level) if:**
+- You want a unified workspace for the entire organization
+- You prefer managing one environment
+- You want shared knowledge across teams (with permissions)
+- You want to minimize infrastructure costs
+
+**Choose Q Business (application instances) if:**
+- You need strict data isolation between departments
+- Different teams have completely separate use cases
+- You want independent management and configuration
+- Compliance requires separate environments
 
 ---
 
