@@ -205,6 +205,112 @@ Track token usage per model per phase to understand cost breakdown. This granula
 
 ---
 
+## Bedrock AgentCore Observability
+
+AWS Bedrock AgentCore provides comprehensive observability features specifically designed for understanding agent behavior in production. For long-running workflows, these built-in capabilities are essential for debugging, performance optimization, and compliance.
+
+### Agent Trace Functionality
+
+Bedrock's most powerful observability feature is agent tracing, enabled via the `enableTrace` parameter when invoking agents. Unlike traditional logs that show only inputs and outputs, traces expose the agent's internal reasoning process, making opaque AI behavior transparent.
+
+When tracing is enabled, Bedrock streams detailed trace events that show exactly what the agent is doing at each step. You see the orchestration trace showing high-level decisions ("I need to call the research API"), pre-processing traces showing input validation, model invocation traces showing prompts sent to the foundation model, and post-processing traces showing how responses are handled.
+
+For action groups, traces reveal which APIs the agent decided to call, with what parameters, and why. This is invaluable for debugging unexpected behavior. If your research agent isn't collecting data from a specific competitor, the trace shows whether it never attempted the API call, attempted but received an error, or attempted and misinterpreted the response.
+
+Knowledge base traces expose retrieval operations. When the agent queries its knowledge base, you see the search query it constructed, the documents retrieved, their relevance scores, and how the agent incorporated that information into its response. This visibility helps optimize knowledge base configurations and understand when retrieval fails to find relevant information.
+
+Guardrails evaluation traces show content filtering decisions. If your agent's output was blocked by guardrails, the trace explains which guardrail triggered and what content violated policy. This prevents mysterious failures where the agent appears to work but produces no output.
+
+### Trace Event Structure
+
+Bedrock trace events follow a hierarchical structure that mirrors agent execution flow. The top-level orchestration trace contains the agent's overall reasoning: "The user wants competitive intelligence on CompanyX. I'll first search my knowledge base for existing information, then call the research API to gather current data."
+
+Nested within orchestration traces are model invocation traces containing the exact prompts sent to Claude or other foundation models. These prompts include system instructions, conversation history, retrieved documents from knowledge bases, and available action descriptions. Seeing these prompts is crucial for understanding why agents behave certain ways—often unexpected behavior traces back to ambiguous or conflicting instructions in prompts.
+
+Action group invocation traces capture the bridge between agent decisions and actual API calls. Each trace shows the action selected, parameters the agent chose, the API request constructed, the response received, and how the agent plans to use that response. For workflows making hundreds of API calls over 8 hours, these traces are the definitive record of what actually happened.
+
+Post-processing traces reveal how the agent synthesizes information. After collecting research from multiple sources, the trace shows how the agent combines data, resolves conflicts, and formulates conclusions. This visibility into synthesis logic helps identify when agents make logical errors or miss important connections.
+
+### CloudWatch Integration
+
+Bedrock automatically integrates with CloudWatch for metrics and logs, providing production-ready observability without custom instrumentation. Every agent invocation generates CloudWatch metrics that track invocation counts, duration, errors, throttles, and token consumption.
+
+CloudWatch Logs capture complete request and response payloads for agent invocations. Each log entry includes the session ID, input text, agent response, timestamp, and execution metadata. This creates an audit trail for compliance and enables post-hoc analysis of agent behavior patterns.
+
+For long-running workflows, CloudWatch Logs Insights queries become essential. Query for all invocations within a workflow by filtering on session ID. Identify failures by searching for error codes. Track token usage trends over time by aggregating token count fields. The structured log format makes these queries straightforward.
+
+Set up CloudWatch metric alarms for agent health monitoring. Alert when error rates exceed thresholds, when average duration increases significantly, or when throttling occurs. These alarms catch problems before they cascade through multi-hour workflows.
+
+### X-Ray Distributed Tracing
+
+Bedrock integrates with AWS X-Ray to provide distributed tracing across your entire workflow stack. When you enable X-Ray tracing on your Lambda functions or containers that invoke Bedrock agents, X-Ray automatically captures Bedrock service calls as segments in the trace.
+
+X-Ray traces show the end-to-end path of workflow executions, including time spent in LangGraph nodes, Bedrock agent invocations, action group API calls, and knowledge base queries. This holistic view reveals where bottlenecks occur. If 80% of your workflow time is Bedrock agent invocations, you know where to optimize.
+
+Service maps in X-Ray visualize dependencies between components. Your LangGraph workflow calls Bedrock agents, which call action groups, which call external APIs. X-Ray maps these relationships automatically, making architecture understanding visual rather than requiring code archaeology.
+
+Trace annotations let you add custom metadata to X-Ray segments. Annotate traces with workflow IDs, phase names, competitor being analyzed, or any contextual information. These annotations enable filtering X-Ray traces to specific workflow executions or failure scenarios.
+
+### Token and Cost Tracking
+
+Bedrock trace events include token counts for each model invocation: input tokens, output tokens, and total tokens. This granular data enables precise cost tracking and optimization identification.
+
+Aggregate token counts across workflow phases to understand cost distribution. If the research phase consumes 100K tokens but the analysis phase consumes 1M tokens, you know where optimization efforts should focus. Track token usage trends over time to detect cost increases before they become budget problems.
+
+Input token optimization often yields significant savings. If your prompts include unnecessary context or verbose instructions, every invocation wastes tokens. Trace events show exact prompts sent, allowing you to identify and eliminate waste. Reducing a 5,000 token prompt to 2,000 tokens halves input costs while maintaining quality.
+
+Output token costs usually dominate for analytical tasks. Traces reveal when agents generate verbose outputs that could be more concise. Adjust prompts to request structured, compact outputs rather than prose. A structured JSON response of 500 tokens is often more useful and cheaper than a 2,000 token narrative explanation.
+
+### Memory Store Observability
+
+Bedrock memory stores integrate with CloudWatch to expose memory operation metrics. Track memory write rates, read latency, storage size, and retrieval success rates. These metrics reveal memory store health and usage patterns.
+
+Query memory stores directly to inspect workflow state. Use the Bedrock memory API to retrieve memories by tags, timestamps, or semantic search. This programmatic access enables custom monitoring dashboards that show workflow progress by querying memory entries rather than parsing logs.
+
+Memory retention policies create observability challenges—deleted memories leave gaps in audit trails. For compliance-sensitive workflows, implement memory archival before deletion. Copy memory entries to S3 with longer retention, preserving complete audit trails while managing memory store costs.
+
+### Action Group Execution Visibility
+
+Action groups provide custom observability hooks through response handling. When your action group Lambda function executes, log detailed context: which workflow invoked it, what parameters were provided, what the function computed, and any errors encountered.
+
+Correlate action group executions with agent traces using request IDs or session IDs. When debugging unexpected agent behavior, follow the trail from agent decision (visible in traces) to action execution (visible in action group logs) to external API call (visible in API logs). This correlation transforms isolated log entries into coherent narratives.
+
+Instrument action groups with custom metrics. Track success rates, execution duration, error types, and business metrics (like "number of competitors analyzed"). These metrics complement Bedrock's built-in observability with domain-specific insights.
+
+### Debugging Long-Running Workflows
+
+For 8-hour workflows, debugging requires strategies specific to extended timescales. Enable trace persistence by streaming trace events to S3. Bedrock traces are ephemeral by default, but your workflow can capture and store them for later analysis. Store traces alongside workflow checkpoints to enable post-mortem debugging.
+
+Implement trace sampling for cost control. Tracing every agent invocation in an 8-hour workflow generates massive data volumes. Sample traces strategically: always trace errors, trace 10% of successful operations, trace specific workflow phases completely. This balances observability with cost.
+
+Use trace data to build workflow replay capabilities. Capture traces and state at each phase, then replay workflows in test environments using recorded data. This enables reproducing production failures locally without re-running entire 8-hour workflows.
+
+### Compliance and Audit Requirements
+
+Bedrock's observability features support compliance requirements in regulated industries. Traces provide evidence of agent decision-making processes for audit. If an agent made a recommendation that led to a business decision, traces show exactly what information the agent considered and how it reasoned.
+
+Enable CloudWatch Logs encryption for sensitive workflows. Bedrock logs may contain PII or confidential business data. Encrypt logs at rest using KMS keys under your control. Set up log retention policies that match compliance requirements—often 7 years for financial services.
+
+Implement tamper-evident audit trails by streaming logs to write-once S3 buckets with object lock. This prevents retroactive modification of agent execution records, satisfying auditability requirements for regulated use cases.
+
+### Performance Profiling
+
+Use Bedrock traces to profile agent performance systematically. Measure time spent in each workflow phase: orchestration (agent deciding what to do), model invocation (waiting for foundation model), action execution (external API calls), knowledge retrieval (searching memory/knowledge bases).
+
+Identify optimization opportunities by analyzing bottlenecks. If 90% of time is model invocation, experiment with faster models or more efficient prompts. If 90% of time is action execution, optimize API calls or implement caching. Traces provide the data needed for evidence-based optimization.
+
+Track performance degradation over time. If agent invocations gradually slow down, traces reveal whether the issue is Bedrock response times, knowledge base growth impacting retrieval speed, or action groups making more API calls. Historical trace data enables trend analysis.
+
+### Integration with Third-Party Observability
+
+While Bedrock provides comprehensive native observability, third-party tools add capabilities. Stream CloudWatch Logs to Datadog, Splunk, or New Relic for unified observability across your entire stack. These platforms provide advanced analytics, anomaly detection, and correlation capabilities beyond CloudWatch.
+
+Export trace data to observability data lakes for long-term analysis. S3-based data lakes store years of trace data cost-effectively, enabling machine learning on agent behavior patterns, trend analysis across thousands of workflows, and deep historical investigation of rare failure modes.
+
+Use OpenTelemetry to create unified traces spanning LangGraph, Bedrock, and custom code. OpenTelemetry's standardized format enables tool-agnostic observability. Switch monitoring vendors without rewriting instrumentation, or use multiple tools simultaneously for different purposes.
+
+---
+
 ## Orchestration with LangGraph
 
 LangGraph provides graph-based workflow orchestration specifically designed for LLM applications. Its architecture naturally supports long-running, stateful agent operations with built-in persistence and human-in-the-loop capabilities.
