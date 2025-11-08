@@ -173,9 +173,85 @@ After the timeout, move to half-open state and allow one test call. If it succee
 
 ---
 
+## Understanding AgentCore Architecture: Gateway vs Runtime
+
+Before diving into integration patterns, it's essential to understand Bedrock's two-tier architecture: AgentCore Gateway and AgentCore Runtime. These components serve different purposes and choosing the right one impacts your workflow's architecture, cost, and capabilities.
+
+### AgentCore Runtime: Direct Agent Invocation
+
+AgentCore Runtime is the direct invocation API for Bedrock agents. When you call `bedrock-agent-runtime.invoke_agent()`, you're interacting with the Runtime service. This is the traditional approach most developers start with and the one documented in standard tutorials.
+
+Runtime invocations are synchronous in nature—you send a request and wait for the streaming response. The API provides immediate access to agent capabilities including action groups, knowledge bases, guardrails, and memory. You manage the session lifecycle explicitly, passing session IDs to maintain conversational context.
+
+For long-running workflows, Runtime invocations give you fine-grained control. Each workflow phase can invoke the agent independently, handle responses immediately, and implement custom retry logic. You control exactly when the agent is invoked, what context is provided, and how results are processed.
+
+The cost model for Runtime is straightforward: you pay for model inference tokens (input and output) plus any knowledge base retrievals or guardrails evaluations. There's no additional orchestration overhead beyond the AWS API call costs, making Runtime the most cost-effective option for workflows that need direct control.
+
+Runtime's limitation is that it's purely an invocation API—it doesn't provide workflow orchestration, scheduling, or managed state beyond what you implement yourself. For 8-hour workflows, this means you're responsible for orchestration (hence LangGraph), state management (Bedrock Memory), and error handling (your retry logic).
+
+### AgentCore Gateway: Managed Agent Orchestration
+
+AgentCore Gateway is a higher-level service that sits above Runtime, providing managed agent orchestration and lifecycle management. Gateway is designed for scenarios where you want AWS to handle more of the operational complexity.
+
+Gateway introduces the concept of agent applications—pre-configured agent setups with defined triggers, data sources, and access controls. Instead of invoking agents directly, you deploy agent applications to Gateway, which then manages invocation, scaling, and availability.
+
+The key Gateway capability is managed asynchronous execution. You can submit requests to Gateway that execute over extended periods without maintaining open connections. Gateway handles the execution lifecycle, stores intermediate results, and provides status APIs to check progress. This is conceptually similar to what we're building with LangGraph, but managed by AWS.
+
+Gateway also provides built-in integration with AWS services like S3 (for data sources), DynamoDB (for state), and EventBridge (for event-driven triggers). These integrations are pre-configured and optimized, reducing the setup complexity compared to assembling components yourself.
+
+Security and governance features differentiate Gateway from Runtime. Gateway provides fine-grained IAM policies at the application level, managed encryption for data in transit and at rest, and integration with AWS Organizations for multi-account deployments. These features matter for enterprise deployments with strict compliance requirements.
+
+The cost model for Gateway includes orchestration charges beyond the base model inference costs. You pay for agent application hosting, managed execution time, and data processing fees. For simple, frequent invocations, Gateway costs more than Runtime. For complex workflows with extensive orchestration needs, the managed services might justify the additional cost.
+
+### Key Differences and Decision Criteria
+
+**Control vs Convenience:** Runtime gives you complete control but requires building orchestration yourself. Gateway provides managed orchestration but with less flexibility in execution logic. For our 8-hour workflows with LangGraph, Runtime's control is preferable because we've already built sophisticated orchestration.
+
+**Synchronous vs Asynchronous:** Runtime invocations are fundamentally synchronous streaming calls—you maintain a connection throughout execution. Gateway supports true asynchronous execution where you submit work and poll for results. If your workflow has long gaps between agent invocations (hours of waiting for external processes), Gateway's async model might be more efficient.
+
+**State Management:** Runtime requires external state management (we use Bedrock Memory plus LangGraph checkpoints). Gateway provides built-in state persistence as part of agent application execution. The Gateway state model is less flexible than our custom approach but requires no configuration.
+
+**Cost Model:** Runtime charges only for inference and retrievals. Gateway adds orchestration and hosting costs. For workflows making hundreds of agent calls over 8 hours, Runtime's straightforward pricing is easier to predict and typically lower.
+
+**Integration Complexity:** Runtime requires manually integrating with CloudWatch, X-Ray, EventBridge, and other AWS services. Gateway provides pre-configured integrations, reducing setup time but limiting customization options.
+
+**Scalability:** Runtime scales automatically with AWS API limits—thousands of concurrent requests with no configuration. Gateway applications have deployment limits and require capacity planning. For workflows that occasionally spike to hundreds of concurrent executions, Runtime's automatic scaling is advantageous.
+
+### When to Use Runtime (Our Approach)
+
+Use AgentCore Runtime when you need:
+
+- **Custom orchestration logic** that doesn't fit Gateway's execution model (like LangGraph's graph-based flows with cycles)
+- **Maximum cost efficiency** for high-volume agent invocations
+- **Fine-grained control** over retry logic, error handling, and state management
+- **Integration with non-AWS orchestration** frameworks (like LangGraph running anywhere)
+- **Minimal abstraction layers** between your code and the agent
+
+For our 8-hour competitive intelligence workflow, Runtime is the right choice because LangGraph already provides sophisticated orchestration, Bedrock Memory handles state semantically, and we need custom retry logic with circuit breakers. Gateway would add cost and constraints without meaningful benefits.
+
+### When to Use Gateway
+
+Consider AgentCore Gateway when you need:
+
+- **Managed agent deployment** where AWS handles hosting and availability
+- **Built-in async execution** without building your own job queue system
+- **Enterprise governance features** like Organization-wide policies and cross-account access
+- **Rapid prototyping** where Gateway's pre-configured integrations accelerate development
+- **Simpler workflows** where Gateway's orchestration model is sufficient
+
+Gateway shines for simpler use cases: scheduled data processing jobs, event-driven document analysis, or periodic report generation where AWS-managed execution is valuable and custom orchestration is overkill.
+
+### Hybrid Approaches
+
+Some architectures use both Runtime and Gateway for different purposes. Gateway might handle simple, scheduled tasks while Runtime handles complex workflows requiring custom orchestration. They share the same underlying agent definitions, action groups, and knowledge bases, so the agent configuration is reusable.
+
+For our use case, we exclusively use Runtime because LangGraph plus Bedrock Memory provides everything Gateway offers but with more flexibility. However, if our workflow needs simplified to remove LangGraph, Gateway would be an alternative orchestration layer worth considering.
+
+---
+
 ## Bedrock AgentCore Integration
 
-AWS Bedrock AgentCore provides the foundation for building AI agents, but long-running workflows require specific integration patterns that leverage memory for state persistence and context management.
+Having established that we're using AgentCore Runtime for maximum control and flexibility, let's explore specific integration patterns for long-running workflows that leverage memory for state persistence and context management.
 
 ### Session and Memory Management
 
