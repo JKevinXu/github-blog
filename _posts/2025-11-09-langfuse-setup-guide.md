@@ -113,42 +113,270 @@ Done! That's the complete cloud setup.
 
 Only needed for strict data privacy requirements. Most users should use cloud instead.
 
-### Quick Docker Compose Setup
+### Why Self-Host?
+
+Consider self-hosting only if you have:
+
+**Data Residency Requirements:** Healthcare (HIPAA), finance (SOC2), government deployments where data cannot leave your infrastructure.
+
+**High Volume:** Above 1-2 million observations/month, self-hosting becomes more cost-effective than cloud pricing.
+
+**Custom Modifications:** Need to modify Langfuse source code for specific requirements.
+
+**Air-Gapped Environments:** Networks isolated from internet where cloud isn't an option.
+
+If none of these apply, use the cloud service instead.
+
+### Docker Compose Setup
 
 Create `docker-compose.yml`:
 
 ```yaml
 version: '3.8'
+
 services:
   langfuse:
     image: langfuse/langfuse:latest
     ports:
       - "3000:3000"
     environment:
+      # Database connection
       DATABASE_URL: postgresql://langfuse:changeme@postgres:5432/langfuse
-      NEXTAUTH_SECRET: "change-to-random-string"
-      SALT: "change-to-another-random-string"
+      
+      # Required secrets (generate with: openssl rand -base64 32)
+      NEXTAUTH_SECRET: "your-nextauth-secret-here"
+      SALT: "your-salt-secret-here"
+      
+      # URL where Langfuse will be accessed
       NEXTAUTH_URL: http://localhost:3000
+      
+      # Optional: Disable telemetry
+      TELEMETRY_ENABLED: "false"
+      
+      # Optional: Email configuration for notifications
+      # SMTP_HOST: smtp.gmail.com
+      # SMTP_PORT: 587
+      # SMTP_USER: your-email@gmail.com
+      # SMTP_PASSWORD: your-app-password
+      # EMAIL_FROM: noreply@yourdomain.com
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/public/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
   
   postgres:
-    image: postgres:15
+    image: postgres:15-alpine
     environment:
       POSTGRES_USER: langfuse
       POSTGRES_PASSWORD: changeme
       POSTGRES_DB: langfuse
     volumes:
-      - postgres:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U langfuse"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
 volumes:
-  postgres:
+  postgres_data:
 ```
 
-Run:
+**Start services:**
 ```bash
 docker-compose up -d
 ```
 
-Access at `http://localhost:3000`. Change passwords and secrets before production use.
+**View logs:**
+```bash
+docker-compose logs -f langfuse
+```
+
+**Access:** Navigate to `http://localhost:3000` and create your admin account.
+
+### Generate Secure Secrets
+
+Before deploying, generate secure values:
+
+```bash
+# Generate NEXTAUTH_SECRET
+openssl rand -base64 32
+
+# Generate SALT
+openssl rand -base64 32
+```
+
+Replace the placeholder values in `docker-compose.yml` with these generated secrets.
+
+### Production Configuration
+
+For production deployments, add:
+
+**Reverse Proxy with SSL:**
+```yaml
+# nginx.conf
+server {
+    listen 443 ssl;
+    server_name langfuse.yourdomain.com;
+    
+    ssl_certificate /path/to/cert.pem;
+    ssl_certificate_key /path/to/key.pem;
+    
+    location / {
+        proxy_pass http://localhost:3000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+```
+
+Update NEXTAUTH_URL to use HTTPS:
+```yaml
+NEXTAUTH_URL: https://langfuse.yourdomain.com
+```
+
+**Database Backups:**
+```bash
+# Backup PostgreSQL
+docker-compose exec postgres pg_dump -U langfuse langfuse > backup.sql
+
+# Restore
+cat backup.sql | docker-compose exec -T postgres psql -U langfuse langfuse
+```
+
+Set up automated daily backups:
+```bash
+# Add to cron
+0 2 * * * docker-compose -f /path/to/docker-compose.yml exec postgres pg_dump -U langfuse langfuse | gzip > /backups/langfuse-$(date +\%Y\%m\%d).sql.gz
+```
+
+**Resource Limits:**
+```yaml
+services:
+  langfuse:
+    # ... other config ...
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2G
+        reservations:
+          cpus: '1'
+          memory: 1G
+```
+
+### Using Managed PostgreSQL
+
+For production, use managed database services (AWS RDS, Google Cloud SQL, Azure Database) instead of Docker PostgreSQL:
+
+**1. Create PostgreSQL instance** in your cloud provider (version 12+)
+
+**2. Update docker-compose.yml** to remove postgres service and update DATABASE_URL:
+
+```yaml
+services:
+  langfuse:
+    image: langfuse/langfuse:latest
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: postgresql://username:password@your-rds-endpoint.region.rds.amazonaws.com:5432/langfuse
+      NEXTAUTH_SECRET: "your-secret"
+      SALT: "your-salt"
+      NEXTAUTH_URL: https://langfuse.yourdomain.com
+```
+
+**3. Enable required extension** in your database:
+```sql
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+```
+
+This separates compute (Langfuse) from storage (PostgreSQL), allowing independent scaling and better reliability.
+
+### Environment Variables Reference
+
+Key configuration options:
+
+**Required:**
+- `DATABASE_URL` - PostgreSQL connection string
+- `NEXTAUTH_SECRET` - Random secret for auth (min 32 chars)
+- `SALT` - Random secret for encryption (min 32 chars)
+- `NEXTAUTH_URL` - Public URL where Langfuse is accessed
+
+**Optional:**
+- `TELEMETRY_ENABLED` - Set to `false` to disable telemetry (default: `true`)
+- `LANGFUSE_DEFAULT_PROJECT_ROLE` - Default role for new users (`VIEWER`, `MEMBER`, `OWNER`)
+- `AUTH_DISABLE_SIGNUP` - Set to `true` to disable public signups
+
+**Email (for notifications and password reset):**
+- `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD`, `EMAIL_FROM`
+
+**Full list:** See [Langfuse self-hosting docs](https://langfuse.com/docs/deployment/self-host)
+
+### Connecting Your Application
+
+Once self-hosted instance is running, configure your application to use it:
+
+```bash
+export LANGFUSE_PUBLIC_KEY="pk-lf-..."  # From your self-hosted dashboard
+export LANGFUSE_SECRET_KEY="sk-lf-..."  # From your self-hosted dashboard
+export LANGFUSE_HOST="https://langfuse.yourdomain.com"  # Your URL
+```
+
+Or in code:
+```python
+from langfuse import Langfuse
+
+langfuse = Langfuse(
+    public_key="pk-lf-...",
+    secret_key="sk-lf-...",
+    host="https://langfuse.yourdomain.com"
+)
+```
+
+### Updating Langfuse
+
+Pull latest image and restart:
+```bash
+docker-compose pull langfuse
+docker-compose up -d
+```
+
+Langfuse automatically runs database migrations on startup. For zero-downtime updates, run migrations manually first:
+```bash
+docker-compose run langfuse npx prisma migrate deploy
+docker-compose up -d
+```
+
+### Troubleshooting Self-Hosted
+
+**Cannot connect to database:**
+- Verify DATABASE_URL is correct
+- Check PostgreSQL is running: `docker-compose ps postgres`
+- View logs: `docker-compose logs postgres`
+
+**Login issues:**
+- Verify NEXTAUTH_URL matches the URL you're accessing
+- Check NEXTAUTH_SECRET and SALT are set
+- Clear browser cookies and try again
+
+**Performance issues:**
+- Check resource limits aren't being hit
+- Monitor PostgreSQL performance with `docker stats`
+- Consider using managed PostgreSQL for better performance
+- Add connection pooling with PgBouncer for high traffic
+
+**Data persistence:**
+- Verify Docker volume exists: `docker volume ls`
+- Backup volume: `docker run --rm -v postgres_data:/data -v $(pwd):/backup alpine tar czf /backup/postgres_backup.tar.gz /data`
 
 ---
 
