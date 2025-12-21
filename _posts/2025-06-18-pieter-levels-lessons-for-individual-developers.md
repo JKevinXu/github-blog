@@ -294,4 +294,34 @@ Whether you're a solo developer looking to build your first product or an experi
 
 ---
 
+## Recent Interviews & Talks
+
+Want to learn more directly from Pieter? Check out these recent interviews:
+
+### 2024-2025 Appearances
+
+**[Lex Fridman Podcast #440](https://www.youtube.com/watch?v=oFtjKbXKqbg)** (August 2024)
+- 3+ hour deep dive into his entrepreneurial journey
+- Topics: Programming, viral AI startups, digital nomad life
+- Discusses building 40+ startups and what he learned
+
+**[Cheeky Pint Podcast](https://www.reelikklemind.com/posts/cheeky-pint-a-cheeky-pint-with-serial-entrepreneur-pieter-levels/)** (July 2025)
+- Building in public philosophy
+- Digital nomad lifestyle insights
+- Validating ideas and building sustainable businesses
+
+### Recommended Classic Interviews
+
+**[My First Million Podcast](https://www.mfmpod.com/)** (July 2022)
+- How he makes $2.7M+/year with no employees
+- Solopreneurship strategies
+- Behind-the-scenes of his business model
+
+### Follow His Journey
+
+- **X/Twitter**: [@levelsio](https://x.com/levelsio) - Daily updates, revenue numbers, and transparent building in public
+- **Blog**: [levels.io](https://levels.io) - Long-form posts about his experiences and insights
+
+---
+
 *What aspects of Pieter Levels' approach resonate most with your development journey? Are there specific lessons you'd like to implement in your own projects?* 
