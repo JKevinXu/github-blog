@@ -1,14 +1,19 @@
 ---
 layout: post
-title: "Bedrock AgentCore Runtime vs ECS Fargate: Choosing Your AI Agent Deployment Strategy"
+title: "Amazon Bedrock AgentCore vs ECS Fargate: Choosing Your AI Agent Deployment Strategy"
 date: 2025-11-10 10:00:00 -0500
 categories: [aws, ai, architecture]
 tags: [aws, bedrock, agentcore, ecs, fargate, deployment, containers]
+last_updated: 2026-01-16
 ---
 
-# Bedrock AgentCore Runtime vs ECS Fargate: Choosing Your AI Agent Deployment Strategy
+# Amazon Bedrock AgentCore vs ECS Fargate: Choosing Your AI Agent Deployment Strategy
 
-When deploying AI agents on AWS, you face a fundamental choice: use AWS Bedrock AgentCore Runtime (managed AI agent service) or deploy custom agent code on ECS Fargate (container orchestration). Both approaches work, but they serve different needs and involve different tradeoffs.
+*Updated January 2026 to reflect AgentCore GA (October 2025) and latest features.*
+
+When deploying AI agents on AWS, you face a fundamental choice: use **Amazon Bedrock AgentCore** (AWS's purpose-built managed platform for AI agents) or deploy custom agent code on **ECS Fargate** (container orchestration). Both approaches work, but they serve different needs and involve different tradeoffs.
+
+**Important Clarification:** Bedrock AgentCore is distinct from the older "Bedrock Agents" service. AgentCore is a modular, model-agnostic platform that works with *any* foundation model and *any* agent framework. It went generally available in October 2025.
 
 This post compares these deployment strategies across architecture, cost, operational complexity, and performance to help you choose the right approach for your use case.
 
@@ -16,53 +21,72 @@ This post compares these deployment strategies across architecture, cost, operat
 
 ## TL;DR
 
-**Bedrock AgentCore Runtime:**
-- Managed service for AI agents
-- Serverless scaling, pay per invocation
-- Pre-built integrations (knowledge bases, action groups, guardrails)
-- Limited to AWS infrastructure and Bedrock models
-- Best for: Standard AI agent patterns, rapid development, AWS-centric teams
+**Bedrock AgentCore:**
+- Fully managed, modular platform purpose-built for AI agents (GA October 2025)
+- Model-agnostic: works with OpenAI, Anthropic, Google, Bedrock models, self-hosted, etc.
+- Framework-agnostic: supports LangGraph, LlamaIndex, CrewAI, Strands Agents, custom code
+- Built-in memory (short-term, long-term, episodic), policy controls, observability, identity, tool gateway
+- Pay-per-use with **no CPU charges during I/O wait** (significant cost advantage for agentic workloads)
+- Long-running sessions up to 8 hours with session isolation
+- Best for: Production-grade agents needing memory, governance, observability without building infrastructure
 
 **ECS Fargate:**
-- Container orchestration for custom code
+- General-purpose serverless container orchestration
 - You manage application, AWS manages infrastructure
-- Complete control over agent logic and dependencies
-- Works with any LLM provider or framework
-- Best for: Custom requirements, multi-cloud, complex workflows, non-Bedrock models
+- Complete control over runtime environment, dependencies, architecture
+- Lower base compute cost (~$0.04/vCPU-hour vs ~$0.09 for AgentCore)
+- Best for: Existing containerized systems, cost-optimized steady workloads, maximum flexibility
 
 **Decision Framework:**
-- Use AgentCore Runtime if your agent fits standard patterns and you want managed services
-- Use ECS Fargate if you need custom logic, multi-cloud portability, or non-Bedrock models
+- Use AgentCore if building production agents with memory, tools, policy needs—saves months of infrastructure work
+- Use ECS Fargate if you need maximum control, have existing container infrastructure, or run steady high-utilization workloads
 
 ---
 
 ## Understanding the Options
 
-### Bedrock AgentCore Runtime
+### Amazon Bedrock AgentCore
 
-Bedrock AgentCore Runtime is AWS's managed service for deploying AI agents. You define agents through configuration (agent instructions, action groups, knowledge bases) and AWS handles execution, scaling, and infrastructure.
+Bedrock AgentCore is AWS's purpose-built managed platform for deploying, operating, and monitoring AI agents at scale. Unlike the older "Bedrock Agents" service (which is declarative and Bedrock-model-only), AgentCore is a modular, framework-agnostic, model-agnostic platform that went GA in October 2025.
 
-**Core Concept:** Agents are configuration artifacts, not deployed code. You describe what the agent should do (instructions, available tools, knowledge sources), and Bedrock Runtime executes the agent when invoked.
+**Core Concept:** AgentCore provides modular services that work together or independently:
+- **Runtime:** Secure serverless execution environment for agent code (containers or direct code upload)
+- **Memory:** Short-term, long-term, and episodic memory management
+- **Gateway:** Tool discovery and integration (supports Lambda, APIs, MCP servers)
+- **Identity:** Authentication and authorization for agent-to-tool and agent-to-agent interactions
+- **Observability:** Built-in monitoring, tracing, dashboards (CloudWatch + OpenTelemetry)
+- **Policy (Preview):** Natural language or Cedar-based deterministic controls for agent behavior
+- **Evaluations:** Automated quality monitoring for correctness, safety, and goal success
+- **Browser Tool:** Built-in web browsing capability
+- **Code Interpreter:** Built-in code execution sandbox
 
-**Architecture:** Serverless model where AWS provisions compute on-demand. You don't manage servers, containers, or scaling logic. Each agent invocation runs in AWS-managed infrastructure with automatic resource allocation.
+**Architecture:** Serverless model where AWS provisions compute on-demand. Sessions support up to 8 hours of execution with full session isolation. Bidirectional streaming enables real-time voice/conversational agents. Agent-to-Agent (A2A) protocol support for multi-agent systems.
 
-**Model Support:** Limited to Bedrock foundation models (Claude, Llama, Titan, etc.). You cannot use OpenAI, Google, or self-hosted models directly within AgentCore Runtime.
+**Model Support:** Fully model-agnostic. Use any foundation model—Bedrock (Claude, Llama, Titan), OpenAI (GPT-4), Google (Gemini), Anthropic direct, Azure OpenAI, self-hosted models, or any combination.
 
-**Integration:** Native AWS service integration with minimal configuration. Connect to Lambda (action groups), OpenSearch/Aurora (knowledge bases), S3 (data sources), and CloudWatch (observability).
+**Framework Support:** Fully framework-agnostic. Use LangGraph, LangChain, LlamaIndex, CrewAI, Strands Agents, custom code, or any framework. Supports Model Context Protocol (MCP) for tool integration.
 
-**Reference:** [AWS Bedrock Agents Documentation](https://docs.aws.amazon.com/bedrock/latest/userguide/agents.html)
+**Integration:** Native AWS service integration plus external APIs. Gateway wraps any API/Lambda into agent-compatible tools with IAM or OAuth authorization.
+
+**Reference:** [AWS Bedrock AgentCore Documentation](https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/what-is-bedrock-agentcore.html)
 
 ### ECS Fargate
 
-ECS Fargate is AWS's serverless container platform. You package your application as Docker containers, and Fargate runs them without managing EC2 instances.
+ECS Fargate is AWS's serverless container platform. You package your application as Docker containers, and Fargate runs them without managing EC2 instances. It's a general-purpose compute service, not specifically designed for AI agents.
 
-**Core Concept:** Containers are deployed code. You write agent logic in any language/framework, package as containers, and Fargate executes them. Complete control over application behavior.
+**Core Concept:** Containers are deployed code. You write agent logic in any language/framework, package as containers, and Fargate executes them. Complete control over application behavior, runtime environment, and dependencies.
 
 **Architecture:** Serverless containers where AWS manages host infrastructure but you control application layer. Define task definitions (CPU, memory, image) and ECS schedules containers on Fargate infrastructure.
 
 **Model Support:** Unrestricted. Call any LLM API (OpenAI, Anthropic, Google, Azure OpenAI, self-hosted), use any framework (LangChain, LlamaIndex, custom code), combine multiple providers.
 
-**Integration:** You implement all integrations. Need vector database? Install client library and connect. Need observability? Add instrumentation code. More work, but complete flexibility.
+**Integration:** You implement all integrations. Need vector database? Install client library and connect. Need observability? Add instrumentation code. Need memory? Build it yourself. More work, but complete flexibility.
+
+**Recent Updates (2025-2026):**
+- **Capacity Provider Updates (June 2025):** Change compute configuration between Fargate and EC2 without recreating services
+- **Weekly Event Windows (December 2025):** Schedule task retirements during specific windows (e.g., weekends only)
+- **Platform Version Deprecation:** Linux platform 1.3.0 retiring March 2026—services must migrate to 1.4.0
+- **Stop Timeout:** Maximum 120 seconds for graceful shutdown (can be limiting for long AI operations)
 
 **Reference:** [AWS ECS Fargate Documentation](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/AWS_Fargate.html)
 
@@ -72,19 +96,23 @@ ECS Fargate is AWS's serverless container platform. You package your application
 
 ### Deployment Model
 
-**AgentCore Runtime:**
+**AgentCore:**
 
 ```
-Agent Definition (Configuration)
+Agent Code (Python/Node.js)
     ↓
-AWS Bedrock Runtime Service
+Option A: Direct Code Upload (zip) ← Faster iteration
+    OR
+Option B: Container Image → ECR → AgentCore Runtime
     ↓
-Automatic Scaling & Execution
+AgentCore Services (Runtime + Memory + Gateway + ...)
+    ↓
+Automatic Scaling & Session Isolation
     ↓
 Response to Caller
 ```
 
-You define agents in the AWS console or via API. No code deployment. AWS handles all execution.
+You deploy your agent code directly or via containers. AgentCore provides the agent-specific infrastructure (memory, tools, identity, observability) as managed services. Direct code upload (new in late 2025) enables faster iteration without container builds.
 
 **ECS Fargate:**
 
@@ -100,153 +128,185 @@ ECS Task Definition
 Fargate Executes Container
     ↓
 Your Code Handles Requests
+    + You build: memory, tools, identity, observability
 ```
 
-You build, push, and deploy containers. AWS runs them, but you manage application behavior.
+You build, push, and deploy containers. AWS runs them, but you implement all agent-specific capabilities (memory, tool integration, policy enforcement, etc.) yourself.
 
 ### Scaling Model
 
-**AgentCore Runtime:**
+**AgentCore:**
 
-Automatic, instant scaling. Each invocation gets dedicated compute. No cold starts for the service itself (though model initialization has latency). Scale from 0 to thousands of concurrent requests without configuration.
+Automatic scaling with session isolation. Each agent session gets dedicated compute with security isolation. Scale from 0 to thousands of concurrent sessions without configuration. Supports both low-latency interactive workloads and long-running sessions (up to 8 hours).
 
-Cost model: Pay per invocation + model tokens. No compute charges when idle.
+**Cost model:** Pay for active CPU usage + peak memory. **Key differentiator: no CPU charges during I/O wait.** When your agent waits for LLM responses, tool calls, or external APIs, CPU isn't billed. This is significant since agents spend 60-80% of time waiting.
 
 **ECS Fargate:**
 
-Auto-scaling based on metrics (CPU, memory, custom). Configure minimum/maximum task counts. Scale from min tasks to max tasks based on load. Cold starts when scaling from 0 (if allowed).
+Auto-scaling based on metrics (CPU, memory, custom). Configure minimum/maximum task counts. Scale from min tasks to max tasks based on load. Cold starts when scaling from 0 (if allowed). Container restart timeout limited to 120 seconds.
 
-Cost model: Pay for container runtime (vCPU-seconds + GB-seconds) regardless of utilization. Idle containers still cost money.
+**Cost model:** Pay for container runtime (vCPU-seconds + GB-seconds) regardless of utilization. Idle or waiting containers still cost money. Lower per-unit rates but constant billing.
 
 ### State Management
 
-**AgentCore Runtime:**
+**AgentCore:**
 
-Stateless invocations. AgentCore provides session management for conversation context. For workflow state, use Bedrock Memory (semantic state) or external stores (DynamoDB).
+Built-in AgentCore Memory service provides comprehensive state management:
+- **Short-term memory:** Conversation context within sessions
+- **Long-term memory:** Persistent memory across sessions
+- **Episodic memory:** Agent learns from past experiences and outcomes
+- **Shared memory:** Memory stores accessible across multiple agents
 
-Sessions expire after inactivity. Long-running workflows require external orchestration (Step Functions, Lambda).
+Sessions support up to 8 hours of continuous execution. For longer workflows, Memory persists state across sessions.
 
 **ECS Fargate:**
 
-Containers can maintain state in memory during task lifetime. For persistent state, use external stores (DynamoDB, Redis, RDS).
+Containers can maintain state in memory during task lifetime. For persistent state, you must implement and manage external stores (DynamoDB, Redis, RDS).
 
-Long-running tasks supported up to task definition limits. Suitable for workflows that span hours if container stays running.
+Long-running tasks supported up to task definition limits. Suitable for workflows that span hours if container stays running. No built-in agent memory—you build it.
 
 ---
 
 ## Cost Comparison
 
-### Bedrock AgentCore Runtime Costs
+### Bedrock AgentCore Costs
 
-**Components:**
-1. **Model Inference:** Dominant cost. Claude Sonnet ~$3/million input tokens, $15/million output tokens
-2. **Knowledge Base Queries:** $0.10 per query for OpenSearch Serverless
-3. **Memory Storage:** If using Bedrock Memory, storage and retrieval costs
-4. **No compute overhead:** AgentCore Runtime itself has no separate charge
+AgentCore uses modular, consumption-based pricing. Each service is billed independently.
 
-**Example Cost:** 
-- 10,000 agent invocations/day
-- Average 2,000 input tokens, 500 output tokens per invocation
-- 2 knowledge base queries per invocation
+**AgentCore Runtime Pricing:**
+- **vCPU:** ~$0.0895 per vCPU-hour (active CPU time only)
+- **Memory:** ~$0.00945 per GB-hour (peak memory)
+- **Key feature:** CPU not charged during I/O wait (waiting for LLMs, APIs, tools)
 
-Monthly cost:
-- Model: (20M input × $3 + 5M output × $15) / 1M = $60 + $75 = $135
-- Knowledge base: 10K × 30 × 2 × $0.10 = $60,000 queries × $0.10 = $6,000
-- Total: ~$6,135/month
+**Other AgentCore Services:**
+- **Memory:** Per-event storage and retrieval pricing
+- **Gateway:** Per-invocation for tool calls
+- **Identity, Observability, Policy, Evaluations:** Separate pricing per service
+
+**Model Inference (separate):**
+- Model costs depend on which models you use (Bedrock, OpenAI, etc.)
+- Claude Sonnet ~$3/million input, $15/million output tokens
+- Use any model—costs billed by that provider
+
+**Example Cost (AgentCore Runtime):**
+- 10 million agent sessions/month
+- Average 60 seconds per session
+- 70% I/O wait time (waiting for LLM responses, tool calls)
+- Estimated cost: ~$7,235/month for Runtime alone
 
 **Cost Characteristics:**
-- ✅ Zero cost when idle
-- ✅ Predictable per-invocation costs
-- ⚠️ Knowledge base queries expensive at scale
-- ⚠️ Token costs can spike with verbose prompts
+- ✅ No CPU cost during I/O wait (agents spend 60-80% waiting)
+- ✅ Zero cost when idle (no sessions)
+- ✅ Modular—pay only for services you use
+- ⚠️ Higher per-unit compute rate than Fargate (~2x)
+- ⚠️ Model costs separate and can dominate total cost
 
-**Reference:** [Bedrock Pricing](https://aws.amazon.com/bedrock/pricing/)
+**Reference:** [AgentCore Pricing](https://aws.amazon.com/bedrock/agentcore/pricing/)
 
 ### ECS Fargate Costs
 
 **Components:**
-1. **vCPU:** $0.04048 per vCPU per hour
-2. **Memory:** $0.004445 per GB per hour
-3. **Data Transfer:** Standard AWS rates (free within region for most cases)
+1. **vCPU:** ~$0.04048 per vCPU-hour (Linux x86, US East)
+2. **Memory:** ~$0.004445 per GB-hour
+3. **Ephemeral Storage:** Additional charges beyond 20GB
+4. **Data Transfer:** Standard AWS rates
+
+**Pricing Notes:**
+- Billed per second with 1-minute minimum
+- Charged for allocated resources regardless of utilization
+- Idle containers waiting for LLM responses still incur full cost
 
 **Example Cost:**
 - 4 vCPU, 8 GB memory per task
-- 10 tasks running 24/7 for high availability and throughput
-- Model costs same as above (assuming using Bedrock API from containers)
+- 10 tasks running 24/7 for high availability
 
-Monthly cost:
-- Compute: 4 vCPU × $0.04048 × 730 hours = $118.20 per task
+Monthly compute cost:
+- vCPU: 4 × $0.04048 × 730 hours = $118.20 per task
 - Memory: 8 GB × $0.004445 × 730 hours = $25.95 per task
 - Per task total: $144.15
-- 10 tasks: $1,441.50
-- Model costs: $135 (same as above, using Bedrock API)
-- Total: ~$1,576.50/month
+- 10 tasks: **$1,441.50/month** (compute only)
+- Plus model costs (billed separately to whatever provider)
 
 **Cost Characteristics:**
-- ⚠️ Continuous cost even when idle
-- ✅ More predictable compute costs
+- ✅ Lower per-unit compute rates (~$0.04 vs ~$0.09/vCPU-hour)
+- ✅ Predictable costs for steady workloads
+- ⚠️ Continuous cost even when idle or waiting
 - ⚠️ Must maintain minimum capacity for availability
-- ✅ Can optimize with right-sizing
+- ⚠️ You build infrastructure (memory, tools, observability)—development cost
 
 **Reference:** [AWS Fargate Pricing](https://aws.amazon.com/fargate/pricing/)
 
 ### Cost Winner: Depends on Usage Pattern
 
-**AgentCore Runtime wins when:**
-- Sporadic traffic with periods of zero requests
-- Burst traffic patterns
-- Don't need constant availability
-- Knowledge base queries are minimal
+The key differentiator is **I/O wait time**. AI agents typically spend 60-80% of their execution time waiting for LLM responses, API calls, and tool executions.
+
+**AgentCore wins when:**
+- High I/O wait ratio (typical for agents calling LLMs)
+- Bursty traffic with idle periods
+- Need agent-specific infrastructure (memory, tools, observability)
+- Development time/cost is a factor (AgentCore provides these services)
 
 **ECS Fargate wins when:**
-- Consistent 24/7 traffic
-- High request rates justify dedicated capacity
-- Using cheaper/free models (local inference, cached responses)
-- Can amortize compute cost across many requests
+- Steady, high-utilization workloads (constantly processing)
+- Already have agent infrastructure built
+- Need maximum control over runtime environment
+- Can optimize container utilization to minimize idle time
 
 **Breakeven Analysis:**
 
-If Fargate saves $6,135 - $135 = $6,000 in knowledge base costs but costs $1,441 in compute, and you can handle 10K requests/day with 10 tasks, Fargate is cheaper.
+Consider an agent that runs for 60 seconds per session:
+- 30% active CPU (18 seconds): Processing, orchestration
+- 70% I/O wait (42 seconds): Waiting for LLM, tools
 
-However, if traffic is sporadic (1K requests some days, 20K others), AgentCore's pay-per-use model is more economical.
+**AgentCore cost:** Billed only for 18 seconds of CPU
+**Fargate cost:** Billed for full 60 seconds of CPU
+
+At these ratios, AgentCore's higher per-unit rate (~$0.09 vs ~$0.04) is offset by billing only for active CPU. AgentCore becomes cheaper when I/O wait exceeds ~55%.
+
+**Development cost factor:** Building memory, tool integration, observability, and policy enforcement from scratch on Fargate can cost weeks to months of engineering time. Factor this into TCO.
 
 ---
 
 ## Operational Complexity
 
-### AgentCore Runtime Operations
+### AgentCore Operations
 
-**Setup Complexity: Low**
+**Setup Complexity: Low to Medium**
 
-1. Define agent in AWS console or via API
-2. Configure action groups (Lambda functions)
-3. Set up knowledge bases (OpenSearch or Aurora)
-4. Deploy—no container building, no registry management
+1. Write agent code using your preferred framework (LangGraph, LlamaIndex, etc.)
+2. Configure AgentCore services (Runtime, Memory, Gateway, etc.)
+3. Deploy via direct code upload (faster) or container image (more control)
+4. Connect tools via Gateway (APIs, Lambda, MCP servers)
 
 **Ongoing Operations: Minimal**
 
-- No patching, no dependency updates (AWS handles)
-- No scaling configuration (automatic)
-- No health checks to configure (built-in)
-- Monitoring through CloudWatch (automatic)
+- No infrastructure patching (AWS handles)
+- No scaling configuration (automatic with session isolation)
+- Built-in observability with CloudWatch + OTEL
+- Built-in memory management
+- Policy and Evaluations for governance (Preview)
 
 **Development Workflow:**
 
 ```bash
-# Update agent configuration
-aws bedrock-agent update-agent \
-  --agent-id AGENT_ID \
-  --agent-name "MyAgent" \
-  --instructions "New instructions here"
+# Option 1: Direct code upload (faster iteration)
+aws bedrock-agentcore deploy-code \
+  --runtime-id RUNTIME_ID \
+  --code-zip agent-code.zip
 
-# No build/deploy cycle needed
+# Option 2: Container deployment
+docker build -t my-agent .
+docker push $ECR_REGISTRY/my-agent:latest
+# Update AgentCore runtime configuration
 ```
 
 **Operational Burden: 🟢 Low**
 
+Note: Direct code upload (new late 2025) significantly speeds up iteration vs container-only deployment.
+
 ### ECS Fargate Operations
 
-**Setup Complexity: Medium**
+**Setup Complexity: Medium to High (for agents)**
 
 1. Write application code
 2. Create Dockerfile
@@ -256,6 +316,7 @@ aws bedrock-agent update-agent \
 6. Configure load balancers, security groups, IAM roles
 7. Set up auto-scaling policies
 8. Configure logging and monitoring
+9. **Build agent infrastructure:** memory system, tool integration, observability, policy enforcement
 
 **Ongoing Operations: Higher**
 
@@ -264,6 +325,9 @@ aws bedrock-agent update-agent \
 - Scaling policy tuning
 - Manual health check configuration
 - Custom monitoring setup
+- Memory system maintenance
+- Tool integration updates
+- Platform version migrations (e.g., 1.3.0 → 1.4.0 by March 2026)
 
 **Development Workflow:**
 
@@ -284,39 +348,41 @@ aws ecs update-service \
 # Wait for deployment (can take minutes)
 ```
 
-**Operational Burden: 🟡 Medium**
+**Operational Burden: 🟡 Medium (compute) / 🔴 High (full agent stack)**
 
-### Winner: AgentCore Runtime for Simplicity
+### Winner: AgentCore for Agent Workloads
 
-If your goal is minimal operational overhead and your use case fits AgentCore patterns, the managed service requires significantly less ongoing work.
+For AI agents specifically, AgentCore significantly reduces operational overhead by providing memory, tools, observability, and policy as managed services. If you're running general containers (not agents), ECS Fargate remains simpler since you don't need agent-specific infrastructure.
 
 ---
 
 ## Flexibility and Control
 
-### AgentCore Runtime Limitations
+### AgentCore Flexibility (Major Update)
 
-**Model Lock-in:**
-- Must use Bedrock foundation models
-- Cannot use OpenAI GPT-4, Gemini, or other providers
-- Cannot run local/self-hosted models
-- Model selection limited to Bedrock catalog
+**Model Agnostic (No Lock-in):**
+- ✅ Use ANY foundation model: Bedrock, OpenAI, Anthropic direct, Google Gemini, Azure OpenAI
+- ✅ Self-hosted models supported
+- ✅ Combine multiple providers in one agent
+- ✅ Switch models without infrastructure changes
 
-**Framework Lock-in:**
-- Cannot use LangChain, LlamaIndex, or custom frameworks
-- Agent behavior defined by Bedrock's orchestration logic
-- Limited control over retry logic, error handling, prompt engineering
+**Framework Agnostic:**
+- ✅ Use LangGraph, LangChain, LlamaIndex, CrewAI, Strands Agents
+- ✅ Custom frameworks and code supported
+- ✅ Full control over orchestration logic
+- ✅ MCP (Model Context Protocol) support for tools
 
-**Integration Constraints:**
-- Knowledge bases limited to OpenSearch Serverless or Aurora
-- Action groups must be Lambda functions (can't call arbitrary APIs directly)
-- Custom preprocessing/postprocessing requires Lambda workarounds
+**Integration Flexibility:**
+- Gateway wraps any API, Lambda, or MCP server into agent-compatible tools
+- IAM and OAuth authorization supported
+- Direct API calls from agent code
+- Custom tool implementations
 
-**Workflow Patterns:**
-- Best for request-response patterns
-- Long-running workflows require external orchestration
-- Complex state machines awkward to implement
-- Limited support for iterative refinement patterns
+**Constraints:**
+- ⚠️ Runtime environment managed by AWS (less OS-level control)
+- ⚠️ Some features still in Preview (Policy, Evaluations)
+- ⚠️ Session limit of 8 hours (longer workflows need session chaining)
+- ⚠️ Regional availability (9 regions as of October 2025)
 
 ### ECS Fargate Flexibility
 
@@ -325,6 +391,7 @@ If your goal is minimal operational overhead and your use case fits AgentCore pa
 - Combine multiple providers in one application
 - Use any framework: LangChain, LangGraph, LlamaIndex, custom
 - Implement any orchestration logic
+- Full OS-level control in containers
 
 **Custom Integrations:**
 - Direct API calls to any service
@@ -333,8 +400,8 @@ If your goal is minimal operational overhead and your use case fits AgentCore pa
 - Custom authentication and authorization
 
 **Advanced Patterns:**
+- Unlimited session duration
 - Complex state machines and workflows
-- Iterative refinement with custom logic
 - Hybrid approaches (multiple models, fallbacks)
 - Custom caching, batching, optimization strategies
 
@@ -343,46 +410,58 @@ If your goal is minimal operational overhead and your use case fits AgentCore pa
 - Not locked to AWS infrastructure
 - Easy migration if requirements change
 
-### Winner: ECS Fargate for Flexibility
+### Winner: Tie (Different Trade-offs)
 
-If you need control, portability, or use cases outside AgentCore patterns, containers provide necessary flexibility.
+AgentCore is now model-agnostic and framework-agnostic, eliminating the previous flexibility gap. Choose based on:
+- **AgentCore:** When you want managed agent infrastructure (memory, tools, observability) without building it
+- **ECS Fargate:** When you need OS-level control, unlimited sessions, or multi-cloud portability
 
 ---
 
 ## Performance Characteristics
 
-### AgentCore Runtime Performance
+### AgentCore Performance
 
 **Latency:**
-- Cold start: Model initialization adds 1-3 seconds on first invocation
-- Warm invocations: ~100-300ms overhead beyond model inference
-- Knowledge base queries: Additional 200-500ms per query
-- Total: Typically 2-5 seconds for interactive queries
+- Cold start: Session initialization varies; direct code deployment faster than containers
+- Warm sessions: Low overhead for request routing
+- Bidirectional streaming: Supports real-time voice/conversational agents
+- Total: Competitive with Fargate for interactive workloads
+
+**Session Duration:**
+- Up to 8 hours per session
+- Session isolation provides security boundaries
+- Long-running workflows supported natively
 
 **Throughput:**
-- Concurrent invocation limits (account-level quotas)
-- Default: 10 concurrent invocations per agent
-- Request increase through AWS support
-- Bottleneck often model throughput, not service limits
+- Concurrent session limits (account-level quotas)
+- Automatic scaling to thousands of concurrent sessions
+- Request quota increases through AWS support
 
 **Optimization:**
-- Pre-warm agents by keeping them active (periodic invocations)
-- Minimize knowledge base queries
+- Use direct code upload for faster iteration
+- Leverage built-in memory to reduce context reconstruction
 - Use streaming for faster perceived response
+- Session persistence avoids repeated cold starts
 
 ### ECS Fargate Performance
 
 **Latency:**
 - Cold start: Container initialization 30-60 seconds (if scaling from 0)
 - Warm containers: ~10-50ms overhead for request routing
-- Model API calls: Same as AgentCore (both call Bedrock if using)
+- Model API calls: Same latency regardless of compute platform
 - Total: 10-50ms overhead when warm, plus model latency
+
+**Session Duration:**
+- Tasks can run indefinitely
+- Stop timeout limited to 120 seconds for graceful shutdown
+- Must implement session management yourself
 
 **Throughput:**
 - Limited by task count and resources
 - Easily scale to hundreds of concurrent requests
 - Add tasks to increase throughput (linear scaling)
-- Can handle sustained high load better than serverless
+- Can handle sustained high load with proper capacity
 
 **Optimization:**
 - Keep minimum task count > 0 to avoid cold starts
@@ -392,46 +471,58 @@ If you need control, portability, or use cases outside AgentCore patterns, conta
 
 ### Winner: Situation Dependent
 
-- **Interactive user queries:** Similar performance, AgentCore slightly simpler
-- **High sustained load:** Fargate provides more predictable performance
-- **Batch processing:** Fargate handles long-running tasks better
+- **Interactive agents:** AgentCore provides session isolation and built-in features
+- **High sustained load:** Fargate with proper capacity planning
+- **Long-running (>8 hours):** Fargate if single-session required; AgentCore with session chaining
 - **Bursty traffic:** AgentCore scales more elastically
+- **Voice/streaming:** AgentCore's bidirectional streaming is purpose-built
 
 ---
 
 ## Development Experience
 
-### AgentCore Runtime Development
+### AgentCore Development
 
 **Local Development:**
-- Cannot run agents locally (requires AWS)
-- Test by invoking actual agents in AWS
-- Agent simulator tools limited
+- Your agent code runs locally (you control your framework code)
+- AgentCore services (Memory, Gateway) require AWS connection for full testing
+- Can mock AgentCore services for unit testing
 
 **Testing:**
-- Integration testing against real AWS resources
-- Unit testing limited to action group Lambdas
-- Mocking difficult due to managed service nature
+- Unit testing for your agent logic (standard testing)
+- Integration testing against AgentCore services
+- Built-in Evaluations for production quality monitoring
+- AgentCore Observability provides tracing and metrics
 
 **Debugging:**
-- CloudWatch logs and traces
-- Cannot step through agent orchestration logic
-- Limited visibility into decision-making process
+- Standard debuggers for your agent code
+- CloudWatch logs and OpenTelemetry traces
+- Observability dashboard for agent workflow visibility
+
+**Iteration Speed:**
+- **Direct code upload:** Fast iteration without container builds (new feature)
+- **Container deployment:** Slower (build → push → deploy cycle)
+- Recommendation: Use direct code upload during development, containers for production
 
 **CI/CD:**
 ```yaml
 # Example GitHub Actions for AgentCore
-- name: Update Agent
+- name: Deploy Agent Code
   run: |
-    aws bedrock-agent update-agent \
-      --agent-id ${{ secrets.AGENT_ID }} \
-      --instructions "${{ env.INSTRUCTIONS }}"
-    
-    aws bedrock-agent prepare-agent \
-      --agent-id ${{ secrets.AGENT_ID }}
+    zip -r agent-code.zip src/
+    aws bedrock-agentcore deploy-code \
+      --runtime-id ${{ secrets.RUNTIME_ID }} \
+      --code-zip agent-code.zip
+
+# Or container-based deployment
+- name: Build and Deploy Container
+  run: |
+    docker build -t my-agent .
+    docker push $ECR_REGISTRY/my-agent:${{ github.sha }}
+    # Update AgentCore runtime configuration
 ```
 
-**Learning Curve:** Medium (AWS-specific concepts)
+**Learning Curve:** Medium (AgentCore concepts + your framework)
 
 ### ECS Fargate Development
 
@@ -439,12 +530,14 @@ If you need control, portability, or use cases outside AgentCore patterns, conta
 - Run containers locally with Docker
 - Full development environment on laptop
 - Faster iteration without cloud dependencies
+- Must build all agent infrastructure locally too
 
 **Testing:**
 - Standard unit testing for all code
 - Integration tests with mocked services
 - Contract testing for external APIs
 - Full control over test environment
+- No built-in agent evaluation—build your own
 
 **Debugging:**
 - Standard debuggers (pdb, VS Code debugger)
@@ -468,39 +561,48 @@ If you need control, portability, or use cases outside AgentCore patterns, conta
       --force-new-deployment
 ```
 
-**Learning Curve:** Medium (Docker + ECS concepts)
+**Learning Curve:** Medium (Docker + ECS + building agent infrastructure)
 
-### Winner: ECS Fargate for Developer Experience
+### Winner: Depends on What You're Building
 
-Local development, standard debugging, and portable code make Fargate more developer-friendly for complex applications.
+- **Agent-specific features needed:** AgentCore's built-in Evaluations, Memory, and Observability reduce development time
+- **Maximum local control:** Fargate allows full local development but you build everything
+- **Rapid prototyping:** AgentCore's direct code upload now enables faster iteration
 
 ---
 
 ## Security and Compliance
 
-### AgentCore Runtime Security
+### AgentCore Security
 
-**Built-in:**
+**Built-in Security:**
+- Session isolation between agent executions
 - IAM-based access control
-- VPC support for private resources
+- VPC connectivity and PrivateLink support
 - Encryption at rest and in transit (managed by AWS)
 - CloudTrail logging of all API calls
+- Resource tagging for governance
 
-**Guardrails:**
-- Native support for content filtering
-- PII detection and redaction
-- Toxicity screening
-- Harmful content blocking
+**AgentCore Identity:**
+- Dedicated Identity service for agent-to-tool authorization
+- IAM and OAuth support for tool access
+- Least-privilege enforcement
+
+**AgentCore Policy (Preview):**
+- Deterministic controls defined in natural language or Cedar
+- Intercepts tool calls in real-time
+- Enforces boundaries on agent behavior
+- Operates outside agent code (cannot be bypassed)
+
+**AgentCore Evaluations:**
+- Automated monitoring for safety, correctness, goal success
+- Live sampling of agent behavior
+- Custom evaluators for domain-specific requirements
 
 **Compliance:**
 - Inherits AWS compliance certifications (SOC2, HIPAA, etc.)
 - Data residency depends on AWS region
-- Cannot deploy to on-premise environments
-
-**Limitations:**
-- Cannot implement custom security logic
-- Limited control over data flow
-- Must trust AWS infrastructure
+- Available in 9 regions globally
 
 ### ECS Fargate Security
 
@@ -510,66 +612,71 @@ Local development, standard debugging, and portable code make Fargate more devel
 - VPC networking
 - Encryption through AWS KMS
 
-**Custom Implementation:**
-- Implement any authentication scheme
-- Custom authorization logic
-- Advanced threat detection
+**Custom Implementation Required:**
+- Implement authentication and authorization
+- Build guardrails and policy enforcement
+- Custom threat detection
 - Rate limiting and abuse prevention
+- Agent behavior monitoring
 
 **Compliance:**
 - Full control over data handling
 - Can implement specific compliance requirements
 - Auditability through custom logging
-- Option to deploy elsewhere if needed
+- Option to deploy to other environments
 
 **Responsibility:**
 - You secure application code
 - Manage dependencies and patches
 - Implement guardrails manually
+- Build evaluation and monitoring
 
-### Winner: Tie (Different Tradeoffs)
+### Winner: AgentCore for Agent Security
 
-AgentCore provides built-in security features. Fargate offers more control but requires more implementation.
+For AI agents specifically, AgentCore's built-in Policy, Identity, and Evaluations provide security features that would take significant effort to build on Fargate. Policy enforcement that operates *outside* agent code is particularly valuable—agents cannot bypass their own guardrails.
 
 ---
 
 ## Use Case Recommendations
 
-### Use Bedrock AgentCore Runtime When:
+### Use Bedrock AgentCore When:
 
-**Conversational AI:**
-- Customer support chatbots
-- Internal knowledge base Q&A
-- FAQ automation
-- Simple task assistants
+**Production AI Agents:**
+- Customer support chatbots with memory across sessions
+- Internal knowledge assistants with tool integrations
+- Multi-agent systems with agent-to-agent communication
+- Voice/conversational agents requiring bidirectional streaming
+- Agents requiring governance, policy controls, and evaluation
 
 **Requirements:**
-- Standard AI agent patterns
-- AWS-centric architecture
-- Bedrock models meet needs
+- Need agent-specific infrastructure (memory, tools, observability)
 - Want minimal operational overhead
-- Rapid development priority
-- Built-in guardrails needed
+- Require built-in security, policy enforcement, and evaluation
+- High I/O wait workloads (typical for LLM-based agents)
+- Need session isolation and governance
+- Building with any model (AgentCore is model-agnostic)
 
-**Example:** Sales support bot that answers product questions using knowledge base and triggers simple actions.
+**Example:** Enterprise data migration assistant that maintains context across sessions, integrates with multiple internal APIs via Gateway, has policy controls preventing destructive operations, and is monitored for accuracy via Evaluations.
 
 ### Use ECS Fargate When:
 
-**Complex Workflows:**
-- Multi-step data processing pipelines
-- Long-running analytical tasks
-- Custom orchestration patterns
-- Iterative refinement workflows
+**Existing Container Infrastructure:**
+- Already have significant ECS/Fargate investment
+- Agent is one component in larger containerized system
+- Need unified deployment pipeline with other services
 
-**Requirements:**
-- Need specific LLM providers (OpenAI, etc.)
-- Custom agent frameworks (LangGraph, etc.)
-- Complex state management
-- Portable across environments
-- Existing containerized infrastructure
-- Advanced optimization strategies
+**Special Requirements:**
+- Sessions longer than 8 hours without interruption
+- Need OS-level customization or specific dependencies
+- Multi-cloud or on-premise deployment required
+- Highly optimized, steady-state workloads where CPU utilization is consistently high
+- Full control over every aspect of runtime environment
 
-**Example:** Research analysis system that processes documents with multiple models, custom caching, and complex workflow logic.
+**Cost Optimization:**
+- Very high volume, steady workloads where Fargate's lower per-unit rate wins
+- Can achieve >55% CPU utilization (above this, Fargate beats AgentCore's I/O-wait savings)
+
+**Example:** High-throughput document processing pipeline running 24/7 with consistent load, already integrated into existing ECS infrastructure, where the team has already built memory and tool integration systems.
 
 ---
 
@@ -577,20 +684,25 @@ AgentCore provides built-in security features. Fargate offers more control but r
 
 You don't have to choose exclusively. Many organizations use both:
 
-**Pattern 1: Frontend + Backend**
-- AgentCore Runtime for user-facing chatbots (simple, managed)
-- ECS Fargate for backend processing (complex, flexible)
-- Communication via SQS or EventBridge
+**Pattern 1: Agents + Services**
+- AgentCore for AI agents (leverage memory, tools, observability)
+- ECS Fargate for backend services (APIs, data processing)
+- Communication via Gateway, SQS, or EventBridge
 
-**Pattern 2: Tiered by Complexity**
-- Simple agents on AgentCore Runtime
-- Complex agents on Fargate
-- Shared data stores and action handlers
+**Pattern 2: Tiered by Requirements**
+- Standard agents on AgentCore (get managed infrastructure)
+- Highly customized or long-running workloads on Fargate
+- Shared tool implementations (Lambda/APIs accessible by both)
 
 **Pattern 3: Migration Path**
-- Start with AgentCore Runtime for speed
-- Migrate specific agents to Fargate as requirements grow
-- Keep some agents on AgentCore permanently
+- Start with AgentCore for faster time-to-production
+- Move specific workloads to Fargate only if needed (>8hr sessions, specific runtime requirements)
+- Many agents stay on AgentCore permanently (majority of cases)
+
+**Pattern 4: Multi-Agent Architecture**
+- Orchestrator agents on AgentCore (leveraging A2A protocol)
+- Specialized processing agents on Fargate where needed
+- Unified observability via AgentCore + CloudWatch
 
 ---
 
