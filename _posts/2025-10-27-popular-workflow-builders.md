@@ -2,8 +2,9 @@
 layout: post
 title: "Popular Workflow Builders: A Comprehensive Guide to Automation Platforms"
 date: 2025-10-27 12:00:00 -0500
+updated: 2026-01-24 12:00:00 -0500
 categories: [technology, automation, productivity]
-tags: [workflow, automation, no-code, low-code, zapier, n8n, temporal, make, airflow]
+tags: [workflow, automation, no-code, low-code, zapier, n8n, temporal, make, airflow, agentic, mcp]
 ---
 
 # Popular Workflow Builders: A Comprehensive Guide to Automation Platforms
@@ -26,12 +27,20 @@ This comprehensive guide explores the most popular workflow builders in 2025, th
 | **Prefect** | Code-first | Data workflows, modern Python | Open source + Cloud | Both |
 | **Power Automate** | Low-code | Microsoft 365 integration | Paid | Cloud + On-prem |
 | **Retool Workflows** | Low-code | Developers, internal tools | Paid | Cloud + Self-hosted |
+| **AWS AgentCore Runtime** | Agentic | Enterprise AI agents, production deployment | Paid | Cloud |
+| **OpenAI Agent Platform** | Agentic | AI-powered workflows, agent orchestration | Paid | Cloud |
+| **Retool Agents** | Agentic | AI agents for internal tools | Paid | Cloud + Self-hosted |
+| **Dify** | AI Low-code | RAG apps, chatbots, self-hosted AI | Open source + Cloud | Both |
+| **Flowise** | AI Low-code | Quick LLM prototyping, LangChain UI | Open source + Cloud | Both |
+| **Langflow** | AI Low-code | Multi-agent visual builder | Open source + Cloud | Both |
+| **LangGraph** | AI Code-first | Stateful multi-agent workflows | Open source | Self-hosted |
+| **CrewAI** | AI Code-first | Role-based agent orchestration | Open source + Cloud | Both |
 
 ---
 
 ## The Workflow Builder Landscape
 
-Workflow builders fall into three main categories:
+Workflow builders fall into four main categories (with a new one emerging in 2025):
 
 ### 1. **No-Code Platforms**
 - Visual drag-and-drop interfaces
@@ -50,6 +59,13 @@ Workflow builders fall into three main categories:
 - Maximum flexibility and control
 - Strong typing and testing support
 - Developer-focused tooling
+
+### 4. **Agentic Platforms (New in 2025)**
+- AI agents with LLM reasoning capabilities
+- Autonomous decision-making within workflows
+- Natural language task definitions
+- Dynamic adaptation to changing conditions
+- MCP (Model Context Protocol) standardized tool communication
 
 ---
 
@@ -908,6 +924,457 @@ deployment.apply()
 
 ---
 
+## Agentic Workflow Platforms (New in 2025)
+
+The biggest shift in workflow automation is the emergence of **agentic platforms** - systems where AI agents with LLM reasoning autonomously execute complex workflows, make decisions, and adapt to changing conditions.
+
+### AWS Bedrock AgentCore Runtime
+
+**Overview**: Amazon's production-ready platform for deploying AI agents at enterprise scale. Framework and model-agnostic, it addresses the "proof of concept purgatory" that plagued early agent development.
+
+**Key Features:**
+- **Framework Agnostic**: Supports LangGraph, CrewAI, Strands Agents, and custom frameworks
+- **Model Agnostic**: Works with Claude, GPT-4, Gemini, Amazon Bedrock models
+- **AgentCore Runtime**: Serverless hosting with session isolation, up to 8-hour workloads
+- **Built-in Tools**: Browser automation, code interpreter, persistent memory
+- **Enterprise Security**: IAM integration, CloudWatch monitoring, OpenTelemetry support
+
+**Architecture:**
+
+```
+┌─────────────────────────────────────────────┐
+│        AWS Bedrock AgentCore                │
+│                                             │
+│  ┌───────────────┐    ┌─────────────────┐  │
+│  │ AgentCore     │    │ Built-in Tools  │  │
+│  │ Runtime       │────│ - Browser       │  │
+│  │ (Serverless)  │    │ - Code Interp   │  │
+│  └───────────────┘    │ - Memory        │  │
+│                       └─────────────────┘  │
+│  ┌───────────────┐    ┌─────────────────┐  │
+│  │ MCP Gateway   │────│ CloudWatch      │  │
+│  │ (Tool Access) │    │ Monitoring      │  │
+│  └───────────────┘    └─────────────────┘  │
+└─────────────────────────────────────────────┘
+```
+
+**Code Example:**
+
+```python
+from strands import Agent
+from strands_tools.browser import AgentCoreBrowser
+
+# Initialize browser tool for web automation
+browser_tool = AgentCoreBrowser(region="us-west-2")
+
+# Create an agent with browser capabilities
+agent = Agent(tools=[browser_tool.browser])
+
+# Execute agentic workflow
+response = agent("""
+    1. Navigate to our competitor's pricing page
+    2. Extract all pricing tiers and features
+    3. Compare with our current pricing
+    4. Generate a summary report
+""")
+```
+
+**Pricing:**
+- Pay-per-use based on compute and invocation time
+- Browser sessions billed separately
+- Enterprise pricing available
+
+**Strengths:**
+✅ Production-ready with enterprise security  
+✅ Framework and model flexibility  
+✅ Built-in browser automation and tools  
+✅ Session recording for debugging  
+✅ Scales automatically
+
+**Limitations:**
+⚠️ AWS ecosystem lock-in  
+⚠️ Complex IAM configuration  
+⚠️ Newer platform (still maturing)
+
+**Best For:**
+- Enterprise AI agent deployments
+- Multi-framework teams avoiding vendor lock-in
+- Complex browser automation workflows
+- Organizations already on AWS
+
+---
+
+### OpenAI Agent Platform
+
+**Overview**: OpenAI's comprehensive platform for building and deploying AI agents, offering both visual and code-first approaches with significant productivity improvements.
+
+**Key Features:**
+- **Agent Builder**: Visual drag-and-drop interface for non-developers
+- **Agents SDK**: Code-first development in Node.js, Python, Go
+- **Built-in Tools**: Web search, code execution, file handling
+- **Evaluations**: Built-in testing and evaluation framework
+- **Efficiency Gains**: 75% less development time, 70% fewer iterations
+
+**Development Approaches:**
+
+```
+Visual-First (Agent Builder):
+┌────────────────────────────────────┐
+│  [Trigger] → [LLM Step] → [Tool]  │
+│      │           │          │      │
+│      ▼           ▼          ▼      │
+│  Configure    Prompt     Action    │
+│  via UI       Editor     Selector  │
+└────────────────────────────────────┘
+
+Code-First (Agents SDK):
+┌────────────────────────────────────┐
+│  from openai import Agent          │
+│                                    │
+│  agent = Agent(                    │
+│      tools=[web_search, custom],   │
+│      instructions="..."            │
+│  )                                 │
+│  result = agent.run(task)          │
+└────────────────────────────────────┘
+```
+
+**Pricing:**
+- Based on API usage (tokens)
+- Agent Builder included with API access
+- Enterprise plans available
+
+**Strengths:**
+✅ Excellent developer experience  
+✅ Built-in evaluation framework  
+✅ Both visual and code options  
+✅ Access to latest OpenAI models  
+✅ Rapid iteration cycles
+
+**Limitations:**
+⚠️ OpenAI model lock-in  
+⚠️ Cloud-only deployment  
+⚠️ Token costs can scale quickly
+
+**Best For:**
+- Teams wanting fast agent development
+- OpenAI API users
+- Projects requiring web search capabilities
+- Rapid prototyping to production
+
+---
+
+### Retool Agents
+
+**Overview**: Retool's AI agent capability (public beta May 2025) enables building agents that automate work through LLM reasoning, integrated with Retool's internal tool ecosystem.
+
+**Key Features:**
+- **Multiple Invocation Methods**: Chat, email, Agent Chat component, workflow blocks
+- **Retool Integration**: Access to all Retool resources (databases, APIs, workflows)
+- **Built-in Memory**: Conversation context preservation
+- **App Integration**: Embed agents directly in Retool applications
+
+**Integration Pattern:**
+
+```
+┌─────────────────────────────────────┐
+│         Retool Application          │
+│  ┌───────────────────────────────┐ │
+│  │     Agent Chat Component      │ │
+│  └───────────────┬───────────────┘ │
+│                  │                  │
+│  ┌───────────────▼───────────────┐ │
+│  │         Retool Agent          │ │
+│  │  ┌─────┐ ┌─────┐ ┌─────────┐ │ │
+│  │  │ SQL │ │ API │ │Workflow │ │ │
+│  │  └─────┘ └─────┘ └─────────┘ │ │
+│  └───────────────────────────────┘ │
+└─────────────────────────────────────┘
+```
+
+**Pricing:**
+- Included in Retool Team/Business/Enterprise plans
+- Agent invocations billed separately
+
+**Strengths:**
+✅ Deep Retool ecosystem integration  
+✅ Multiple invocation methods  
+✅ SQL and API access out of the box  
+✅ Embedded in internal tools
+
+**Limitations:**
+⚠️ Requires Retool platform  
+⚠️ Still in beta  
+⚠️ Limited to internal tool use cases
+
+**Best For:**
+- Existing Retool users
+- Internal tool automation
+- Customer support workflows
+- Data analysis agents
+
+---
+
+## Open Source AI Workflow Platforms
+
+While enterprise platforms dominate production deployments, a vibrant open-source ecosystem provides accessible alternatives for teams wanting self-hosted, customizable AI workflow solutions.
+
+### Dify
+
+**Overview**: One of the most popular open-source LLM application development platforms, Dify combines visual workflow building with RAG capabilities, agent support, and multi-model integration.
+
+**Key Features:**
+- **Visual Workflow Builder**: Drag-and-drop canvas for building AI workflows
+- **RAG Pipeline**: Built-in knowledge base with document parsing and vector storage
+- **Agent Mode**: Autonomous agents with tool-use capabilities
+- **Multi-LLM Support**: OpenAI, Claude, Gemini, open-source models (Ollama, etc.)
+- **API-First**: Deploy as API endpoints for integration
+- **Prompt IDE**: Visual prompt engineering and testing
+- **Observability**: Built-in logging and monitoring
+
+**Architecture:**
+
+```
+┌────────────────────────────────────────┐
+│              Dify Platform             │
+│  ┌─────────────┐    ┌──────────────┐  │
+│  │  Workflow   │    │  Knowledge   │  │
+│  │  Builder    │────│  Base (RAG)  │  │
+│  └─────────────┘    └──────────────┘  │
+│  ┌─────────────┐    ┌──────────────┐  │
+│  │   Agent     │    │   Model      │  │
+│  │  Framework  │    │   Gateway    │  │
+│  └─────────────┘    └──────────────┘  │
+└────────────────────────────────────────┘
+         ↓ Deploy as API
+    Applications / Chatbots
+```
+
+**Deployment:**
+
+```bash
+# Docker deployment
+git clone https://github.com/langgenius/dify.git
+cd dify/docker
+docker compose up -d
+```
+
+**Pricing:**
+- Community: Free, self-hosted
+- Cloud: Free tier + paid plans
+- Enterprise: Custom pricing
+
+**Strengths:**
+✅ Comprehensive all-in-one platform  
+✅ Visual + code flexibility  
+✅ Strong RAG capabilities  
+✅ Multi-model support  
+✅ Active community (60k+ GitHub stars)  
+✅ Self-hosted for data privacy
+
+**Limitations:**
+⚠️ Resource-intensive for self-hosting  
+⚠️ Learning curve for advanced features  
+⚠️ Less mature than enterprise platforms
+
+**Best For:**
+- Teams wanting self-hosted AI platforms
+- RAG application development
+- Chatbot and AI assistant building
+- Prototyping before enterprise deployment
+
+---
+
+### Flowise
+
+**Overview**: Open-source drag-and-drop UI for building LLM flows, built on top of LangChain. Focuses on simplicity and quick deployment.
+
+**Key Features:**
+- **LangChain Integration**: Access to LangChain's extensive tooling
+- **Drag-and-Drop UI**: Visual flow builder
+- **Chatflows & Agentflows**: Both conversational and agentic workflows
+- **API Export**: Deploy flows as REST APIs
+- **Credentials Management**: Secure API key storage
+- **Custom Components**: Extend with JavaScript
+
+**Visual Paradigm:**
+
+```
+┌──────────┐    ┌──────────┐    ┌──────────┐
+│  Input   │───→│   LLM    │───→│  Output  │
+│  Node    │    │  Chain   │    │  Parser  │
+└──────────┘    └──────────┘    └──────────┘
+      ↑              │
+      │         ┌────▼─────┐
+      └─────────│  Memory  │
+                └──────────┘
+```
+
+**Deployment:**
+
+```bash
+# NPM installation
+npm install -g flowise
+npx flowise start
+
+# Docker
+docker run -d -p 3000:3000 flowiseai/flowise
+```
+
+**Pricing:**
+- Open Source: Free
+- Flowise Cloud: Starting $35/month
+
+**Strengths:**
+✅ Extremely easy to get started  
+✅ LangChain ecosystem access  
+✅ Quick prototyping  
+✅ Low resource requirements  
+✅ Good documentation
+
+**Limitations:**
+⚠️ Less sophisticated than Dify  
+⚠️ Limited enterprise features  
+⚠️ Smaller community
+
+**Best For:**
+- Rapid prototyping
+- LangChain users wanting visual interface
+- Simple chatbot development
+- Learning AI application development
+
+---
+
+### Langflow
+
+**Overview**: Visual framework for building multi-agent and RAG applications, now backed by DataStax. Provides a low-code interface for LangChain components.
+
+**Key Features:**
+- **Visual Agent Builder**: Create multi-agent systems visually
+- **Component Library**: Pre-built components for common patterns
+- **Python Extensibility**: Custom components via Python
+- **DataStax Integration**: Vector database integration (Astra DB)
+- **Deployment Options**: Cloud and self-hosted
+
+**Architecture:**
+
+```
+┌─────────────────────────────────────┐
+│           Langflow UI               │
+│  ┌───────────────────────────────┐ │
+│  │    Visual Flow Canvas         │ │
+│  │  [Agent] → [Tool] → [Output]  │ │
+│  └───────────────────────────────┘ │
+└─────────────────────────────────────┘
+         ↓ Exports to
+    Python / LangChain Code
+```
+
+**Pricing:**
+- Open Source: Free
+- DataStax Langflow: Cloud-hosted with Astra DB
+
+**Strengths:**
+✅ DataStax backing and support  
+✅ Strong multi-agent capabilities  
+✅ Python code export  
+✅ Active development
+
+**Limitations:**
+⚠️ Tied to DataStax ecosystem for cloud  
+⚠️ Steeper learning curve than Flowise
+
+**Best For:**
+- Multi-agent system development
+- DataStax/Astra DB users
+- Teams wanting visual-to-code workflow
+
+---
+
+### Agent Frameworks (Code-First)
+
+For teams preferring code-first approaches, several frameworks have matured significantly:
+
+**LangGraph (LangChain)**
+- Stateful, multi-actor applications
+- Graph-based workflow definition
+- Strong persistence and checkpointing
+- Integrated with LangChain ecosystem
+
+```python
+from langgraph.graph import StateGraph
+
+# Define graph-based agent workflow
+graph = StateGraph(AgentState)
+graph.add_node("agent", agent_node)
+graph.add_node("tools", tool_node)
+graph.add_edge("agent", "tools")
+```
+
+**CrewAI**
+- Role-based multi-agent orchestration
+- Autonomous agent collaboration
+- Task delegation and management
+
+```python
+from crewai import Agent, Task, Crew
+
+researcher = Agent(role="Researcher", goal="Find information")
+writer = Agent(role="Writer", goal="Write content")
+crew = Crew(agents=[researcher, writer], tasks=[...])
+```
+
+**AutoGen / AG2 (Microsoft)**
+- Event-driven, async architecture
+- Multi-agent conversations
+- Human-in-the-loop support
+- Redesigned v0.4 with actor model
+
+```python
+from autogen import ConversableAgent
+
+agent = ConversableAgent(
+    name="assistant",
+    llm_config={"model": "gpt-4"}
+)
+```
+
+---
+
+### Model Context Protocol (MCP) & Standardization
+
+A critical development in 2025 is the emergence of **Model Context Protocol (MCP)** as a standard for agent-tool communication. This enables interoperability across platforms.
+
+**Key MCP Implementations:**
+
+**Playwright MCP** - Browser automation standard:
+```javascript
+// Playwright MCP enables LLM-friendly browser control
+// Uses accessibility snapshots instead of vision models
+
+// Agent can:
+// - Navigate websites
+// - Fill forms
+// - Extract structured data
+// - Generate tests automatically
+
+// Fast, lightweight, and deterministic
+```
+
+**Amazon Connect MCP** - Customer service tools:
+- Automatic order status lookup
+- Refund processing
+- Customer record updates
+- No human intervention required
+
+**MCP Benefits:**
+- 🔄 Tool reusability across agents and frameworks
+- 📝 Standardized tool definitions
+- 🔌 Plugin architecture for extensibility
+- 🔍 Auditable tool invocations
+
+---
+
 ## Choosing the Right Workflow Builder
 
 ### Decision Matrix
@@ -932,39 +1399,105 @@ Data pipelines → Airflow
 Modern Python workflows → Prefect
 ```
 
+**For AI/Agent Workflows (New):**
+```
+Enterprise AI agents → AWS AgentCore Runtime
+Fast agent development → OpenAI Agent Platform
+Internal tool agents → Retool Agents
+Browser automation → AgentCore Browser + Nova Act
+```
+
+**For Open Source AI Platforms:**
+```
+All-in-one with RAG → Dify
+Quick LangChain prototyping → Flowise
+Multi-agent visual builder → Langflow
+Code-first multi-agent → LangGraph, CrewAI
+```
+
 ### Key Questions
 
 **1. Who will build the workflows?**
 - Non-technical: Zapier, Make
 - Business analysts: Power Automate, n8n
 - Developers: Temporal, Airflow, Prefect
+- AI/ML teams: AgentCore Runtime, OpenAI Agent Platform
 
 **2. What type of workflows?**
 - SaaS integrations: Zapier, Make
 - Data pipelines: Airflow, Prefect
 - Business processes: Temporal, Power Automate
 - Internal tools: Retool Workflows, n8n
+- AI agents with reasoning: AgentCore, OpenAI Agents, Retool Agents
 
 **3. Hosting requirements?**
-- Cloud only: Zapier, Make
+- Cloud only: Zapier, Make, AgentCore Runtime, OpenAI Agents
 - Self-hosted available: n8n, Temporal, Airflow, Prefect
 - Hybrid: Power Automate, Prefect
 
 **4. Budget?**
 - Free tier needed: n8n, Prefect, Airflow (open source)
 - Affordable paid: Make, n8n Cloud
-- Enterprise budget: Power Automate, Temporal Cloud
+- Enterprise budget: Power Automate, Temporal Cloud, AgentCore
 
 **5. Scalability needs?**
 - Small scale: Zapier, Make
-- Enterprise scale: Temporal, Airflow, Power Automate
+- Enterprise scale: Temporal, Airflow, Power Automate, AgentCore
 - Flexible: Prefect, n8n
+
+**6. Do you need AI reasoning? (New consideration)**
+- No AI needed: Traditional workflow builders
+- Simple AI tasks: Zapier AI, Make AI
+- Autonomous agents: AgentCore, OpenAI Agents, Retool Agents
+- Browser automation with AI: AgentCore Browser, Nova Act
 
 ---
 
-## Emerging Trends in Workflow Automation
+## Emerging Trends in Workflow Automation (2025-2026 Update)
 
-### 1. **AI-Powered Workflow Generation**
+### 1. **Agentic Workflows - The Biggest Shift**
+
+The most significant trend is the move from deterministic workflows to **agentic workflows** where AI agents make autonomous decisions:
+
+```
+Traditional Workflow:
+Trigger → Step 1 → Step 2 → Step 3 → Done
+(Fixed path, predefined logic)
+
+Agentic Workflow:
+Goal → Agent Reasoning → Dynamic Steps → Adapt → Complete
+(Flexible path, AI decides how to achieve goal)
+```
+
+**Key Developments:**
+- AWS AgentCore Runtime (production-ready agent hosting)
+- OpenAI Agent Platform (75% faster development)
+- Retool Agents (internal tool automation)
+- Amazon Nova Act (browser automation with AI)
+
+### 2. **Model Context Protocol (MCP) Standardization**
+
+MCP has emerged as the standard for agent-tool communication:
+
+```
+┌─────────────┐     MCP      ┌─────────────┐
+│   Agent     │ ←──────────→ │    Tool     │
+│  (Any LLM)  │  Standardized│ (Any Source)│
+└─────────────┘   Protocol   └─────────────┘
+```
+
+**Benefits:**
+- Tool reusability across frameworks
+- Auditable interactions
+- Standardized definitions
+- Platform interoperability
+
+**Notable MCP Implementations:**
+- Playwright MCP (browser automation)
+- Amazon Connect MCP (customer service)
+- Custom MCP servers for internal tools
+
+### 3. **AI-Powered Workflow Generation**
 
 Platforms are adding AI to help build workflows:
 
@@ -981,11 +1514,11 @@ AI: [Generates complete workflow]
 ```
 
 **Examples:**
-- Zapier AI
+- Zapier AI (natural language workflow creation)
 - Make AI Assistant
 - Retool AI
 
-### 2. **Code as Workflow**
+### 4. **Code as Workflow**
 
 Trend toward defining workflows in code:
 - Better version control
@@ -999,7 +1532,28 @@ Trend toward defining workflows in code:
 - Inngest
 - Conductor OSS
 
-### 3. **Event-Driven Architecture**
+### 5. **Browser Automation with AI**
+
+Traditional automation (Selenium, Cypress, Playwright) being augmented with AI:
+
+```
+Traditional:                    Agentic:
+find("#login-btn").click()  →  agent.act("Click the login button")
+                               // Adapts to UI changes automatically
+```
+
+**Key Tools:**
+- Amazon Nova Act SDK (RL-trained for browser tasks)
+- AgentCore Browser Tool (cloud-hosted sessions)
+- Playwright MCP (accessibility-based interaction)
+
+**Benefits:**
+- Dynamic adaptation to UI changes
+- Natural language task descriptions
+- Reduced maintenance overhead
+- Parallel session execution
+
+### 6. **Event-Driven Architecture**
 
 Workflows triggered by events across systems:
 
@@ -1011,21 +1565,22 @@ Event Bus (Kafka, RabbitMQ, AWS EventBridge)
     Execute distributed workflow
 ```
 
-### 4. **Workflow Observability**
+### 7. **Workflow Observability**
 
 Enhanced monitoring and debugging:
 - Distributed tracing
 - Real-time execution graphs
 - Performance analytics
 - Cost tracking per workflow
+- **Session recording** (AgentCore Browser feature)
 
-### 5. **Low-Latency Workflows**
+### 8. **Enterprise Security & Compliance**
 
-Moving beyond batch to real-time:
-- Sub-second workflow execution
-- Stream processing integration
-- Event-driven triggers
-- Reactive workflows
+Production agentic workflows now include:
+- IAM integration for secure credentialing
+- Session isolation and sandboxing
+- Audit trails and CloudTrail logging
+- Fine-grained access policies
 
 ---
 
@@ -1211,31 +1766,105 @@ Add to training course
 
 **Why n8n**: Self-hosted (data privacy), customizable
 
+### Competitive Intelligence (Agentic - New)
+
+**Platform**: AWS AgentCore Runtime + Browser
+
+```python
+from strands import Agent
+from strands_tools.browser import AgentCoreBrowser
+
+browser = AgentCoreBrowser(region="us-west-2")
+agent = Agent(tools=[browser.browser])
+
+# Agent autonomously navigates and extracts data
+result = agent("""
+    1. Visit our top 5 competitors' pricing pages
+    2. Extract all pricing tiers, features, and limits
+    3. Note any recent changes from last week
+    4. Create a comparison table
+    5. Identify pricing gaps and opportunities
+""")
+```
+
+**Why AgentCore**: Complex web navigation, autonomous decision-making, enterprise security
+
+### Customer Support Automation (Agentic - New)
+
+**Platform**: Retool Agents + Amazon Connect MCP
+
+```
+Customer: "What's the status of my order #12345?"
+↓
+Agent reasoning:
+  - Look up order in database
+  - Check shipping status via API
+  - Determine if issue exists
+  - Generate appropriate response
+↓
+Agent: "Your order #12345 shipped yesterday via FedEx. 
+        Tracking: 1234567890. Expected delivery: Friday."
+```
+
+**Why Retool Agents**: Deep integration with internal databases, conversational interface
+
+### QA Test Generation (Agentic - New)
+
+**Platform**: AgentCore Browser + Nova Act
+
+```python
+from bedrock_agentcore.tools.browser_client import browser_session
+from nova_act import NovaAct
+
+# Agent observes UI and generates tests
+with browser_session("us-west-2") as client:
+    ws_url, headers = client.generate_ws_headers()
+    with NovaAct(cdp_endpoint_url=ws_url, cdp_headers=headers) as agent:
+        # Agent autonomously explores and tests
+        result = agent.act("""
+            Navigate the checkout flow and verify:
+            - All form validations work correctly
+            - Error messages are user-friendly
+            - Success states display properly
+        """)
+```
+
+**Why Nova Act + AgentCore**: Adapts to UI changes, reduces test maintenance, parallel execution
+
 ---
 
 ## Conclusion
 
-The workflow automation landscape offers something for everyone:
+The workflow automation landscape has evolved significantly with the emergence of agentic platforms in 2025:
 
 **Non-Technical Users**: Start with **Zapier** or **Make** for quick wins  
 **Technical Teams**: Consider **n8n** or **Retool Workflows** for flexibility  
 **Developers**: Choose **Temporal** (apps), **Airflow** (data), or **Prefect** (both)  
-**Microsoft Shops**: **Power Automate** is the obvious choice
+**Microsoft Shops**: **Power Automate** is the obvious choice  
+**AI/Agent Teams - Enterprise**: **AWS AgentCore Runtime**, **OpenAI Agent Platform**, or **Retool Agents**  
+**AI/Agent Teams - Open Source**: **Dify** (all-in-one), **Flowise** (simple), **LangGraph/CrewAI** (code-first)
 
 Key considerations:
 1. **User skill level** - Who builds and maintains workflows?
-2. **Use case** - Data pipelines vs business processes vs SaaS integration?
+2. **Use case** - Data pipelines vs business processes vs SaaS integration vs AI agents?
 3. **Hosting** - Cloud vs self-hosted requirements?
 4. **Scale** - Current and future volume?
 5. **Budget** - Free tier sufficient or enterprise pricing needed?
+6. **AI requirements (New)** - Do you need autonomous reasoning and decision-making?
 
-The trend is clear: workflows are moving from visual builders to code-first platforms for complex use cases, while no-code tools continue improving for simpler automations. Choose the right tool for your team's skills and requirements, and don't be afraid to use multiple platforms for different use cases.
+**The major trend of 2025-2026**: The rise of agentic workflows where AI agents with LLM reasoning autonomously execute complex tasks, adapt to changing conditions, and make decisions without explicit programming. This is complemented by the standardization of tool communication through Model Context Protocol (MCP), enabling interoperability across platforms.
+
+The workflow builder choice now includes a new dimension: **deterministic vs agentic**. Traditional workflow builders remain excellent for predictable, rule-based processes. Agentic platforms excel when workflows require reasoning, adaptation, and handling of unstructured scenarios (like browser automation that adapts to UI changes).
+
+Don't be afraid to combine approaches - use traditional workflows for core business processes while leveraging agentic capabilities for complex, adaptive tasks.
 
 ---
 
 ## Resources
 
 ### Platform Documentation
+
+**Traditional Workflow Builders:**
 - [Zapier Documentation](https://zapier.com/help)
 - [Make Help Center](https://www.make.com/en/help)
 - [n8n Documentation](https://docs.n8n.io/)
@@ -1244,10 +1873,29 @@ The trend is clear: workflows are moving from visual builders to code-first plat
 - [Prefect Documentation](https://docs.prefect.io/)
 - [Power Automate Docs](https://learn.microsoft.com/en-us/power-automate/)
 
+**Agentic Platforms (New):**
+- [AWS Bedrock AgentCore Documentation](https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/what-is-bedrock-agentcore.html)
+- [OpenAI Agent Platform](https://openai.com/agent-platform/)
+- [Retool Agents Documentation](https://docs.retool.com/changelog/agents)
+- [Amazon Nova Act SDK](https://aws.amazon.com/blogs/machine-learning/amazon-nova-act-sdk-preview-path-to-production-for-browser-automation-agents/)
+
+**Open Source AI Platforms:**
+- [Dify Documentation](https://docs.dify.ai/)
+- [Flowise Documentation](https://docs.flowiseai.com/)
+- [Langflow Documentation](https://docs.langflow.org/)
+- [LangGraph Documentation](https://langchain-ai.github.io/langgraph/)
+- [CrewAI Documentation](https://docs.crewai.com/)
+- [AutoGen Documentation](https://microsoft.github.io/autogen/)
+
+**Standards & Protocols:**
+- [Model Context Protocol (MCP) Specification](https://modelcontextprotocol.io/)
+- [Playwright MCP for Browser Automation](https://playwright.dev/agents)
+
 ### Learning Resources
 - [Temporal Courses](https://learn.temporal.io/)
 - [Airflow Tutorials](https://airflow.apache.org/docs/apache-airflow/stable/tutorial/)
 - [n8n Creator Hub](https://n8n.io/creators-hub)
+- [AgentCore Browser Quickstart](https://aws.github.io/bedrock-agentcore-starter-toolkit/user-guide/builtin-tools/quickstart-browser.md)
 
 ### Communities
 - Temporal Slack
@@ -1255,8 +1903,15 @@ The trend is clear: workflows are moving from visual builders to code-first plat
 - n8n Community Forum
 - Zapier Community
 - r/automation
+- AWS Bedrock Discord
 
 ---
 
-*This post reflects the workflow automation landscape as of October 2025. Platforms evolve rapidly - check official documentation for the latest features and pricing.*
+*Originally published October 2025. **Updated January 2026** to include:*
+- *Agentic platforms: AWS AgentCore Runtime, OpenAI Agent Platform (AgentKit), Retool Agents*
+- *Open source AI platforms: Dify, Flowise, Langflow, LangGraph, CrewAI, AutoGen*
+- *Model Context Protocol (MCP) standardization*
+- *Browser automation advances: Nova Act SDK, AgentCore Browser, Playwright MCP*
+
+*The emergence of agentic workflows and open-source AI platforms represents the most significant shift in workflow automation since the rise of no-code platforms.*
 
