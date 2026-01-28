@@ -201,6 +201,89 @@ Starting free, then adding revenue streams:
 
 ---
 
+## Overseas Remote Work Opportunities for Chinese Developers
+
+One thing I've noticed while exploring this space: there's a growing trend of **overseas remote work opportunities** for people in China. This could be a natural extension of the platform—or at least a content vertical worth exploring.
+
+### The Current Landscape
+
+| Platform | Description | Limitations |
+|----------|-------------|-------------|
+| **Upwork/Fiverr** | Global freelance marketplaces | Payment issues (PayPal restrictions), high competition |
+| **Toptal** | Elite freelance network | Very selective, requires strong English |
+| **Remote OK** | Remote job board | Few China-friendly postings |
+| **We Work Remotely** | Remote job listings | English-only, timezone challenges |
+| **电鸭社区** | Chinese remote work community | Limited overseas opportunities |
+
+### Why This Matters for Chinese Developers
+
+**The opportunity is real:**
+- Many overseas companies are open to remote talent from China
+- Timezone overlap with Asia-Pacific, US West Coast
+- Cost arbitrage: competitive rates for high-quality work
+- Growing acceptance of async communication
+
+**The challenges:**
+- **Payment**: Most platforms use PayPal, which has restrictions in China. Alternatives include Wise, Payoneer, or direct bank transfers
+- **Communication**: English proficiency is essential, especially for async written communication
+- **Legal/Tax**: Navigating contractor vs. employee status, tax obligations in both countries
+- **VPN dependency**: Many tools (GitHub, Slack, Notion) require stable VPN access
+
+### Types of Remote Opportunities
+
+| Type | Examples | Best For |
+|------|----------|----------|
+| **Freelance Projects** | Web development, mobile apps, design | Flexible schedule seekers |
+| **Part-time Contracts** | 10-20 hrs/week ongoing work | Those with full-time jobs |
+| **Full-time Remote** | Distributed companies hiring globally | Career changers |
+| **Open Source Bounties** | Gitcoin, GitHub Sponsors | Portfolio builders |
+| **Technical Writing** | Documentation, tutorials | Strong English writers |
+
+### Resources for Getting Started
+
+**Job Boards:**
+- [Remote OK](https://remoteok.com/) - Filter by "anywhere" positions
+- [We Work Remotely](https://weworkremotely.com/) - Quality remote listings
+- [AngelList](https://angel.co/jobs) - Startup remote roles
+- [电鸭社区](https://eleduck.com/) - Chinese remote work community
+
+**Payment Solutions:**
+- **Wise** (formerly TransferWise) - Multi-currency accounts, good rates
+- **Payoneer** - Popular for freelancers, supports CNY withdrawal
+- **香港银行账户** - Many developers open HK accounts for easier international transfers
+
+**Skill Building:**
+- Technical English: Grammarly, writing practice
+- Portfolio: GitHub, personal website, case studies
+- Communication: Over-communicate, document everything
+
+### Potential Platform Feature
+
+This could become a feature of 今日发现:
+
+```
+┌─────────────────────────────────────────────┐
+│           远程机会 / Remote Opportunities     │
+├─────────────────────────────────────────────┤
+│  🌍 Senior React Developer - US Startup      │
+│     💰 $60-80/hr  ⏰ Async  🌐 Remote         │
+├─────────────────────────────────────────────┤
+│  🌍 Backend Engineer - Singapore Company     │
+│     💰 $5,000/mo  ⏰ PT overlap  🌐 Remote   │
+├─────────────────────────────────────────────┤
+│  🌍 Technical Writer - Open Source Project   │
+│     💰 $40/hr  ⏰ Flexible  🌐 Anywhere       │
+└─────────────────────────────────────────────┘
+```
+
+This would:
+- Attract a broader audience of Chinese developers
+- Create another monetization avenue (job posting fees)
+- Build community trust by connecting people with real opportunities
+- Differentiate from competitors who don't offer this
+
+---
+
 ## Timeline
 
 | Month | Milestone | Hours/Week |
