@@ -18,6 +18,50 @@ An interactive single-page NBA game simulator integrated into the Jekyll blog. U
 - Integrate seamlessly with the existing blog design
 - Work entirely client-side with no backend required
 
+## Competitive Analysis
+
+### Existing NBA Simulators
+
+| Product | Type | Pros | Cons |
+|---------|------|------|------|
+| **[MyGameSim](https://mygamesim.com)** | Web app | Play-by-play simulation, player projections, injury reports | Ads, premium features behind $6.67/mo paywall, cluttered UI |
+| **[Basketball GM](https://basketball-gm.com)** | Browser game | Full franchise management, historical rosters, 100% free | Not a quick game simulator—requires long-term commitment |
+| **[WhatIfSports SimLeague](https://whatifsports.com/nba-l/)** | Fantasy sim | Build teams from NBA history, league play | Complex setup, focused on season-long fantasy |
+| **[FiveThirtyEight RAPTOR](https://fivethirtyeight.com)** | Predictions | Advanced player-level metrics, high accuracy | Read-only predictions, no interactive simulation |
+| **[ESPN BPI](https://espn.com/nba)** | Predictions | Official NBA integration, real-time updates | No interactive simulation, just win probabilities |
+
+### Gap Analysis
+
+**What existing products lack:**
+
+1. **Simplicity** - Most simulators are bloated with features. MyGameSim has ads, paywalls, and complex UI. Basketball GM requires hours of gameplay.
+
+2. **Blog integration** - No simulator is designed to be embedded in a personal blog or portfolio.
+
+3. **Transparency** - Proprietary algorithms (RAPTOR, BPI) don't show their work. Users can't understand why Team A beats Team B.
+
+4. **Speed** - Most require account creation, have slow load times, or require multiple clicks to simulate.
+
+### Our Differentiation
+
+| Competitor Gap | Our Solution |
+|----------------|--------------|
+| Complex UI with ads | Clean, minimal interface with zero ads |
+| Account required | No login, works instantly |
+| Opaque algorithms | Open-source, documented simulation logic |
+| Standalone product | Integrated into blog, shareable results |
+| Premium features locked | 100% free, all features available |
+| Heavy JavaScript frameworks | Vanilla JS, loads in < 1 second |
+
+### Target Use Cases
+
+Unlike MyGameSim (serious bettors) or Basketball GM (franchise sim enthusiasts), we target:
+
+- **Casual fans** who want quick "what if" matchups
+- **Blog readers** looking for interactive content
+- **Developers** who want to learn simulation algorithms
+- **Social sharers** who want to debate game predictions
+
 ## Architecture
 
 ```
