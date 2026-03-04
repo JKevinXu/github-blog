@@ -89,7 +89,9 @@ This integration requires managing OAuth with **two** separate platforms simulta
 
 Zoom supports three auth models. For a Salesforce integration, two are relevant:
 
-#### Option A: Server-to-Server OAuth (Recommended for Org-Wide Access)
+#### Option A: Server-to-Server OAuth (Recommended for Org-Wide Access) [📄 docs](https://developers.zoom.us/docs/internal-apps/s2s-oauth/)
+
+> [Zoom Server-to-Server OAuth docs](https://developers.zoom.us/docs/internal-apps/s2s-oauth/)
 
 Server-to-Server OAuth apps use account-level credentials and don't require user interaction. Best when the integration acts on behalf of the Zoom account (e.g., an admin-provisioned integration).
 
@@ -122,7 +124,7 @@ Key details:
 - Scopes are configured at app creation time in the Zoom Marketplace
 - The `account_id` is your Zoom account ID, found in the Zoom Admin portal
 
-#### Option B: OAuth 2.0 Authorization Code (Per-User Access)
+#### Option B: OAuth 2.0 Authorization Code (Per-User Access) [📄 docs](https://developers.zoom.us/docs/integrations/oauth/)
 
 Use this when each Salesforce user connects their own Zoom account. Supports user-level scopes and respects individual Zoom permissions.
 
@@ -168,14 +170,14 @@ Key details:
 
 On the Salesforce side, you need a Connected App for any external service that calls Salesforce APIs.
 
-#### Connected App Setup
+#### Connected App Setup [📄 docs](https://help.salesforce.com/s/articleView?id=sf.connected_app_create.htm)
 
 In Salesforce Setup, create a Connected App with:
 - **OAuth Scopes**: `api`, `refresh_token`, `offline_access`
 - **Callback URL**: Your middleware's callback endpoint
 - **IP Relaxation**: Set to "Relax IP restrictions" for server-to-server or configure trusted IP ranges
 
-#### Token Endpoints
+#### Token Endpoints [📄 docs](https://help.salesforce.com/s/articleView?id=sf.remoteaccess_oauth_web_server_flow.htm)
 
 **Authorization**: `https://login.salesforce.com/services/oauth2/authorize` (production) or `https://test.salesforce.com/services/oauth2/authorize` (sandbox)
 
@@ -204,7 +206,7 @@ grant_type=authorization_code
 
 Critical: always use the `instance_url` from the token response for subsequent API calls — don't hardcode it. Salesforce orgs can be on different instances and can be migrated.
 
-#### Salesforce Named Credentials (For Apex-Direct Pattern)
+#### Salesforce Named Credentials (For Apex-Direct Pattern) [📄 docs](https://help.salesforce.com/s/articleView?id=sf.named_credentials_about.htm)
 
 If calling Zoom from Apex, Salesforce Named Credentials handle OAuth automatically:
 
@@ -224,17 +226,17 @@ For the middleware pattern, you need a secure token store:
 - **Audit access** — Log every token read/write for compliance
 - **Handle revocation** — If a user disconnects, revoke both the Salesforce and Zoom tokens via their respective revocation endpoints
 
-**Zoom token revocation**: `POST https://zoom.us/oauth/revoke?token={access_token}`
+**Zoom token revocation**: `POST https://zoom.us/oauth/revoke?token={access_token}` [📄 docs](https://developers.zoom.us/docs/integrations/oauth/#revoking-an-access-token)
 
-**Salesforce token revocation**: `POST https://login.salesforce.com/services/oauth2/revoke?token={refresh_token}`
+**Salesforce token revocation**: `POST https://login.salesforce.com/services/oauth2/revoke?token={refresh_token}` [📄 docs](https://help.salesforce.com/s/articleView?id=sf.remoteaccess_revoke_token.htm)
 
 ---
 
-## Key Zoom API Endpoints
+## Key Zoom API Endpoints [📄 REST API docs](https://developers.zoom.us/docs/api/)
 
 All Zoom REST API endpoints use the base URL `https://api.zoom.us/v2`. Authentication is via Bearer token in the `Authorization` header.
 
-### Create a Meeting
+### Create a Meeting [📄 docs](https://developers.zoom.us/docs/api/rest/reference/zoom-api/methods/#operation/meetingCreate)
 
 ```
 POST /users/{userId}/meetings
@@ -268,7 +270,7 @@ POST /users/{userId}/meetings
 
 The `join_url` is what you store on the Salesforce Event record. The `id` is what you use for all subsequent API calls related to this meeting.
 
-### List Meetings
+### List Meetings [📄 docs](https://developers.zoom.us/docs/api/rest/reference/zoom-api/methods/#operation/meetings)
 
 ```
 GET /users/{userId}/meetings?type=scheduled&page_size=30&next_page_token={token}
@@ -276,7 +278,7 @@ GET /users/{userId}/meetings?type=scheduled&page_size=30&next_page_token={token}
 
 Paginated response. Use `next_page_token` for subsequent pages. Maximum `page_size` is 300.
 
-### Get Meeting Details
+### Get Meeting Details [📄 docs](https://developers.zoom.us/docs/api/rest/reference/zoom-api/methods/#operation/meeting)
 
 ```
 GET /meetings/{meetingId}
@@ -284,7 +286,7 @@ GET /meetings/{meetingId}
 
 Returns full meeting metadata including settings, recurrence, and current status.
 
-### Get Past Meeting Participants
+### Get Past Meeting Participants [📄 docs](https://developers.zoom.us/docs/api/rest/reference/zoom-api/methods/#operation/pastMeetingParticipants)
 
 ```
 GET /past_meetings/{meetingId}/participants?page_size=30
@@ -309,7 +311,7 @@ This is the endpoint that powers post-meeting activity logging. It returns:
 
 The `user_email` field is the critical link for mapping back to Salesforce Contacts/Leads (more on this below).
 
-### List Meeting Recordings
+### List Meeting Recordings [📄 docs](https://developers.zoom.us/docs/api/rest/reference/zoom-api/methods/#operation/recordingGet)
 
 ```
 GET /meetings/{meetingId}/recordings
@@ -335,7 +337,7 @@ Returns cloud recording files with download URLs:
 
 Note: Download URLs require the access token as a query parameter (`?access_token=...`) or in the Authorization header. They expire — don't store them permanently; store the recording ID and fetch a fresh URL when needed.
 
-### Get Meeting Summary (AI Companion)
+### Get Meeting Summary (AI Companion) [📄 docs](https://developers.zoom.us/docs/api/rest/reference/zoom-api/methods/#operation/meetingSummary)
 
 ```
 GET /meetings/{meetingId}/meeting_summary
@@ -359,7 +361,7 @@ If the Zoom account has AI Companion enabled, this returns:
 
 This is high-value data to push into Salesforce Activity records or Opportunity notes.
 
-### Zoom Webhooks
+### Zoom Webhooks [📄 docs](https://developers.zoom.us/docs/api/rest/webhook-reference/)
 
 Instead of polling, Zoom can push events to your middleware:
 
@@ -377,9 +379,9 @@ Instead of polling, Zoom can push events to your middleware:
 
 ---
 
-## Key Salesforce API Endpoints
+## Key Salesforce API Endpoints [📄 REST API docs](https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/intro_rest.htm)
 
-### Create an Event (Activity Log)
+### Create an Event (Activity Log) [📄 docs](https://developer.salesforce.com/docs/atlas.en-us.object_reference.meta/object_reference/sforce_api_objects_event.htm)
 
 ```
 POST /services/data/v62.0/sobjects/Event
@@ -404,7 +406,7 @@ POST /services/data/v62.0/sobjects/Event
 - `WhatId` = Opportunity, Account, or Case ID (the "Related To" relation)
 - Custom fields (`Zoom_Meeting_ID__c`, `Zoom_Recording_URL__c`) require custom field creation in Salesforce Setup
 
-### Create a Task (Follow-Up)
+### Create a Task (Follow-Up) [📄 docs](https://developer.salesforce.com/docs/atlas.en-us.object_reference.meta/object_reference/sforce_api_objects_task.htm)
 
 ```
 POST /services/data/v62.0/sobjects/Task
@@ -423,7 +425,7 @@ POST /services/data/v62.0/sobjects/Task
 }
 ```
 
-### Query Contacts by Email (Participant Mapping)
+### Query Contacts by Email (Participant Mapping) [📄 docs](https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/resources_query.htm)
 
 ```
 GET /services/data/v62.0/query?q=SELECT+Id,Name,Email,AccountId+FROM+Contact+WHERE+Email='jane@acme.com'
@@ -435,7 +437,7 @@ This is how you map Zoom participants (identified by email) to Salesforce record
 GET /services/data/v62.0/query?q=SELECT+Id,Name,Email+FROM+Lead+WHERE+Email='jane@acme.com'+AND+IsConverted=false
 ```
 
-### Update Opportunity Fields
+### Update Opportunity Fields [📄 docs](https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/resources_sobject_retrieve.htm)
 
 ```
 PATCH /services/data/v62.0/sobjects/Opportunity/{opportunityId}
@@ -449,7 +451,7 @@ PATCH /services/data/v62.0/sobjects/Opportunity/{opportunityId}
 }
 ```
 
-### Salesforce Platform Events (For Real-Time Updates)
+### Salesforce Platform Events (For Real-Time Updates) [📄 docs](https://developer.salesforce.com/docs/atlas.en-us.platform_events.meta/platform_events/platform_events_publish_api.htm)
 
 Instead of the middleware directly updating Salesforce records, publish a Platform Event and let Salesforce-side automation handle the business logic:
 
@@ -495,7 +497,7 @@ Mapping Zoom participants to Salesforce records is the integration's trickiest c
 
 ## Rate Limits and Throttling
 
-### Zoom Rate Limits
+### Zoom Rate Limits [📄 docs](https://developers.zoom.us/docs/api/rest/rate-limits/)
 
 Zoom categorizes API endpoints into rate limit tiers:
 
@@ -513,7 +515,7 @@ Rate limit headers in responses:
 
 When rate-limited, Zoom returns `429 Too Many Requests`. Implement exponential backoff with jitter.
 
-### Salesforce API Limits
+### Salesforce API Limits [📄 docs](https://developer.salesforce.com/docs/atlas.en-us.salesforce_app_limits_cheatsheet.meta/salesforce_app_limits_cheatsheet/salesforce_app_limits_platform_api.htm)
 
 Salesforce limits depend on org edition:
 
