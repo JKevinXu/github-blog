@@ -216,6 +216,130 @@ If calling Zoom from Apex, Salesforce Named Credentials handle OAuth automatical
 
 This eliminates manual token management from Apex code entirely.
 
+### Bridging User Identity: Salesforce to Zoom [📄 Salesforce Identity URL docs](https://help.salesforce.com/s/articleView?id=sf.remoteaccess_using_openid.htm)
+
+A critical piece of the integration is knowing **who the current Salesforce user is** and mapping them to a Zoom user so that API calls act on behalf of the right person.
+
+#### Getting the Salesforce User Identity
+
+When your middleware (or Apex code) completes the Salesforce OAuth flow, the token response includes an `id` field — this is the **Identity URL**:
+
+```json
+{
+  "access_token": "00D5g00000...",
+  "refresh_token": "5Aep861...",
+  "instance_url": "https://yourorg.my.salesforce.com",
+  "id": "https://login.salesforce.com/id/00D5g000000XXXX/0055g000000YYYY",
+  "token_type": "Bearer"
+}
+```
+
+The `id` URL encodes two things: the Org ID (`00D5g000000XXXX`) and the User ID (`0055g000000YYYY`). Calling `GET` on this URL with the access token returns the full user profile:
+
+```
+GET https://login.salesforce.com/id/00D5g000000XXXX/0055g000000YYYY
+Authorization: Bearer {salesforce_access_token}
+```
+
+**Response** (key fields):
+
+```json
+{
+  "user_id": "0055g000000YYYY",
+  "organization_id": "00D5g000000XXXX",
+  "username": "kevin@company.com",
+  "email": "kevin@company.com",
+  "display_name": "Kevin Xu",
+  "first_name": "Kevin",
+  "last_name": "Xu",
+  "photos": {
+    "picture": "https://yourorg.my.salesforce.com/img/userprofile/...",
+    "thumbnail": "https://yourorg.my.salesforce.com/img/userprofile/..."
+  },
+  "urls": {
+    "sobjects": "https://yourorg.my.salesforce.com/services/data/v62.0/sobjects/",
+    "query": "https://yourorg.my.salesforce.com/services/data/v62.0/query/"
+  }
+}
+```
+
+Alternatively, you can query the User object directly:
+
+```
+GET /services/data/v62.0/sobjects/User/{userId}
+```
+
+The field that matters most here is `email` — this is the bridge to Zoom.
+
+#### Passing the Identity into Zoom API Calls
+
+Zoom's REST API identifies users by **Zoom user ID** or **email address**. Most Zoom endpoints that take a `{userId}` path parameter accept an email as a valid value. This means the Salesforce user's email becomes the key that links the two systems.
+
+**Creating a meeting on behalf of a Salesforce user:**
+
+Once you have the user's email from the Salesforce identity response, pass it directly as the `{userId}` in Zoom API calls:
+
+```
+POST /users/kevin@company.com/meetings
+Authorization: Bearer {zoom_access_token}
+```
+
+This creates a meeting owned by the Zoom user whose email matches the Salesforce user. The Zoom API resolves the email to the correct Zoom account internally.
+
+**Listing a user's meetings:**
+
+```
+GET /users/kevin@company.com/meetings?type=scheduled
+Authorization: Bearer {zoom_access_token}
+```
+
+**Getting a user's Zoom profile** to verify the mapping: [📄 docs](https://developers.zoom.us/docs/api/rest/reference/zoom-api/methods/#operation/user)
+
+```
+GET /users/kevin@company.com
+Authorization: Bearer {zoom_access_token}
+```
+
+**Response:**
+
+```json
+{
+  "id": "z8dh3kLqR5uT...",
+  "email": "kevin@company.com",
+  "first_name": "Kevin",
+  "last_name": "Xu",
+  "type": 2,
+  "status": "active",
+  "pmi": 1234567890
+}
+```
+
+The `id` returned here is the Zoom-native user ID. You can store this alongside the Salesforce User ID in your mapping table for faster lookups in subsequent calls, avoiding the email-based resolution overhead.
+
+#### Identity Mapping Table
+
+In practice, your middleware maintains a mapping table like:
+
+| Salesforce User ID | Salesforce Email | Zoom User ID | Zoom Email | Last Verified |
+|---|---|---|---|---|
+| `0055g000000YYYY` | kevin@company.com | `z8dh3kLqR5uT...` | kevin@company.com | 2026-03-04 |
+| `0055g000000ZZZZ` | jane@company.com | `p4jk7mNqW2xV...` | jane@company.com | 2026-03-03 |
+
+**When emails don't match:** Some organizations use different email domains for Salesforce (e.g., `kevin@company.com`) and Zoom (e.g., `kevin@company.zoom.us`), or users may have registered Zoom with a personal email. Handle this by:
+
+1. **First login mapping** — When a user first authorizes both Salesforce and Zoom via OAuth, capture both emails and store the mapping regardless of whether they match.
+2. **Admin override** — Provide a custom Salesforce field (`Zoom_Email__c` on the User object) that admins can populate when the emails differ.
+3. **Zoom SCIM API** — If the organization uses SCIM provisioning for Zoom, query `GET /scim2/Users?filter=userName eq "kevin@company.com"` to find the Zoom user by their provisioned identity. [📄 docs](https://developers.zoom.us/docs/api/rest/reference/scim-api/methods/#operation/searchUsers)
+
+#### Authorization Scope Matters
+
+The Zoom API endpoint `GET /users/{email}` and `POST /users/{email}/meetings` behave differently depending on auth type:
+
+- **Server-to-Server OAuth** — Can act on behalf of **any user** in the Zoom account. The email in the path determines which user. This is the simplest model for a centralized integration.
+- **OAuth Authorization Code (per-user)** — Can only act on behalf of the **authenticated user**. Use `me` as the `{userId}` value, and the token's associated user is implied. You cannot use another user's email unless the authenticated user has admin scopes.
+
+This distinction determines your architecture: Server-to-Server OAuth lets a single middleware act for all users using their Salesforce email as the Zoom identifier, while per-user OAuth requires each Salesforce user to independently authorize Zoom and you use `me` in all calls.
+
 ### Token Storage and Security
 
 For the middleware pattern, you need a secure token store:
